@@ -5,13 +5,14 @@ import { Modal, Button, Tabs, Form, Input, Avatar, Dropdown } from "antd";
 import {
   UserOutlined,
   MenuOutlined,
-  GoogleOutlined,
   GithubOutlined,
   ProfileOutlined,
   SettingOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
 import scrollTop from "../../config/scrollTop";
+import { GoogleLogin } from "@react-oauth/google";
+import commonApi from "../../common/api";
 
 const { TabPane } = Tabs;
 
@@ -26,19 +27,44 @@ const Header = () => {
     setIsModalOpen(true);
   };
 
-  const handleLogin = (values) => {
-    setIsModalOpen(false);
-    setIsLoggedIn(true);
+  const handleLogin = async (values) => {
+    const dataResponse = await fetch(commonApi.signIn.url, {
+      method: commonApi.signIn.method,
+      // credentials: "include",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(values),
+    });
   };
 
-  const handleRegister = (values) => {
-    setIsModalOpen(false);
-    setIsLoggedIn(true);
-    notification.success({
-      message: "Registration Successful",
-      description: "Welcome to CodeVerse! You have successfully registered.",
-      placement: "topRight",
+  const handleRegister = async (values) => {
+    const dataResponse = await fetch(commonApi.signUP.url, {
+      method: commonApi.signUP.method,
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(values),
     });
+
+    if (dataResponse.status === 200) {
+      const result = await dataResponse.json();
+      setIsModalOpen(false);
+      setIsLoggedIn(true);
+      const token = result?.result?.token;
+
+      notification.success({
+        message: "Registration Successful",
+        description: "Welcome to CodeVerse! You have successfully registered.",
+        placement: "topRight",
+      });
+    } else {
+      notification.error({
+        message: "Registration fail!",
+        description: "Have error",
+        placement: "topRight",
+      });
+    }
   };
 
   const userMenu = (
@@ -86,6 +112,22 @@ const Header = () => {
     location.pathname.startsWith(path)
       ? "border-b-[#2c31cf] text-[#2c31cf]"
       : "border-transparent text-[#3b3c54]";
+
+  const handleGoogleSuccess = async (response) => {
+    try {
+      const res = await fetch(commonApi.googleLogin.url, {
+        method: commonApi.googleLogin.method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ token: response.credential }),
+      });
+
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
 
   return (
     <>
@@ -214,25 +256,25 @@ const Header = () => {
               </Form.Item>
             </Form>
 
-            <div className="my-4 flex items-center justify-center gap-2 text-gray-400">
-              <div className="h-[1px] bg-gray-300 flex-1" />
-              or login with
-              <div className="h-[1px] bg-gray-300 flex-1" />
-            </div>
+            <div className="my-6">
+              <div className="flex items-center text-gray-400 text-sm mb-4">
+                <div className="flex-1 h-px bg-gray-300" />
+                <span className="mx-3 whitespace-nowrap">or login with</span>
+                <div className="flex-1 h-px bg-gray-300" />
+              </div>
 
-            <div className="flex justify-center gap-3">
-              <Button
-                icon={<GoogleOutlined />}
-                className="flex items-center gap-2 border hover:border-[#4d96ff]"
-              >
-                Google
-              </Button>
-              <Button
-                icon={<GithubOutlined />}
-                className="flex items-center gap-2 border hover:border-[#4d96ff]"
-              >
-                GitHub
-              </Button>
+              <div className="flex justify-center gap-4 flex-wrap">
+                <div className="w-fit flex justify-center">
+                  <GoogleLogin onSuccess={handleGoogleSuccess} />
+                </div>
+
+                <Button
+                  icon={<GithubOutlined />}
+                  className="flex items-center justify-center gap-2 border hover:border-[#4d96ff] min-w-[150px]"
+                >
+                  GitHub
+                </Button>
+              </div>
             </div>
           </TabPane>
 

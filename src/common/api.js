@@ -1,4 +1,4 @@
-const backendDomain = "http://localhost:8080";
+const backendDomain = "http://localhost:8080/codeVerse";
 
 const commonApi = {
     default: {
@@ -7,15 +7,15 @@ const commonApi = {
 
     /** User api */
     signUP: {
-        url: `${backendDomain}/api/signup`,
+        url: `${backendDomain}/auth/signup`,
         method: "post"
     },
     signIn: {
-        url: `${backendDomain}/api/signin`,
+        url: `${backendDomain}/auth/login`,
         method: "post"
     },
     googleLogin: {
-        url: `${backendDomain}/api/googleLogin`,
+        url: `${backendDomain}/auth/googleLogin`,
         method: "post"
     },
 }
