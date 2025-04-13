@@ -197,7 +197,6 @@ const Home = () => {
         </div>
       </section>
 
-
       <section className="bg-[#111827] text-white py-20 px-4">
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-6">

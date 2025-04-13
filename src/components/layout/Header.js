@@ -11,6 +11,7 @@ import {
   SettingOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
+import scrollTop from "../../config/scrollTop";
 
 const { TabPane } = Tabs;
 
@@ -99,15 +100,17 @@ const Header = () => {
           </Link>
           <div className="hidden lg:flex h-full gap-8 text-[15px] font-[600]">
             <Link
-              to="/courses"
+              to="/course"
+              onClick={scrollTop}
               className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(
-                "/courses"
+                "/course"
               )} hover:text-[#2c31cf] hover:border-b-[#2c31cf]`}
             >
               Courses
             </Link>
             <Link
               to="/practice"
+              onClick={scrollTop}
               className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(
                 "/practice"
               )} hover:text-[#2c31cf] hover:border-b-[#2c31cf]`}
@@ -116,6 +119,7 @@ const Header = () => {
             </Link>
             <Link
               to="/fights"
+              onClick={scrollTop}
               className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(
                 "/fights"
               )} hover:text-[#2c31cf] hover:border-b-[#2c31cf]`}
@@ -124,6 +128,7 @@ const Header = () => {
             </Link>
             <Link
               to="/challenges"
+              onClick={scrollTop}
               className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(
                 "/challenges"
               )} hover:text-[#2c31cf] hover:border-b-[#2c31cf]`}
