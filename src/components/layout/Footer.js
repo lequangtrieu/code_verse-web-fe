@@ -35,7 +35,9 @@ const Footer = () => {
 
         <div>
           <h4 className="font-semibold mb-2">CodeVerse</h4>
-          <p className="text-sm text-gray-300">Email: supportCodeVerse@gmail.com</p>
+          <p className="text-sm text-gray-300">
+            Email: supportCodeVerse@gmail.com
+          </p>
           <p className="text-sm text-gray-300">Hotline: +123 456 789</p>
         </div>
       </div>
