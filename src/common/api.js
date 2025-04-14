@@ -8,15 +8,15 @@ const commonApi = {
     /** User api */
     signUP: {
         url: `${backendDomain}/auth/signup`,
-        method: "post"
     },
     signIn: {
         url: `${backendDomain}/auth/login`,
-        method: "post"
     },
     googleLogin: {
         url: `${backendDomain}/auth/googleLogin`,
-        method: "post"
+    },
+    userDetail: {
+        url: `${backendDomain}/auth/userDetail`,
     },
 }
 

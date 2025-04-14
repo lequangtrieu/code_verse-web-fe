@@ -1,6 +1,17 @@
-import {useState} from "react";
-import {Link, useLocation} from "react-router-dom";
-import {Avatar, Button, Dropdown, Form, Input, Menu, Modal, notification, Tabs} from "antd";
+import { useContext, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import {
+  Avatar,
+  Button,
+  Dropdown,
+  Form,
+  Input,
+  Menu,
+  Modal,
+  notification,
+  Tabs,
+} from "antd";
+import { message } from "antd";
 import {
   GithubOutlined,
   LogoutOutlined,
@@ -10,10 +21,10 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import scrollTop from "../../config/scrollTop";
-import {GoogleLogin} from "@react-oauth/google";
+import { GoogleLogin } from "@react-oauth/google";
 import commonApi from "../../common/api";
 import axios from "axios";
-
+import Context from "../../config/context/context";
 
 const { TabPane } = Tabs;
 
@@ -22,6 +33,7 @@ const Header = () => {
   const [activeTab, setActiveTab] = useState("login");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
+  const { fetchUserDetails } = useContext(Context);
 
   const openModal = (tab) => {
     setActiveTab(tab);
@@ -29,37 +41,62 @@ const Header = () => {
   };
 
   const handleLogin = async (values) => {
-    const data = await axios.post(commonApi.signIn.url, values);
+    try {
+      const response = await axios.post(commonApi.signIn.url, values);
 
-    console.log("zzzzzzzzzz", data);
+      if (response.data?.result?.authenticated) {
+        localStorage.setItem("username", values.username);
+        localStorage.setItem("password", values.password);
+        localStorage.setItem("token", response.data?.result?.token);
+        message.success("Login successful!");
+        setIsModalOpen(false);
+        setIsLoggedIn(true);
+        fetchUserDetails();
+      } else {
+        message.error("Login failed, please try again.");
+      }
+    } catch (error) {
+      if (error.response) {
+        const { status, data } = error.response;
+
+        message.error(`Error ${status}: ${data.message || "Login failed."}`);
+      } else {
+        message.error("Unable to connect to the server.");
+      }
+    }
   };
 
   const handleRegister = async (values) => {
-    const dataResponse = await fetch(commonApi.signUP.url, {
-      method: commonApi.signUP.method,
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(values),
-    });
+    try {
+      const response = await axios.post(commonApi.signUP.url, values);
 
-    if (dataResponse.status === 200) {
-      const result = await dataResponse.json();
-      setIsModalOpen(false);
-      setIsLoggedIn(true);
-      const token = result?.result?.token;
+      if (response.status === 200) {
+        notification.success({
+          message: "Registration Successful",
+          description:
+            "Your account has been created successfully. Please check your email to verify your account before logging in.",
+          placement: "topRight",
+        });
+      }
+    } catch (error) {
+      if (error.response) {
+        const { status, data } = error.response;
 
-      notification.success({
-        message: "Registration Successful",
-        description: "Welcome to CodeVerse! You have successfully registered.",
-        placement: "topRight",
-      });
-    } else {
-      notification.error({
-        message: "Registration fail!",
-        description: "Have error",
-        placement: "topRight",
-      });
+        const errorMessage =
+          data?.message || "Registration failed. Please try again.";
+
+        notification.error({
+          message: `Registration Failed (Status ${status})`,
+          description: errorMessage,
+          placement: "topRight",
+        });
+      } else {
+        notification.error({
+          message: "Network Error",
+          description: "Cannot connect to the server. Please try again later.",
+          placement: "topRight",
+        });
+      }
     }
   };
 
@@ -111,15 +148,14 @@ const Header = () => {
 
   const handleGoogleSuccess = async (response) => {
     try {
-      const res = await fetch(commonApi.googleLogin.url, {
-        method: commonApi.googleLogin.method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ token: response.credential }),
-      });
-
+      // const res = await fetch(commonApi.googleLogin.url, {
+      //   method: commonApi.googleLogin.method,
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   credentials: "include",
+      //   body: JSON.stringify({ token: response.credential }),
+      // });
     } catch (error) {
       console.log("error: ", error);
     }
@@ -278,10 +314,8 @@ const Header = () => {
             <Form layout="vertical" onFinish={handleRegister}>
               <Form.Item
                 name="username"
-                label="Username"
-                rules={[
-                  { required: true, message: "Please input your username!" },
-                ]}
+                label="Name"
+                rules={[{ required: true, message: "Please input your name!" }]}
               >
                 <Input />
               </Form.Item>

@@ -3,10 +3,44 @@ import { Outlet } from "react-router-dom";
 import Context from "./config/context/context";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
+import commonApi from "./common/api";
+import { message } from "antd";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { setUserDetails } from "./config/store/userSlice";
 
 function App() {
+  const dispatch = useDispatch();
+  const fetchUserDetails = async () => {
+    const username = localStorage.getItem("username");
+    const password = localStorage.getItem("password");
+    const token = localStorage.getItem("token");
+
+    if (username && password && token) {
+      try {
+        const response = await axios.post(commonApi.userDetail.url, {
+          username,
+        });
+
+        dispatch(setUserDetails(response.data.result));
+      } catch (error) {
+        if (error.response) {
+          const { status, data } = error.response;
+
+          message.error(`Error ${status}: ${data.message || "Login failed."}`);
+        } else {
+          message.error("Unable to connect to the server.");
+        }
+      }
+    }
+  };
+
   return (
-    <Context.Provider>
+    <Context.Provider
+      value={{
+        fetchUserDetails,
+      }}
+    >
       <Header />
       <main className="min-h-[calc(100vh-120px)] pt-16">
         <Outlet />
