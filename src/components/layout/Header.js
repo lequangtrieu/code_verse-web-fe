@@ -1,18 +1,19 @@
-import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, notification } from "antd";
-import { Modal, Button, Tabs, Form, Input, Avatar, Dropdown } from "antd";
+import {useState} from "react";
+import {Link, useLocation} from "react-router-dom";
+import {Avatar, Button, Dropdown, Form, Input, Menu, Modal, notification, Tabs} from "antd";
 import {
-  UserOutlined,
-  MenuOutlined,
   GithubOutlined,
+  LogoutOutlined,
+  MenuOutlined,
   ProfileOutlined,
   SettingOutlined,
-  LogoutOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import scrollTop from "../../config/scrollTop";
-import { GoogleLogin } from "@react-oauth/google";
+import {GoogleLogin} from "@react-oauth/google";
 import commonApi from "../../common/api";
+import axios from "axios";
+
 
 const { TabPane } = Tabs;
 
@@ -28,14 +29,9 @@ const Header = () => {
   };
 
   const handleLogin = async (values) => {
-    const dataResponse = await fetch(commonApi.signIn.url, {
-      method: commonApi.signIn.method,
-      // credentials: "include",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(values),
-    });
+    const data = await axios.post(commonApi.signIn.url, values);
+
+    console.log("zzzzzzzzzz", data);
   };
 
   const handleRegister = async (values) => {
@@ -229,7 +225,7 @@ const Header = () => {
           <TabPane tab="Login" key="login">
             <Form layout="vertical" onFinish={handleLogin}>
               <Form.Item
-                name="email"
+                name="username"
                 label="Email"
                 rules={[{ required: true }]}
               >
