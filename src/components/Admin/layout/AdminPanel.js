@@ -26,6 +26,7 @@ const AdminPanel = () => {
 
   useEffect(() => {
     if (user?.role !== ROLE.ADMIN) {
+      message.error("You do not have permission to access the admin panel.");
       navigate("/");
     }
   }, [user]);
@@ -63,7 +64,7 @@ const AdminPanel = () => {
           <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
             Management Dashboard
           </Menu.Item>
-          <Menu.Item key="accounts" icon={<TeamOutlined  />}>
+          <Menu.Item key="accounts" icon={<TeamOutlined />}>
             Management Accounts
           </Menu.Item>
           <Menu.Item key="messages" icon={<MessageOutlined />}>
