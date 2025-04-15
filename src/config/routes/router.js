@@ -1,7 +1,6 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import App from "../../App";
 
-
 import Courses from "../../components/User/Courses/courses";
 import CourseDetail from "../../components/User/Courses/courseDetail";
 import Home from "../../components/layout/Home";
@@ -12,6 +11,7 @@ import AdminReviewPage from "../../components/Admin/AdminReview/AdminReviewPage"
 import AdminMessagePage from "../../components/Admin/AdminMessage/AdminMessagePage";
 import AdminProfilePage from "../../components/Admin/AdminProfile/AdminProfilePage";
 import AdminQuizPage from "../../components/Admin/AdminQuiz/AdminQuizPage";
+import AdminAccountsPage from "../../components/Admin/AdminAccount/AdminAccountsPage";
 
 const router = createBrowserRouter([
   {
@@ -49,12 +49,16 @@ const router = createBrowserRouter([
         element: <AdminPanel />,
         children: [
           {
+            path: "profile",
+            element: <AdminProfilePage />,
+          },
+          {
             path: "dashboard",
             element: <DashboardPage />,
           },
           {
-            path: "profile",
-            element: <AdminProfilePage />,
+            path: "accounts",
+            element: <AdminAccountsPage />,
           },
           {
             path: "messages",

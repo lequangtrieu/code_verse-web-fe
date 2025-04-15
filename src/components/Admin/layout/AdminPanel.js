@@ -12,6 +12,7 @@ import {
   QuestionCircleOutlined,
   SettingOutlined,
   LogoutOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
 import ROLE from "../../../common/role";
 import { setUserDetails } from "../../../config/store/userSlice";
@@ -46,7 +47,7 @@ const AdminPanel = () => {
 
   return (
     <Layout className="min-h-screen py-6">
-      <Sider width={250} className="bg-white shadow-md">
+      <Sider width={265} className="bg-white shadow-md">
         <div className="p-4 font-semibold uppercase text-gray-600 border-b">
           Welcome, {user?.username}
         </div>
@@ -56,23 +57,26 @@ const AdminPanel = () => {
           className="border-r-0"
           onClick={handleMenuClick}
         >
-          <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
-            Dashboard
-          </Menu.Item>
           <Menu.Item key="profile" icon={<UserOutlined />}>
             My Profile
           </Menu.Item>
+          <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
+            Management Dashboard
+          </Menu.Item>
+          <Menu.Item key="accounts" icon={<TeamOutlined  />}>
+            Management Accounts
+          </Menu.Item>
           <Menu.Item key="messages" icon={<MessageOutlined />}>
-            Message <Badge count={12} offset={[10, 0]} />
+            Management Messages <Badge count={12} offset={[10, 0]} />
           </Menu.Item>
           <Menu.Item key="courses" icon={<BookOutlined />}>
-            Courses
+            Management Courses
           </Menu.Item>
           <Menu.Item key="reviews" icon={<StarOutlined />}>
-            Reviews
+            Management Reviews
           </Menu.Item>
           <Menu.Item key="quiz" icon={<QuestionCircleOutlined />}>
-            Quiz Attempts
+            Management Quiz Attempts
           </Menu.Item>
 
           <div className="px-4 pt-4 pb-1 text-xs text-gray-500 font-semibold">

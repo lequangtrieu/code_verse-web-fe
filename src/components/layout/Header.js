@@ -195,9 +195,7 @@ const Header = () => {
     }
   };
 
-  useEffect(() => {
-    console.log("header", user);
-  }, [user]);
+  useEffect(() => {}, [user]);
   return (
     <>
       <div className="header-content transition-all duration-300 justify-between flex items-center h-[82px] px-4 bg-white fixed top-0 left-0 right-0 shadow z-50">
