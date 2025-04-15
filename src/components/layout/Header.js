@@ -1,5 +1,5 @@
-import { useContext, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Avatar,
   Button,
@@ -13,6 +13,7 @@ import {
 } from "antd";
 import { message } from "antd";
 import {
+  DashboardOutlined,
   GithubOutlined,
   LogoutOutlined,
   MenuOutlined,
@@ -25,13 +26,18 @@ import { GoogleLogin } from "@react-oauth/google";
 import commonApi from "../../common/api";
 import axios from "axios";
 import Context from "../../config/context/context";
+import { useDispatch, useSelector } from "react-redux";
+import { setUserDetails } from "../../config/store/userSlice";
+import ROLE from "../../common/role";
 
 const { TabPane } = Tabs;
 
 const Header = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state?.user?.user);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
   const { fetchUserDetails } = useContext(Context);
 
@@ -50,7 +56,6 @@ const Header = () => {
         localStorage.setItem("token", response.data?.result?.token);
         message.success("Login successful!");
         setIsModalOpen(false);
-        setIsLoggedIn(true);
         fetchUserDetails();
       } else {
         message.error("Login failed, please try again.");
@@ -100,45 +105,74 @@ const Header = () => {
     }
   };
 
+  const handleLogout = () => {
+    message.success("You have been logged out successfully.");
+    localStorage.clear();
+    dispatch(setUserDetails(null));
+    navigate("/");
+  };
+
+  const handleMenuClick = ({ key }) => {
+    switch (key) {
+      case "logout":
+        handleLogout();
+        break;
+      case "admin-dashboard":
+        scrollTop();
+        navigate("/admin-panel");
+        break;
+      case "my-profile":
+        navigate("/profile");
+        break;
+      case "settings":
+        navigate("/settings");
+        break;
+      default:
+        break;
+    }
+  };
+
   const userMenu = (
-    <Menu
-      items={[
-        {
-          key: "profile",
-          label: (
-            <div className="flex items-center gap-2 px-2 py-1">
-              <Avatar icon={<UserOutlined />} size="small" />
-              <div>
-                <div className="font-semibold">John Doe</div>
-                <div className="text-xs text-gray-400">john@example.com</div>
-              </div>
-            </div>
-          ),
-          disabled: true,
-        },
-        {
-          type: "divider",
-        },
-        {
-          key: "my-profile",
-          icon: <ProfileOutlined />,
-          label: "My Profile",
-        },
-        {
-          key: "settings",
-          icon: <SettingOutlined />,
-          label: "Settings",
-        },
-        {
-          type: "divider",
-        },
-        {
-          key: "logout",
-          icon: <LogoutOutlined />,
-          label: <span className="text-red-500">Logout</span>,
-        },
-      ]}
-    />
+    <Menu onClick={handleMenuClick}>
+      <Menu.Item
+        key="profile"
+        disabled
+        className="cursor-default hover:!bg-white"
+      >
+        <div className="flex items-center gap-2 px-2 py-1">
+          <Avatar
+            icon={user?.avatar ? user?.avatar : <UserOutlined />}
+            size="small"
+          />
+          <div>
+            <div className="font-semibold">{user?.username}</div>
+            <div className="text-xs text-gray-400">{user?.email}</div>
+          </div>
+        </div>
+      </Menu.Item>
+
+      <Menu.Divider />
+
+      {user?.role === ROLE.ADMIN && (
+        <Menu.Item key="admin-dashboard" icon={<DashboardOutlined />}>
+          Admin Dashboard
+        </Menu.Item>
+      )}
+
+      <Menu.Item key="my-profile" icon={<ProfileOutlined />}>
+        My Profile
+      </Menu.Item>
+
+      <Menu.Item key="settings" icon={<SettingOutlined />}>
+        Settings
+      </Menu.Item>
+
+      <Menu.Divider />
+
+      <Menu.Item key="logout" icon={<LogoutOutlined />}>
+        <span className="text-red-500">Logout</span>
+      </Menu.Item>
+    </Menu>
   );
 
   const checkActive = (path) =>
@@ -161,6 +195,9 @@ const Header = () => {
     }
   };
 
+  useEffect(() => {
+    console.log("header", user);
+  }, [user]);
   return (
     <>
       <div className="header-content transition-all duration-300 justify-between flex items-center h-[82px] px-4 bg-white fixed top-0 left-0 right-0 shadow z-50">
@@ -213,7 +250,7 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          {isLoggedIn ? (
+          {user?.role ? (
             <Dropdown
               overlay={userMenu}
               placement="bottomRight"

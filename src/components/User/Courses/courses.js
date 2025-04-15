@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Input, Menu, Card, Pagination, Rate, Tag } from "antd";
 import { SearchOutlined, HeartOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import scrollTop from "../../config/scrollTop";
+import scrollTop from "../../../config/scrollTop";
+
 
 const { Search } = Input;
 
