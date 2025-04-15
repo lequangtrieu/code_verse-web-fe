@@ -12,6 +12,7 @@ import {
   QuestionCircleOutlined,
   SettingOutlined,
   LogoutOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
 import ROLE from "../../../common/role";
 import { setUserDetails } from "../../../config/store/userSlice";
@@ -62,7 +63,7 @@ const AdminPanel = () => {
           <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
             Management Dashboard
           </Menu.Item>
-          <Menu.Item key="accounts" icon={<DashboardOutlined />}>
+          <Menu.Item key="accounts" icon={<TeamOutlined  />}>
             Management Accounts
           </Menu.Item>
           <Menu.Item key="messages" icon={<MessageOutlined />}>
