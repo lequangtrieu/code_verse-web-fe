@@ -1,14 +1,10 @@
 import { Button, Carousel, Avatar } from "antd";
 import { Link } from "react-router-dom";
 import {
-  FaCode,
-  FaTrophy,
   FaPuzzlePiece,
   FaUsers,
   FaChalkboardTeacher,
   FaRocket,
-  FaLaptopCode,
-  FaGraduationCap,
   FaQuoteLeft,
 } from "react-icons/fa";
 
@@ -17,29 +13,29 @@ const reviews = [
     name: "Alex, 14 years old",
     comment:
       "CodeVerse made coding exciting and easy to understand. I've built my first app at 14!",
-    avatar: "/avatar1.png",
+    avatar: "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg",
   },
   {
     name: "Sara, 13 years old",
     comment:
       "I love the challenges! They help me think critically and improve every day.",
-    avatar: "/avatar2.png",
+    avatar: "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg",
   },
   {
     name: "Minh, 15 tuổi",
     comment: "Bài giảng rất dễ hiểu, mình cảm thấy tự tin hơn khi lập trình!",
-    avatar: "/avatar3.png",
+    avatar: "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg",
   },
   {
     name: "Linh, 12 tuổi",
     comment:
       "Giao diện đẹp, dễ sử dụng và nội dung rất phù hợp cho người mới học.",
-    avatar: "/avatar4.png",
+    avatar: "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg",
   },
   {
     name: "David, 16 years old",
     comment: "Learning to code has never been this fun. CodeVerse rocks!",
-    avatar: "/avatar5.png",
+    avatar: "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg",
   },
 ];
 

@@ -1,8 +1,17 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import App from "../../App";
+
+
+import Courses from "../../components/User/Courses/courses";
+import CourseDetail from "../../components/User/Courses/courseDetail";
 import Home from "../../components/layout/Home";
-import CourseDetail from "../../components/Courses/courseDetail";
-import Courses from "../../components/Courses/courses";
+import DashboardPage from "../../components/Admin/AdminDashBoard/DashboardPage";
+import AdminPanel from "../../components/Admin/layout/AdminPanel";
+import AdminCoursesPage from "../../components/Admin/AdminCourses/AdminCoursesPage";
+import AdminReviewPage from "../../components/Admin/AdminReview/AdminReviewPage";
+import AdminMessagePage from "../../components/Admin/AdminMessage/AdminMessagePage";
+import AdminProfilePage from "../../components/Admin/AdminProfile/AdminProfilePage";
+import AdminQuizPage from "../../components/Admin/AdminQuiz/AdminQuizPage";
 
 const router = createBrowserRouter([
   {
@@ -33,28 +42,46 @@ const router = createBrowserRouter([
         path: "challenges",
         element: <Home />,
       },
-      // {
-      //   path: "sign-up",
-      //   element: <SignUp />,
-      // },
-      // {
-      //   path: "login",
-      //   element: <Login />,
-      // },
-      // {
-      //   path: "forgot-password",
-      //   element: <ForgotPassowrd />,
-      // },
-      // {
-      //   path: "",
-      //   element: <Home />,
-      // },
-      // {
-      //   path: "admin-panel",
-      //   element: <AdminPanel />,
-      //   children: [
-      //   ],
-      // },
+
+      // ADMIN
+      {
+        path: "admin-panel",
+        element: <AdminPanel />,
+        children: [
+          {
+            path: "dashboard",
+            element: <DashboardPage />,
+          },
+          {
+            path: "profile",
+            element: <AdminProfilePage />,
+          },
+          {
+            path: "messages",
+            element: <AdminMessagePage />,
+          },
+          {
+            path: "courses",
+            element: <AdminCoursesPage />,
+          },
+          {
+            path: "reviews",
+            element: <AdminReviewPage />,
+          },
+          {
+            path: "quiz",
+            element: <AdminQuizPage />,
+          },
+          {
+            path: "settings",
+            element: <DashboardPage />,
+          },
+          {
+            path: "",
+            element: <Navigate to="dashboard" />,
+          },
+        ],
+      },
     ],
   },
 ]);

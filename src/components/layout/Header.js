@@ -1,85 +1,178 @@
-import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, notification } from "antd";
-import { Modal, Button, Tabs, Form, Input, Avatar, Dropdown } from "antd";
+import { useContext, useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
-  UserOutlined,
-  MenuOutlined,
-  GoogleOutlined,
+  Avatar,
+  Button,
+  Dropdown,
+  Form,
+  Input,
+  Menu,
+  Modal,
+  notification,
+  Tabs,
+} from "antd";
+import { message } from "antd";
+import {
+  DashboardOutlined,
   GithubOutlined,
+  LogoutOutlined,
+  MenuOutlined,
   ProfileOutlined,
   SettingOutlined,
-  LogoutOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import scrollTop from "../../config/scrollTop";
+import { GoogleLogin } from "@react-oauth/google";
+import commonApi from "../../common/api";
+import axios from "axios";
+import Context from "../../config/context/context";
+import { useDispatch, useSelector } from "react-redux";
+import { setUserDetails } from "../../config/store/userSlice";
+import ROLE from "../../common/role";
 
 const { TabPane } = Tabs;
 
 const Header = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state?.user?.user);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
+  const { fetchUserDetails } = useContext(Context);
 
   const openModal = (tab) => {
     setActiveTab(tab);
     setIsModalOpen(true);
   };
 
-  const handleLogin = (values) => {
-    setIsModalOpen(false);
-    setIsLoggedIn(true);
+  const handleLogin = async (values) => {
+    try {
+      const response = await axios.post(commonApi.signIn.url, values);
+
+      if (response.data?.result?.authenticated) {
+        localStorage.setItem("username", values.username);
+        localStorage.setItem("password", values.password);
+        localStorage.setItem("token", response.data?.result?.token);
+        message.success("Login successful!");
+        setIsModalOpen(false);
+        fetchUserDetails();
+      } else {
+        message.error("Login failed, please try again.");
+      }
+    } catch (error) {
+      if (error.response) {
+        const { status, data } = error.response;
+
+        message.error(`Error ${status}: ${data.message || "Login failed."}`);
+      } else {
+        message.error("Unable to connect to the server.");
+      }
+    }
   };
 
-  const handleRegister = (values) => {
-    setIsModalOpen(false);
-    setIsLoggedIn(true);
-    notification.success({
-      message: "Registration Successful",
-      description: "Welcome to CodeVerse! You have successfully registered.",
-      placement: "topRight",
-    });
+  const handleRegister = async (values) => {
+    try {
+      const response = await axios.post(commonApi.signUP.url, values);
+
+      if (response.status === 200) {
+        notification.success({
+          message: "Registration Successful",
+          description:
+            "Your account has been created successfully. Please check your email to verify your account before logging in.",
+          placement: "topRight",
+        });
+      }
+    } catch (error) {
+      if (error.response) {
+        const { status, data } = error.response;
+
+        const errorMessage =
+          data?.message || "Registration failed. Please try again.";
+
+        notification.error({
+          message: `Registration Failed (Status ${status})`,
+          description: errorMessage,
+          placement: "topRight",
+        });
+      } else {
+        notification.error({
+          message: "Network Error",
+          description: "Cannot connect to the server. Please try again later.",
+          placement: "topRight",
+        });
+      }
+    }
+  };
+
+  const handleLogout = () => {
+    message.success("You have been logged out successfully.");
+    localStorage.clear();
+    dispatch(setUserDetails(null));
+    navigate("/");
+  };
+
+  const handleMenuClick = ({ key }) => {
+    switch (key) {
+      case "logout":
+        handleLogout();
+        break;
+      case "admin-dashboard":
+        scrollTop();
+        navigate("/admin-panel");
+        break;
+      case "my-profile":
+        navigate("/profile");
+        break;
+      case "settings":
+        navigate("/settings");
+        break;
+      default:
+        break;
+    }
   };
 
   const userMenu = (
-    <Menu
-      items={[
-        {
-          key: "profile",
-          label: (
-            <div className="flex items-center gap-2 px-2 py-1">
-              <Avatar icon={<UserOutlined />} size="small" />
-              <div>
-                <div className="font-semibold">John Doe</div>
-                <div className="text-xs text-gray-400">john@example.com</div>
-              </div>
-            </div>
-          ),
-          disabled: true,
-        },
-        {
-          type: "divider",
-        },
-        {
-          key: "my-profile",
-          icon: <ProfileOutlined />,
-          label: "My Profile",
-        },
-        {
-          key: "settings",
-          icon: <SettingOutlined />,
-          label: "Settings",
-        },
-        {
-          type: "divider",
-        },
-        {
-          key: "logout",
-          icon: <LogoutOutlined />,
-          label: <span className="text-red-500">Logout</span>,
-        },
-      ]}
-    />
+    <Menu onClick={handleMenuClick}>
+      <Menu.Item
+        key="profile"
+        disabled
+        className="cursor-default hover:!bg-white"
+      >
+        <div className="flex items-center gap-2 px-2 py-1">
+          <Avatar
+            icon={user?.avatar ? user?.avatar : <UserOutlined />}
+            size="small"
+          />
+          <div>
+            <div className="font-semibold">{user?.username}</div>
+            <div className="text-xs text-gray-400">{user?.email}</div>
+          </div>
+        </div>
+      </Menu.Item>
+
+      <Menu.Divider />
+
+      {user?.role === ROLE.ADMIN && (
+        <Menu.Item key="admin-dashboard" icon={<DashboardOutlined />}>
+          Admin Dashboard
+        </Menu.Item>
+      )}
+
+      <Menu.Item key="my-profile" icon={<ProfileOutlined />}>
+        My Profile
+      </Menu.Item>
+
+      <Menu.Item key="settings" icon={<SettingOutlined />}>
+        Settings
+      </Menu.Item>
+
+      <Menu.Divider />
+
+      <Menu.Item key="logout" icon={<LogoutOutlined />}>
+        <span className="text-red-500">Logout</span>
+      </Menu.Item>
+    </Menu>
   );
 
   const checkActive = (path) =>
@@ -87,6 +180,24 @@ const Header = () => {
       ? "border-b-[#2c31cf] text-[#2c31cf]"
       : "border-transparent text-[#3b3c54]";
 
+  const handleGoogleSuccess = async (response) => {
+    try {
+      // const res = await fetch(commonApi.googleLogin.url, {
+      //   method: commonApi.googleLogin.method,
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   credentials: "include",
+      //   body: JSON.stringify({ token: response.credential }),
+      // });
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
+
+  useEffect(() => {
+    console.log("header", user);
+  }, [user]);
   return (
     <>
       <div className="header-content transition-all duration-300 justify-between flex items-center h-[82px] px-4 bg-white fixed top-0 left-0 right-0 shadow z-50">
@@ -139,7 +250,7 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          {isLoggedIn ? (
+          {user?.role ? (
             <Dropdown
               overlay={userMenu}
               placement="bottomRight"
@@ -187,7 +298,7 @@ const Header = () => {
           <TabPane tab="Login" key="login">
             <Form layout="vertical" onFinish={handleLogin}>
               <Form.Item
-                name="email"
+                name="username"
                 label="Email"
                 rules={[{ required: true }]}
               >
@@ -214,25 +325,25 @@ const Header = () => {
               </Form.Item>
             </Form>
 
-            <div className="my-4 flex items-center justify-center gap-2 text-gray-400">
-              <div className="h-[1px] bg-gray-300 flex-1" />
-              or login with
-              <div className="h-[1px] bg-gray-300 flex-1" />
-            </div>
+            <div className="my-6">
+              <div className="flex items-center text-gray-400 text-sm mb-4">
+                <div className="flex-1 h-px bg-gray-300" />
+                <span className="mx-3 whitespace-nowrap">or login with</span>
+                <div className="flex-1 h-px bg-gray-300" />
+              </div>
 
-            <div className="flex justify-center gap-3">
-              <Button
-                icon={<GoogleOutlined />}
-                className="flex items-center gap-2 border hover:border-[#4d96ff]"
-              >
-                Google
-              </Button>
-              <Button
-                icon={<GithubOutlined />}
-                className="flex items-center gap-2 border hover:border-[#4d96ff]"
-              >
-                GitHub
-              </Button>
+              <div className="flex justify-center gap-4 flex-wrap">
+                <div className="w-fit flex justify-center">
+                  <GoogleLogin onSuccess={handleGoogleSuccess} />
+                </div>
+
+                <Button
+                  icon={<GithubOutlined />}
+                  className="flex items-center justify-center gap-2 border hover:border-[#4d96ff] min-w-[150px]"
+                >
+                  GitHub
+                </Button>
+              </div>
             </div>
           </TabPane>
 
@@ -240,10 +351,8 @@ const Header = () => {
             <Form layout="vertical" onFinish={handleRegister}>
               <Form.Item
                 name="username"
-                label="Username"
-                rules={[
-                  { required: true, message: "Please input your username!" },
-                ]}
+                label="Name"
+                rules={[{ required: true, message: "Please input your name!" }]}
               >
                 <Input />
               </Form.Item>
