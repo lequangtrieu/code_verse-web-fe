@@ -122,7 +122,7 @@ const Header = () => {
         navigate("/admin-panel");
         break;
       case "my-profile":
-        navigate("/profile");
+        navigate("/user-panel");
         break;
       case "settings":
         navigate("/settings");
@@ -218,13 +218,13 @@ const Header = () => {
               Courses
             </Link>
             <Link
-              to="/practice"
+              to="/test"
               onClick={scrollTop}
               className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(
-                "/practice"
+                "/test"
               )} hover:text-[#2c31cf] hover:border-b-[#2c31cf]`}
             >
-              Practice
+              DEMO LEARN
             </Link>
             <Link
               to="/fights"

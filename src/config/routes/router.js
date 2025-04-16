@@ -12,6 +12,8 @@ import AdminMessagePage from "../../components/Admin/AdminMessage/AdminMessagePa
 import AdminProfilePage from "../../components/Admin/AdminProfile/AdminProfilePage";
 import AdminQuizPage from "../../components/Admin/AdminQuiz/AdminQuizPage";
 import AdminAccountsPage from "../../components/Admin/AdminAccount/AdminAccountsPage";
+import UserPanel from "../../components/User/layout/UserPanel";
+import LessonLayout from "../../components/User/layout/LessonLayout";
 
 const router = createBrowserRouter([
   {
@@ -41,6 +43,22 @@ const router = createBrowserRouter([
       {
         path: "challenges",
         element: <Home />,
+      },
+
+      // USER
+      {
+        path: "test",
+        element: <LessonLayout />,
+      },
+      {
+        path: "user-panel",
+        element: <UserPanel />,
+        children: [
+          {
+            path: "settings",
+            element: <DashboardPage />,
+          },
+        ],
       },
 
       // ADMIN
