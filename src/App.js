@@ -8,11 +8,12 @@ import { message } from "antd";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setUserDetails } from "./config/store/userSlice";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 function App() {
   const dispatch = useDispatch();
-  const fetchUserDetails = async () => {
+
+  const fetchUserDetails = useCallback(async () => {
     const username = localStorage.getItem("username");
     const password = localStorage.getItem("password");
     const token = localStorage.getItem("token");
@@ -22,7 +23,7 @@ function App() {
         const response = await axios.post(commonApi.userDetail.url, {
           username,
         });
-    
+
         dispatch(setUserDetails(response.data.result));
       } catch (error) {
         if (error.response) {
@@ -34,7 +35,7 @@ function App() {
         }
       }
     }
-  };
+  }, [dispatch]);
 
   useEffect(() => {
     fetchUserDetails();
