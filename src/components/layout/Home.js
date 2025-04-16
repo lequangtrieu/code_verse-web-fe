@@ -17,14 +17,14 @@ const Home = () => {
               height="512"
               decoding="async"
               data-nimg="1"
-              className="h-10 w-10 block"
+              className="h-15 w-15 block r rounded"
               style={{
                 color: "transparent",
                 backgroundSize: "cover",
                 backgroundPosition: "50% 50%",
                 backgroundRepeat: "no-repeat",
               }}
-              src="_next/pre506a.png"
+              src="../../logoCodeVerse.png"
             />
           </div>
         </div>
