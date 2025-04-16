@@ -109,8 +109,8 @@ const Header = () => {
   const handleForgotPassword = async (values) => {
     setIsModalOpen(false);
     try {
-      const response = await axios.post(commonApi.resetPassword.url, {
-        email: values.username,
+      await axios.post(commonApi.resetPassword.url, {
+        username: values.username,
       });
 
       notification.success({
@@ -466,7 +466,7 @@ const Header = () => {
             label="User Name"
             rules={[
               { required: true, message: "Please input your username!" },
-              { type: "email", message: "Enter a valid username address!" },
+              { type: "email", message: "The input is not a valid email!" },
             ]}
           >
             <Input placeholder="Enter your username" />
