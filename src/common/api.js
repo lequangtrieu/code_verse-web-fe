@@ -18,6 +18,9 @@ const commonApi = {
     userDetail: {
         url: `${backendDomain}/auth/userDetail`,
     },
+    resetPassword: {
+        url: `${backendDomain}/auth/resetPassword`,
+    },
 }
 
 
