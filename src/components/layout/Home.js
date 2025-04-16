@@ -1,4 +1,4 @@
-import React from "react"; 
+import React from "react";
 import useTheme from "../../../src/hooks/useTheme";
 
 import { Link } from "react-router-dom";
@@ -2550,6 +2550,6 @@ const Home = () => {
       </div>
     </div>
   );
-}
+};
 
 export default Home;
