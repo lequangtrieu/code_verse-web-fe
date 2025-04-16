@@ -35,6 +35,7 @@ const { TabPane } = Tabs;
 const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
   const user = useSelector((state) => state?.user?.user);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
@@ -118,6 +119,29 @@ const Header = () => {
     }
   };
 
+  const handleForgotPassword = async (values) => {
+    setIsModalOpen(false);
+    try {
+      await axios.post(commonApi.resetPassword.url, {
+        username: values.username,
+      });
+
+      notification.success({
+        message: "Email Sent",
+        description: "Check your inbox for password reset instructions.",
+      });
+
+      setIsForgotModalOpen(false);
+    } catch (error) {
+      notification.error({
+        message: "Error",
+        description:
+          error?.response?.data?.message ||
+          "Failed to send reset link. Please try again.",
+      });
+    }
+  };
+
   const handleLogout = () => {
     message.success("You have been logged out successfully.");
     localStorage.clear();
@@ -158,8 +182,8 @@ const Header = () => {
             size="small"
           />
           <div>
-            <div className="font-semibold">{user?.username}</div>
-            <div className="text-xs text-gray-400">{user?.email}</div>
+            <div className="font-semibold">{user?.name}</div>
+            <div className="text-xs text-gray-400">{user?.username}</div>
           </div>
         </div>
       </Menu.Item>
@@ -310,8 +334,14 @@ const Header = () => {
             <Form layout="vertical" onFinish={handleLogin}>
               <Form.Item
                 name="username"
-                label="Email"
-                rules={[{ required: true }]}
+                label="User name"
+                rules={[
+                  { required: true, message: "Please input your username!" },
+                  {
+                    type: "email",
+                    message: "The input is not a valid email!",
+                  },
+                ]}
               >
                 <Input />
               </Form.Item>
@@ -324,9 +354,12 @@ const Header = () => {
               </Form.Item>
 
               <div className="flex justify-end mb-3">
-                <a href="#" className="text-sm text-[#4d96ff] hover:underline">
+                <span
+                  onClick={() => setIsForgotModalOpen(true)}
+                  className="text-sm text-[#4d96ff] hover:underline cursor-pointer"
+                >
                   Forgot password?
-                </a>
+                </span>
               </div>
 
               <Form.Item>
@@ -361,7 +394,7 @@ const Header = () => {
           <TabPane tab="Register" key="register">
             <Form layout="vertical" onFinish={handleRegister}>
               <Form.Item
-                name="username"
+                name="name"
                 label="Name"
                 rules={[{ required: true, message: "Please input your name!" }]}
               >
@@ -369,10 +402,10 @@ const Header = () => {
               </Form.Item>
 
               <Form.Item
-                name="email"
-                label="Email"
+                name="username"
+                label="User Name"
                 rules={[
-                  { required: true, message: "Please input your email!" },
+                  { required: true, message: "Please input your username!" },
                   {
                     type: "email",
                     message: "The input is not a valid email!",
@@ -429,6 +462,34 @@ const Header = () => {
             </Form>
           </TabPane>
         </Tabs>
+      </Modal>
+
+      <Modal
+        open={isForgotModalOpen}
+        onCancel={() => setIsForgotModalOpen(false)}
+        footer={null}
+        centered
+        getContainer={false}
+        className="custom-modal"
+        title="Reset your password"
+      >
+        <Form layout="vertical" onFinish={handleForgotPassword}>
+          <Form.Item
+            name="username"
+            label="User Name"
+            rules={[
+              { required: true, message: "Please input your username!" },
+              { type: "email", message: "The input is not a valid email!" },
+            ]}
+          >
+            <Input placeholder="Enter your username" />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block>
+              Send reset link
+            </Button>
+          </Form.Item>
+        </Form>
       </Modal>
     </>
   );
