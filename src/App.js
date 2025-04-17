@@ -20,7 +20,7 @@ function App() {
 
     const dummyUserDetail = {
       id: 1,
-      username: "admin",
+      username: "admin@gmail.com",
       role: "ADMIN",
       email: "admin",
       isDeleted: false,
@@ -28,12 +28,12 @@ function App() {
 
     if (username && password && token) {
       try {
-        const response = await axios.post(commonApi.userDetail.url, {
-          username,
-        });
+        // const response = await axios.post(commonApi.userDetail.url, {
+        //   username,
+        // });
 
-        dispatch(setUserDetails(response.data.result));
-        // dispatch(setUserDetails(dummyUserDetail));
+        // dispatch(setUserDetails(response.data.result));
+        dispatch(setUserDetails(dummyUserDetail));
       } catch (error) {
         if (error.response) {
           const { status, data } = error.response;

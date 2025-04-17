@@ -50,10 +50,10 @@ const Header = () => {
   const fetchApiLogin = () => {
     return {
       data: {
-        code: 1000,
-        result: {
-          token: "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsInNjb3BlIjoiQURNSU4iLCJpc3MiOiJjb2RlVmVyc2UuY29tIiwiZXhwIjoxNzQ0ODE0NjU5LCJpYXQiOjE3NDQ4MTM3NTksInVzZXJJZCI6MSwianRpIjoiNGE3YWI2N2ItYzZlMy00ZmUzLTg3NmQtMDljOGJlOTA5Zjk1In0.hdukGZgzRmCMw-hxOKrYmLs63wtKrgdZTGHZKCpGGem7prB_9vRKAqUg1h9XzS-BQjieDps7bn2FHPKICk6aJg",
-          authenticated: true,
+        "code": 1000,
+        "result": {
+          "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJzY29wZSI6IkFETUlOIiwiaXNzIjoiY29kZVZlcnNlLmNvbSIsImV4cCI6MTc0NDkwNDAxNCwiaWF0IjoxNzQ0OTAzMTE0LCJ1c2VySWQiOjEsImp0aSI6IjA2YzllY2NiLWJiNjgtNGJjOC04YTIyLTI1NDgyOWVmNzRiNSJ9.6LcwYkPN4FNYrfj3YUM0dWq8qZwf8ElXFMDcK69ZGT_qPcAy8AECaUC46vGCfA8hnHgZ1Vqrm0P2wDeHdQ7NUA",
+          "authenticated": true
         },
       },
     };
@@ -62,7 +62,7 @@ const Header = () => {
   const handleLogin = async (values) => {
     try {
       // const response = await axios.post(commonApi.signIn.url, values);
-      const response = await fetchApiLogin();
+      const response = fetchApiLogin();
 
       if (response.data?.result?.authenticated) {
         localStorage.setItem("username", values.username);
