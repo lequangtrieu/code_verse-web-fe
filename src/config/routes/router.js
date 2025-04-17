@@ -3,6 +3,7 @@ import App from "../../App";
 
 import Courses from "../../components/User/Courses/courses";
 import CourseDetail from "../../components/User/Courses/courseDetail";
+import CourseForm from "../../components/User/Courses/CourseCreate/CourseForm";
 import Home from "../../components/layout/Home";
 import DashboardPage from "../../components/Admin/AdminDashBoard/DashboardPage";
 import AdminPanel from "../../components/Admin/layout/AdminPanel";
@@ -43,6 +44,12 @@ const router = createBrowserRouter([
       {
         path: "challenges",
         element: <Home />,
+      },
+
+      // INSTRUCTOR
+      {
+        path: "courses/create",
+        element: <CourseForm />
       },
 
       // USER
