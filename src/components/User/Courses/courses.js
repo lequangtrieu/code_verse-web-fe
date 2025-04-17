@@ -244,29 +244,6 @@ const Courses = () => {
 
   return (
     <div className="bg-gray-100 py-10">
-      <div className="animate-preloader opacity-0 invisible fixed top-0 left-0 -z-1 w-full transition-all duration-300">
-        <div className="preloader flex h-screen w-full items-center justify-center bg-whiteColor transition-all duration-700">
-          <div className="w-90px h-90px border-5px border-t-blue border-r-blue border-b-blue-light border-l-blue-light rounded-full animate-spin-infinit"></div>
-          <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2">
-            <img
-              alt="Preloader"
-              loading="lazy"
-              width="512"
-              height="512"
-              decoding="async"
-              data-nimg="1"
-              className="h-15 w-15 block r rounded"
-              style={{
-                color: "transparent",
-                backgroundSize: "cover",
-                backgroundPosition: "50% 50%",
-                backgroundRepeat: "no-repeat",
-              }}
-              src="../../logoCodeVerse.png"
-            />
-          </div>
-        </div>
-      </div>
       <div className="container mx-auto px-4 mb-8">
         <img
           src="https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"
