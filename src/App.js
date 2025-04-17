@@ -18,14 +18,6 @@ function App() {
     const password = localStorage.getItem("password");
     const token = localStorage.getItem("token");
 
-    const dummyUserDetail = {
-      id: 1,
-      username: "admin",
-      role: "ADMIN",
-      email: "admin",
-      isDeleted: false,
-    };
-
     if (username && password && token) {
       try {
         const response = await axios.post(commonApi.userDetail.url, {
@@ -33,7 +25,6 @@ function App() {
         });
 
         dispatch(setUserDetails(response.data.result));
-        // dispatch(setUserDetails(dummyUserDetail));
       } catch (error) {
         if (error.response) {
           const { status, data } = error.response;

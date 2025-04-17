@@ -47,22 +47,9 @@ const Header = () => {
     setIsModalOpen(true);
   };
 
-  const fetchApiLogin = () => {
-    return {
-      data: {
-        code: 1000,
-        result: {
-          token: "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsInNjb3BlIjoiQURNSU4iLCJpc3MiOiJjb2RlVmVyc2UuY29tIiwiZXhwIjoxNzQ0ODE0NjU5LCJpYXQiOjE3NDQ4MTM3NTksInVzZXJJZCI6MSwianRpIjoiNGE3YWI2N2ItYzZlMy00ZmUzLTg3NmQtMDljOGJlOTA5Zjk1In0.hdukGZgzRmCMw-hxOKrYmLs63wtKrgdZTGHZKCpGGem7prB_9vRKAqUg1h9XzS-BQjieDps7bn2FHPKICk6aJg",
-          authenticated: true,
-        },
-      },
-    };
-  };
-
   const handleLogin = async (values) => {
     try {
-      // const response = await axios.post(commonApi.signIn.url, values);
-      const response = await fetchApiLogin();
+      const response = await axios.post(commonApi.signIn.url, values);
 
       if (response.data?.result?.authenticated) {
         localStorage.setItem("username", values.username);
