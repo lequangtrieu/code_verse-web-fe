@@ -3,6 +3,11 @@ import { Input, Menu, Card, Pagination, Rate, Tag } from "antd";
 import { SearchOutlined, HeartOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import scrollTop from "../../../config/scrollTop";
+import { FaBookOpen } from "react-icons/fa";
+import { GiPlanetCore } from "react-icons/gi";
+import { HiOutlineLightBulb } from "react-icons/hi";
+import { RiSendPlaneLine } from "react-icons/ri";
+import LoadingOverlay from "../../../common/LoadingOverlay";
 
 const { Search } = Input;
 
@@ -190,12 +195,22 @@ const courseData = [
 ];
 
 const Courses = () => {
+  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(6);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [filteredCourses, setFilteredCourses] = useState(courseData);
+  const [initialLoading, setInitialLoading] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setInitialLoading(false);
+    }, 450);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     let results = courseData;
@@ -221,7 +236,16 @@ const Courses = () => {
   const displayedCourses = filteredCourses.slice(startIndex, endIndex);
 
   const onPageChange = (page) => {
-    setCurrentPage(page);
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      const courseSection = document.getElementById("course-section");
+      if (courseSection) {
+        const offset = courseSection.offsetTop - 80;
+        window.scrollTo({ top: offset, behavior: "smooth" });
+      }
+      setCurrentPage(page);
+    }, 400);
   };
 
   const handleCourseClick = (id) => {
@@ -230,11 +254,25 @@ const Courses = () => {
   };
 
   const handleSearch = (value) => {
-    setSearchQuery(value);
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setSearchQuery(value);
+    }, 500);
   };
 
   const handleCategoryClick = (key) => {
-    setSelectedCategory(key === "all" ? null : key);
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      const courseSection = document.getElementById("course-section");
+      if (courseSection) {
+        const offset = courseSection.offsetTop - 100;
+        window.scrollTo({ top: offset, behavior: "smooth" });
+      }
+      setSelectedCategory(key);
+      setSelectedCategory(key === "all" ? null : key);
+    }, 500);
   };
 
   const categories = [
@@ -243,130 +281,146 @@ const Courses = () => {
   ];
 
   return (
-    <div className="bg-gray-100 py-10">
-      <div className="container mx-auto px-4 mb-8">
-        <img
-          src="https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"
-          alt="Top Banner"
-          className="w-full rounded-md shadow-md max-h-80 object-cover"
-        />
-      </div>
+    <>
+      {(initialLoading || loading) && <LoadingOverlay />}
 
-      <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Sidebar */}
-        <div className="bg-white rounded-md shadow-md p-6 h-fit">
-          <div className="mb-4">
-            <Search
-              placeholder="Search Products"
-              onSearch={handleSearch}
-              enterButton={<SearchOutlined />}
-            />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold mb-2">Categories</h2>
-            <Menu
-              mode="inline"
-              defaultSelectedKeys={["all"]}
-              className="border-none"
-              onClick={({ key }) => handleCategoryClick(key)}
-              selectedKeys={[selectedCategory || "all"]}
-            >
-              <Menu.Item key="all">
-                All Categories{" "}
-                <span className="text-gray-500">({courseData.length})</span>
-              </Menu.Item>
-              {categories.slice(1).map((category) => (
-                <Menu.Item key={category} className="capitalize">
-                  {category}{" "}
-                  <span className="text-gray-500">
-                    (
-                    {
-                      courseData.filter(
-                        (course) => course.category === category
-                      ).length
-                    }
-                    )
-                  </span>
-                </Menu.Item>
-              ))}
-            </Menu>
-          </div>
-        </div>
+      {!initialLoading && (
+        <>
+          <section className="relative bg-gradient-to-br from-[#eef2f7] to-[#fefefe] py-40 overflow-hidden shadow-inner">
+            <FaBookOpen className="absolute bottom-4 left-20 text-pink-300 text-8xl opacity-30 rotate-[-10deg] animate-float-slow" />
+            <GiPlanetCore className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-purple-300 text-[150px] opacity-10 animate-spin-slow" />
+            <HiOutlineLightBulb className="absolute top-6 right-40 text-yellow-300 text-7xl opacity-20 animate-pulse" />
+            <RiSendPlaneLine className="absolute bottom-10 right-10 text-blue-300 text-7xl opacity-20 rotate-12 animate-fly-slow" />
 
-        {/* Course Grid */}
-        <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {displayedCourses.map((course) => (
-            <Card
-              onClick={() => handleCourseClick(course.id)}
-              key={course.id}
-              className="rounded-md shadow-md overflow-hidden cursor-pointer transition-shadow duration-300 hover:shadow-lg"
-              cover={
-                <img
-                  onClick={() => handleCourseClick(course.id)}
-                  alt={course.title}
-                  src="https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"
-                  className="w-full h-40 object-cover transition-transform duration-300 hover:scale-105"
-                />
-              }
-              actions={[<HeartOutlined key="like" />]}
-            >
-              <div className="p-4">
-                <Tag color="processing" className="mb-2">
-                  {course.category}
-                </Tag>
-                <h3 className="text-md font-semibold mb-2 line-clamp-2">
-                  {course.title}
-                </h3>
-                <div className="flex items-center text-sm text-gray-600 mb-2">
-                  <span>{course.lessons} Lessons</span>
-                  <span className="ml-2">•</span>
-                  <span className="ml-2">{course.duration}</span>
-                </div>
-                <div className="flex items-center justify-between mb-2">
-                  <div>
-                    <span className="text-lg font-bold text-indigo-600">
-                      ${course.price.toFixed(2)}
-                    </span>
-                    {course.discount > 0 && (
-                      <span className="line-through text-gray-500 ml-2">
-                        ${course.discount.toFixed(2)}
-                      </span>
-                    )}
-                    {course.discount === 0 && (
-                      <span className="ml-2 text-green-500">Free</span>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <div className="flex items-center">
-                    <div className="w-6 h-6 rounded-full bg-gray-300 mr-2 flex items-center justify-center">
-                      {course.instructor.charAt(0).toUpperCase()}
-                    </div>
-                    <span>{course.instructor}</span>
-                  </div>
-                  <Rate
-                    style={{ fontSize: "12px" }}
-                    disabled
-                    defaultValue={course.rating}
-                    size="small"
+            <div className="relative z-10 text-center max-w-2xl mx-auto">
+              <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 leading-tight drop-shadow-sm font-heading tracking-tight">
+                Featured Courses
+              </h1>
+              <p className="text-sm text-gray-500 mt-3">
+                <span className="text-gray-400">Home</span> &gt; Featured
+                Courses
+              </p>
+            </div>
+          </section>
+          <div id="course-section" className="bg-gray-50 py-16">
+            <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-4 gap-10">
+              <aside className="bg-white rounded-xl shadow p-6 h-fit sticky top-[100px]">
+                <div className="mb-6">
+                  <Search
+                    placeholder="Search Courses"
+                    onSearch={handleSearch}
+                    enterButton={<SearchOutlined />}
+                    className="w-full"
                   />
                 </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+                <div>
+                  <h2 className="text-xl font-semibold mb-4">Categories</h2>
+                  <Menu
+                    mode="inline"
+                    defaultSelectedKeys={["all"]}
+                    className="border-none bg-transparent"
+                    onClick={({ key }) => handleCategoryClick(key)}
+                    selectedKeys={[selectedCategory || "all"]}
+                  >
+                    <Menu.Item key="all">
+                      All Categories{" "}
+                      <span className="text-gray-500">
+                        ({courseData.length})
+                      </span>
+                    </Menu.Item>
+                    {categories.slice(1).map((category) => (
+                      <Menu.Item key={category} className="capitalize">
+                        {category}{" "}
+                        <span className="text-gray-500">
+                          (
+                          {
+                            courseData.filter((c) => c.category === category)
+                              .length
+                          }
+                          )
+                        </span>
+                      </Menu.Item>
+                    ))}
+                  </Menu>
+                </div>
+              </aside>
 
-        {/* Pagination */}
-        <div className="lg:col-span-4 flex justify-center mt-8">
-          <Pagination
-            current={currentPage}
-            total={filteredCourses.length}
-            pageSize={pageSize}
-            onChange={onPageChange}
-          />
-        </div>
-      </div>
-    </div>
+              <main className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {displayedCourses.map((course) => (
+                  <Card
+                    onClick={() => handleCourseClick(course.id)}
+                    key={course.id}
+                    className="rounded-xl overflow-hidden shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+                    cover={
+                      <img
+                        onClick={() => handleCourseClick(course.id)}
+                        alt={course.title}
+                        src="https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"
+                        className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                      />
+                    }
+                    actions={[<HeartOutlined key="like" />]}
+                  >
+                    <div className="p-4">
+                      <Tag color="processing" className="mb-2">
+                        {course.category}
+                      </Tag>
+                      <h3 className="text-lg font-semibold mb-2 line-clamp-2">
+                        {course.title}
+                      </h3>
+                      <div className="flex items-center text-sm text-gray-600 mb-2">
+                        <span>{course.lessons} Lessons</span>
+                        <span className="mx-2">•</span>
+                        <span>{course.duration}</span>
+                      </div>
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <span className="text-lg font-bold text-indigo-600">
+                            ${course.price.toFixed(2)}
+                          </span>
+                          {course.discount > 0 && (
+                            <span className="line-through text-gray-500 ml-2">
+                              ${course.discount.toFixed(2)}
+                            </span>
+                          )}
+                          {course.discount === 0 && (
+                            <span className="ml-2 text-green-500">Free</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <div className="flex items-center">
+                          <div className="w-7 h-7 rounded-full bg-gray-300 mr-2 flex items-center justify-center text-white font-semibold">
+                            {course.instructor.charAt(0).toUpperCase()}
+                          </div>
+                          <span>{course.instructor}</span>
+                        </div>
+                        <Rate
+                          style={{ fontSize: "12px" }}
+                          disabled
+                          defaultValue={course.rating}
+                          size="small"
+                        />
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </main>
+
+              <div className="lg:col-span-4 flex justify-center mt-12">
+                <Pagination
+                  current={currentPage}
+                  total={filteredCourses.length}
+                  pageSize={pageSize}
+                  onChange={onPageChange}
+                  className="mt-4"
+                />
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </>
   );
 };
 
