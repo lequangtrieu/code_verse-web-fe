@@ -1,72 +1,114 @@
-import React, { useState } from "react";
-import { Form, Input, InputNumber, Radio, Button, Select, message } from "antd";
+import React, { useState, useEffect, useRef } from "react";
+import { Form, Input, InputNumber, Radio, Select } from "antd";
 
 const { TextArea } = Input;
 const { Option } = Select;
 
-export default function BonusInfo({ markComplete, next }) {
-  const [form] = Form.useForm();
-  const [isPaid, setIsPaid] = useState(false);
+export default function BonusInfo({ formData, updateFormData, markComplete, markIncomplete }) {
+    const [form] = Form.useForm();
+    const hasInitialized = useRef(false);
+    const hasValidatedOnce = useRef(false);
+    // eslint-disable-next-line
+    const [levels, setLevels] = useState([
+        { levelId: 1, name: "Beginner" },
+        { levelId: 2, name: "Intermediate" },
+        { levelId: 3, name: "Advanced" }
+    ]);
 
-  const handleFinish = (values) => {
-    console.log("Bonus Info Submitted:", values);
-    markComplete();
-    next();
-  };
+    const values = Form.useWatch([], form);
+    const isPaid = Form.useWatch("isPaid", form);
 
-  return (
-    <Form
-      form={form}
-      layout="vertical"
-      onFinish={handleFinish}
-      className="max-w-2xl mx-auto"
-    >
-      {/* Pricing */}
-      <Form.Item name="isPaid" label="Is this course paid?" initialValue={false}>
-        <Radio.Group
-          onChange={(e) => setIsPaid(e.target.value)}
-          optionType="button"
-          buttonStyle="solid"
+    useEffect(() => {
+        if (!hasInitialized.current) {
+            const values = {
+                levelId: levels[0]?.levelId,
+                ...formData?.bonus
+            };
+            form.setFieldsValue(values);
+            hasInitialized.current = true;
+        }
+        // eslint-disable-next-line
+    }, [formData]);
+
+    useEffect(() => {
+        if (!values) return;
+
+        updateFormData("bonus", values);
+
+        if (!values.isPaid) {
+            form.setFields([
+                { name: "price", rules: [] }
+            ]);
+            form.resetFields(["price"]);
+        }
+
+        form
+            .validateFields()
+            .then(() => {
+                markComplete();
+                hasValidatedOnce.current = true;
+            })
+            .catch(() => {
+                markIncomplete();
+                hasValidatedOnce.current = false;
+            });
+            // eslint-disable-next-line
+    }, [values]);
+
+    useEffect(() => {
+        if (!hasValidatedOnce.current && hasInitialized.current) {
+            form
+                .validateFields()
+                .then(() => markComplete())
+                .catch(() => markIncomplete());
+        }
+        // eslint-disable-next-line
+    }, [hasInitialized.current]);
+
+    return (
+        <Form
+            form={form}
+            layout="vertical"
+            className="max-w-2xl mx-auto"
         >
-          <Radio value={false}>Free</Radio>
-          <Radio value={true}>Paid</Radio>
-        </Radio.Group>
-      </Form.Item>
+            <Form.Item
+                name="isPaid"
+                label="Is this course paid?"
+                rules={[{ required: true, message: "Please choose Free or Paid" }]}
+            >
+                <Radio.Group optionType="button" buttonStyle="solid">
+                    <Radio value={false}>Free</Radio>
+                    <Radio value={true}>Paid</Radio>
+                </Radio.Group>
+            </Form.Item>
 
-      {isPaid && (
-        <Form.Item
-          name="price"
-          label="Course Price ($)"
-          rules={[{ required: true, message: "Please enter the price" }]}
-        >
-          <InputNumber min={1} placeholder="e.g. 49.99" className="w-full" />
-        </Form.Item>
-      )}
+            {isPaid && (
+                <Form.Item
+                    name="price"
+                    label="Course Price (VND)"
+                    rules={[{ required: true, message: "Please enter the price" }]}
+                >
+                    <InputNumber min={1} placeholder="e.g. 100000" className="w-full" />
+                </Form.Item>
+            )}
 
-      {/* Difficulty Level */}
-      <Form.Item
-        name="level"
-        label="Course Level"
-        rules={[{ required: true, message: "Please select level" }]}
-      >
-        <Select placeholder="Choose difficulty level">
-          <Option value="beginner">Beginner</Option>
-          <Option value="intermediate">Intermediate</Option>
-          <Option value="advanced">Advanced</Option>
-        </Select>
-      </Form.Item>
+            <Form.Item
+                name="levelId"
+                label="Course Level"
+                rules={[{ required: true, message: "Please select level" }]}
+            >
+                <Select>
+                    {levels.map((level) => (
+                        <Option key={level.levelId} value={level.levelId}>
+                            {level.name}
+                        </Option>
+                    ))}
+                </Select>
+            </Form.Item>
 
-      {/* Optional Notes */}
-      <Form.Item name="notes" label="Additional Notes (optional)">
-        <TextArea rows={3} placeholder="Add any remarks, prerequisites, etc." />
-      </Form.Item>
-
-      {/* Submit */}
-      <Form.Item>
-        <Button type="primary" htmlType="submit">
-          Finish & Submit Course
-        </Button>
-      </Form.Item>
-    </Form>
-  );
+            <Form.Item name="notes" label="Additional Notes (optional)">
+                <TextArea rows={3} placeholder="Add any remarks, prerequisites, etc." />
+            </Form.Item>
+        </Form>
+    );
 }
