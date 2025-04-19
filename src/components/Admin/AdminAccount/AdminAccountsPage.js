@@ -244,6 +244,7 @@ const AdminAccountsPage = () => {
         title="User Details"
         open={isModalOpen}
         onCancel={handleCancelModal}
+        getContainer={false}
         onOk={() => {
           form
             .validateFields()
@@ -326,6 +327,7 @@ const AdminAccountsPage = () => {
         }}
         okText="Create"
         cancelText="Cancel"
+        getContainer={false}
       >
         <Form
           form={createForm}
