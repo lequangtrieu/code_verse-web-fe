@@ -47,9 +47,22 @@ const Header = () => {
     setIsModalOpen(true);
   };
 
+  const fetchApiLogin = () => {
+    return {
+      data: {
+        "code": 1000,
+        "result": {
+          "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJzY29wZSI6IkFETUlOIiwiaXNzIjoiY29kZVZlcnNlLmNvbSIsImV4cCI6MTc0NDkwNDAxNCwiaWF0IjoxNzQ0OTAzMTE0LCJ1c2VySWQiOjEsImp0aSI6IjA2YzllY2NiLWJiNjgtNGJjOC04YTIyLTI1NDgyOWVmNzRiNSJ9.6LcwYkPN4FNYrfj3YUM0dWq8qZwf8ElXFMDcK69ZGT_qPcAy8AECaUC46vGCfA8hnHgZ1Vqrm0P2wDeHdQ7NUA",
+          "authenticated": true
+        },
+      },
+    };
+  };
+
   const handleLogin = async (values) => {
     try {
-      const response = await axios.post(commonApi.signIn.url, values);
+      // const response = await axios.post(commonApi.signIn.url, values);
+      const response = fetchApiLogin();
 
       if (response.data?.result?.authenticated) {
         localStorage.setItem("username", values.username);

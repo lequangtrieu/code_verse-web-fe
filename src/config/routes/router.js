@@ -14,6 +14,8 @@ import AdminQuizPage from "../../components/Admin/AdminQuiz/AdminQuizPage";
 import AdminAccountsPage from "../../components/Admin/AdminAccount/AdminAccountsPage";
 import UserPanel from "../../components/User/layout/UserPanel";
 import LessonLayout from "../../components/User/layout/LessonLayout";
+import UserDashboardPage from "../../components/User/UserDashBoard/UserDashboardPage"
+import UserProfilePage from "../../components/User/UserProfile/UserProfilePage";
 
 const router = createBrowserRouter([
   {
@@ -55,8 +57,16 @@ const router = createBrowserRouter([
         element: <UserPanel />,
         children: [
           {
+            path: "profile",
+            element: <UserProfilePage />,
+          },
+          {
             path: "settings",
             element: <DashboardPage />,
+          },
+          {
+            path: "dashboard",
+            element: <UserDashboardPage />,
           },
         ],
       },
