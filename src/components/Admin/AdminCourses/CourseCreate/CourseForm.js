@@ -8,6 +8,7 @@ import {
 import CourseDescription from "./CourseDescription";
 import CourseMaterial from "./CourseMaterial/CourseMaterial";
 import BonusInfo from "./BonusInfo";
+import AdminCoursesPage from "../AdminCoursesPage";
 
 const { Step } = Steps;
 const { confirm } = Modal;
@@ -98,7 +99,9 @@ export default function CourseForm() {
     };
 
     return (
-        <div className="bg-gray-100 py-10">
+        
+        <div className="flex-1">
+            <AdminCoursesPage/>
             <div className="animate-preloader opacity-0 invisible fixed top-0 left-0 -z-1 w-full transition-all duration-300">
                 <div className="preloader flex h-screen w-full items-center justify-center bg-whiteColor transition-all duration-700">
                     <div className="w-90px h-90px border-5px border-t-blue border-r-blue border-b-blue-light border-l-blue-light rounded-full animate-spin-infinit"></div>
