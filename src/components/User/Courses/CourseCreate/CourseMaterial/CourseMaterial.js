@@ -4,11 +4,13 @@ import { PlusOutlined } from "@ant-design/icons";
 import ModuleItem from "./ModuleItem";
 
 
-export default function CourseMaterial({ formData, updateFormData, markComplete, markIncomplete }) {
+export default function CourseMaterial({ formData, updateFormData, markComplete, markIncomplete, suppressErrors }) {
     const [form] = Form.useForm();
     const [videoPreview, setVideoPreview] = useState({});
     const hasInitialized = useRef(false);
     const [completedLessons, setCompletedLessons] = useState({});
+    const localSuppressed = true;
+    const finalSuppressErrors = suppressErrors && localSuppressed;
     const modules = Form.useWatch("modules", form);
 
     const markLessonComplete = (moduleIdx, lessonIdx) => {
@@ -86,7 +88,8 @@ export default function CourseMaterial({ formData, updateFormData, markComplete,
         } else {
             markIncomplete();
         }
-    }, [modules, completedLessons, markComplete, markIncomplete]);
+        // eslint-disable-next-line
+    }, [modules, completedLessons]);
 
 
     return (
@@ -110,6 +113,7 @@ export default function CourseMaterial({ formData, updateFormData, markComplete,
                                     setVideoPreview={setVideoPreview}
                                     markLessonComplete={markLessonComplete}
                                     markLessonIncomplete={markLessonIncomplete}
+                                    suppressErrors={suppressErrors}
                                 />)
                             })}
 

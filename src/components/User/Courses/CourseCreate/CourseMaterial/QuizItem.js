@@ -9,9 +9,12 @@ const QuizItem = React.memo(({
     lessonIndex,
     qField,
     qIndex,
-    removeQuestion
+    removeQuestion, 
+    suppressErrors
 }) => {
 
+    const localSuppressed = true;
+    const finalSuppressErrors = suppressErrors && localSuppressed;
 
     return (
         <Space
@@ -24,6 +27,8 @@ const QuizItem = React.memo(({
                 name={[qField.name, "question"]}
                 label={`Question ${qField.name + 1}`}
                 rules={[{ required: true, message: "Question required" }]}
+                validateStatus={finalSuppressErrors ? "" : undefined}
+                help={finalSuppressErrors ? "" : undefined}
             >
                 <Input placeholder="Type the question" />
             </Form.Item>
@@ -40,6 +45,7 @@ const QuizItem = React.memo(({
                                     questionIndex={qIndex}
                                     aField={aField}
                                     removeAnswer={removeAnswer}
+                                    suppressErrors={suppressErrors}
                                 />
                             )
                         })}

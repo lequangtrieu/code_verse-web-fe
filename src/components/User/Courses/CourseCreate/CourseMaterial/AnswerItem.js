@@ -2,7 +2,11 @@ import React from "react";
 import { Form, Input, Space, Checkbox } from "antd";
 import { MinusCircleOutlined } from "@ant-design/icons";
 
-const AnswerItem = React.memo(({ moduleIndex, lessonIndex, questionIndex, aField, removeAnswer }) => {
+const AnswerItem = React.memo(({ moduleIndex, lessonIndex, questionIndex, aField, removeAnswer, suppressErrors }) => {
+    
+    const localSuppressed = true;
+    const finalSuppressErrors = suppressErrors && localSuppressed;
+
     return (
 
         <Space
@@ -15,6 +19,8 @@ const AnswerItem = React.memo(({ moduleIndex, lessonIndex, questionIndex, aField
                 name={[aField.name, "text"]}
                 label={`Answer ${aField.name + 1}`}
                 rules={[{ required: true, message: "Answer required" }]}
+                validateStatus={finalSuppressErrors ? "" : undefined}
+                help={finalSuppressErrors ? "" : undefined}
             >
                 <Input placeholder="Answer text" />
             </Form.Item>

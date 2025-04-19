@@ -23,6 +23,7 @@ export default function CourseForm() {
     const [form] = Form.useForm();
     const [current, setCurrent] = useState(0);
     const [completed, setCompleted] = useState({});
+    const [showErrors, setShowErrors] = useState(false);
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -63,6 +64,7 @@ export default function CourseForm() {
         const allCompleted = steps
             .slice(0, steps.length - 1)
             .every((_, index) => completed[index]);
+            setShowErrors(true);
         if (!allCompleted) {
             markIncomplete(steps.length - 1);
             message.error("Please complete all sections before submitting.");
@@ -161,6 +163,7 @@ export default function CourseForm() {
                         form={form}
                         layout="vertical"
                         className="bg-white p-6 rounded shadow"
+                        validateTrigger="onSubmit"
                     >
                         {CurrentComponent ? (
                             <CurrentComponent
@@ -168,6 +171,7 @@ export default function CourseForm() {
                                 updateFormData={updateFormData}
                                 markComplete={() => markComplete(current)}
                                 markIncomplete={() => markIncomplete(current)}
+                                suppressErrors={!showErrors}
                             />
                         ) : (
                             <div className="text-center">

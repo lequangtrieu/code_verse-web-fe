@@ -5,11 +5,15 @@ import { UploadOutlined } from "@ant-design/icons";
 const { TextArea } = Input;
 const { Option } = Select;
 
-export default function CourseDescription({ formData, updateFormData, markComplete, markIncomplete }) {
+export default function CourseDescription({ formData, updateFormData, markComplete, markIncomplete, suppressErrors }) {
     const [form] = Form.useForm();
     const [previewVisible, setPreviewVisible] = useState(false);
     const [previewImage, setPreviewImage] = useState("");
     const [previewTitle, setPreviewTitle] = useState("");
+    const localSuppressed = true;
+    const finalSuppressErrors = suppressErrors && localSuppressed;
+    
+
     const hasInitialized = useRef(false);
     const [categories, setCategories] = useState([
         { categoryId: 1, name: "Programming" },
@@ -59,6 +63,7 @@ export default function CourseDescription({ formData, updateFormData, markComple
                 setPreviewImage(values.previewImage);
             }
         }
+        // eslint-disable-next-line
     }, [formData, form]);
 
     const values = Form.useWatch([], form);
@@ -77,6 +82,7 @@ export default function CourseDescription({ formData, updateFormData, markComple
             .validateFields()
             .then(() => markComplete())
             .catch(() => markIncomplete());
+            // eslint-disable-next-line
     }, [values, previewImage]);
 
     return (
@@ -90,6 +96,8 @@ export default function CourseDescription({ formData, updateFormData, markComple
                 label="Course Title"
                 name="title"
                 rules={[{ required: true, message: "Please enter the course title" }]}
+                validateStatus={finalSuppressErrors ? "" : undefined}
+                help={finalSuppressErrors ? "" : undefined}
             >
                 <Input placeholder="e.g., Learn React from Scratch" />
             </Form.Item>
@@ -99,6 +107,8 @@ export default function CourseDescription({ formData, updateFormData, markComple
                 label="Course Description"
                 name="description"
                 rules={[{ required: true, message: "Please enter the description" }]}
+                validateStatus={finalSuppressErrors ? "" : undefined}
+                help={finalSuppressErrors ? "" : undefined}
             >
                 <TextArea rows={5} placeholder="Write a short overview about the course" />
             </Form.Item>
@@ -108,6 +118,8 @@ export default function CourseDescription({ formData, updateFormData, markComple
                 label="Category"
                 name="categoryId"
                 rules={[{ required: true, message: "Please select a category" }]}
+                validateStatus={finalSuppressErrors ? "" : undefined}
+                help={finalSuppressErrors ? "" : undefined}
             >
                 <Select>
                     {categories.map((category) => (
@@ -119,10 +131,13 @@ export default function CourseDescription({ formData, updateFormData, markComple
             {/* Cover Image */}
             <Form.Item
                 label="Course Cover Image"
+                htmlFor={null}
                 name="cover"
                 valuePropName="fileList"
                 getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
                 rules={[{ required: true, message: "Please upload a cover image" }]}
+                validateStatus={finalSuppressErrors ? "" : undefined}
+                help={finalSuppressErrors ? "" : undefined}
             >
                 <Upload name="cover"
                     listType="picture-card"

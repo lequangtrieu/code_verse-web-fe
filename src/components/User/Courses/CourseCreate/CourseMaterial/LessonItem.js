@@ -16,8 +16,12 @@ const LessonItem = React.memo(
         videoPreview,
         setVideoPreview,
         markLessonComplete,
-        markLessonIncomplete
+        markLessonIncomplete,
+        suppressErrors
     }) => {
+
+        const localSuppressed = true;
+        const finalSuppressErrors = suppressErrors && localSuppressed;
         const key = `module-${moduleIndex}-lesson-${lessonIndex}`;
         const lessonType = Form.useWatch(
             ["modules", moduleIndex, "lessons", lessonIndex, "type"],
@@ -111,7 +115,7 @@ const LessonItem = React.memo(
             }
 
             memoMarkIncomplete();
-        }, [lessonData, memoMarkComplete, memoMarkIncomplete]);
+        }, [lessonData]);
 
         return (
             <Space
@@ -126,6 +130,8 @@ const LessonItem = React.memo(
                     name={[lessonField.name, "title"]}
                     label="Lesson Title"
                     rules={[{ required: true, message: "Lesson title required" }]}
+                    validateStatus={finalSuppressErrors ? "" : undefined}
+                    help={finalSuppressErrors ? "" : undefined}
                 >
                     <Input placeholder="Lesson title" />
                 </Form.Item>
@@ -134,6 +140,8 @@ const LessonItem = React.memo(
                     name={[lessonField.name, "type"]}
                     label="Lesson Type"
                     rules={[{ required: true, message: "Lesson type required" }]}
+                    validateStatus={finalSuppressErrors ? "" : undefined}
+                    help={finalSuppressErrors ? "" : undefined}
                 >
                     <Select placeholder="Select type">
                         {lessonTypes.map((type) => (
@@ -158,6 +166,8 @@ const LessonItem = React.memo(
                             valuePropName="fileList"
                             getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
                             rules={[{ required: true, message: "Upload required" }]}
+                            validateStatus={finalSuppressErrors ? "" : undefined}
+                            help={finalSuppressErrors ? "" : undefined}
                         >
                             <Upload
                                 accept="video/*"
@@ -177,6 +187,8 @@ const LessonItem = React.memo(
                         name={[lessonField.name, "document"]}
                         label="Document Content"
                         rules={[{ required: true, message: "Enter content" }]}
+                        validateStatus={finalSuppressErrors ? "" : undefined}
+                        help={finalSuppressErrors ? "" : undefined}
                     >
                         <Input.TextArea rows={4} placeholder="Enter lesson content" />
                     </Form.Item>
@@ -199,6 +211,7 @@ const LessonItem = React.memo(
                                                 qField={qField}
                                                 qIndex={qIndex}
                                                 removeQuestion={removeQuestion}
+                                                suppressErrors={suppressErrors}
                                             />
                                         )
                                     })}
@@ -226,6 +239,8 @@ const LessonItem = React.memo(
                     name={[lessonField.name, "duration"]}
                     label="Estimated Duration (mins)"
                     rules={[{ required: true, message: "Enter duration" }]}
+                    validateStatus={finalSuppressErrors ? "" : undefined}
+                    help={finalSuppressErrors ? "" : undefined}
                 >
                     <InputNumber min={1} placeholder="Minutes" className="w-full" />
                 </Form.Item>

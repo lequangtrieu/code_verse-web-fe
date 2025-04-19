@@ -4,10 +4,12 @@ import { Form, Input, InputNumber, Radio, Select } from "antd";
 const { TextArea } = Input;
 const { Option } = Select;
 
-export default function BonusInfo({ formData, updateFormData, markComplete, markIncomplete }) {
+export default function BonusInfo({ formData, updateFormData, markComplete, markIncomplete, suppressErrors }) {
     const [form] = Form.useForm();
     const hasInitialized = useRef(false);
     const hasValidatedOnce = useRef(false);
+    const localSuppressed = true;
+    const finalSuppressErrors = suppressErrors && localSuppressed;
     // eslint-disable-next-line
     const [levels, setLevels] = useState([
         { levelId: 1, name: "Beginner" },
@@ -74,7 +76,10 @@ export default function BonusInfo({ formData, updateFormData, markComplete, mark
             <Form.Item
                 name="isPaid"
                 label="Is this course paid?"
+                htmlFor={null}
                 rules={[{ required: true, message: "Please choose Free or Paid" }]}
+                validateStatus={finalSuppressErrors ? "" : undefined}
+                help={finalSuppressErrors ? "" : undefined}
             >
                 <Radio.Group optionType="button" buttonStyle="solid">
                     <Radio value={false}>Free</Radio>
@@ -87,6 +92,8 @@ export default function BonusInfo({ formData, updateFormData, markComplete, mark
                     name="price"
                     label="Course Price (VND)"
                     rules={[{ required: true, message: "Please enter the price" }]}
+                    validateStatus={finalSuppressErrors ? "" : undefined}
+                    help={finalSuppressErrors ? "" : undefined}
                 >
                     <InputNumber min={1} placeholder="e.g. 100000" className="w-full" />
                 </Form.Item>
@@ -96,6 +103,8 @@ export default function BonusInfo({ formData, updateFormData, markComplete, mark
                 name="levelId"
                 label="Course Level"
                 rules={[{ required: true, message: "Please select level" }]}
+                validateStatus={finalSuppressErrors ? "" : undefined}
+                help={finalSuppressErrors ? "" : undefined}
             >
                 <Select>
                     {levels.map((level) => (
