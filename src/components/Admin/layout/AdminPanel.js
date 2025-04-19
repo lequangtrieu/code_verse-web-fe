@@ -1,9 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useNavigate } from "react-router-dom";
 
-import { Layout, Menu, Badge, message } from "antd";
+import { Layout, Menu, Badge, message, Button } from "antd";
 import {
+  MenuUnfoldOutlined,
+  MenuFoldOutlined,
   DashboardOutlined,
   UserOutlined,
   MessageOutlined,
@@ -17,12 +19,14 @@ import {
 import ROLE from "../../../common/role";
 import { setUserDetails } from "../../../config/store/userSlice";
 
-const { Sider, Content } = Layout;
+const { Sider, Content, Header } = Layout;
 
 const AdminPanel = () => {
   const user = useSelector((state) => state?.user?.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     if (user?.role !== ROLE.ADMIN) {
@@ -47,10 +51,18 @@ const AdminPanel = () => {
   };
 
   return (
-    <Layout className="min-h-screen py-6">
-      <Sider width={265} className="bg-white shadow-md">
+    <Layout className="min-h-screen">
+      <Sider
+        width={265}
+        collapsible
+        collapsed={collapsed}
+        onCollapse={setCollapsed}
+        trigger={null}
+        style={{ marginTop: "20px" }}
+        className="bg-white shadow-md flex flex-col justify-between"
+      >
         <div className="p-4 font-semibold uppercase text-gray-600 border-b">
-          Welcome, {user?.username}
+          {!collapsed && `Welcome, ${user?.username}`}
         </div>
         <Menu
           mode="inline"
@@ -80,9 +92,11 @@ const AdminPanel = () => {
             Management Quiz Attempts
           </Menu.Item>
 
-          <div className="px-4 pt-4 pb-1 text-xs text-gray-500 font-semibold">
-            USER
-          </div>
+          {!collapsed && (
+            <div className="px-4 pt-4 pb-1 text-xs text-gray-500 font-semibold">
+              USER
+            </div>
+          )}
 
           <Menu.Item key="settings" icon={<SettingOutlined />}>
             Settings
@@ -91,6 +105,14 @@ const AdminPanel = () => {
             <span className="text-red-500">Logout</span>
           </Menu.Item>
         </Menu>
+        <div className="custom-sider-trigger">
+          <div
+            onClick={() => setCollapsed(!collapsed)}
+            className="flex items-center justify-center h-11 cursor-pointer border-t text-gray-500 hover:text-primary transition-colors"
+          >
+            {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          </div>
+        </div>
       </Sider>
 
       <Layout>
