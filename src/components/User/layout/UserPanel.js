@@ -25,8 +25,8 @@ const UserPanel = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (user?.role !== ROLE.ADMIN) {
-      message.error("You do not have permission to access the admin panel.");
+    if (user?.role !== ROLE.STUDENT) {
+      message.error("You do not have permission to access the student panel.");
       navigate("/");
     }
   }, [user]);
@@ -42,7 +42,7 @@ const UserPanel = () => {
     if (key === "logout") {
       handleLogout();
     } else {
-      navigate(`/admin-panel/${key}`);
+      navigate(`/user-panel/${key}`);
     }
   };
 
@@ -62,22 +62,19 @@ const UserPanel = () => {
             My Profile
           </Menu.Item>
           <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
-            Management Dashboard
-          </Menu.Item>
-          <Menu.Item key="accounts" icon={<TeamOutlined />}>
-            Management Accounts
+            Dashboard
           </Menu.Item>
           <Menu.Item key="messages" icon={<MessageOutlined />}>
-            Management Messages <Badge count={12} offset={[10, 0]} />
+            Messages <Badge count={12} offset={[10, 0]} />
           </Menu.Item>
           <Menu.Item key="courses" icon={<BookOutlined />}>
-            Management Courses
+            Enrolled Courses
           </Menu.Item>
           <Menu.Item key="reviews" icon={<StarOutlined />}>
-            Management Reviews
+            Reviews
           </Menu.Item>
           <Menu.Item key="quiz" icon={<QuestionCircleOutlined />}>
-            Management Quiz Attempts
+            My Quiz Attempts
           </Menu.Item>
 
           <div className="px-4 pt-4 pb-1 text-xs text-gray-500 font-semibold">
