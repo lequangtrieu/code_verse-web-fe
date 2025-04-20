@@ -6,11 +6,11 @@ const { TabPane } = Tabs;
 const LessonContent = ({ lesson }) => {
   if (!lesson)
     return (
-      <div className="w-1/2 p-4">Select a lesson to view the content.</div>
+      <div className="max-h-[850px] min-w-[400px] w-1/2 p-4 bg-white overflow-y-auto">Select a lesson to view the content.</div>
     );
 
   return (
-    <div className="max-h-[850px] w-1/2 p-4 bg-white overflow-y-auto">
+    <div className="max-h-[850px] min-w-[400px] w-1/2 p-4 bg-white overflow-y-auto">
       <Tabs defaultActiveKey="1" size="large">
         <TabPane tab="Theory" key="1">
           <Card bordered={false}>
