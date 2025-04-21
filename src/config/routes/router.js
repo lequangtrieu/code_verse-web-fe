@@ -17,6 +17,12 @@ import UserPanel from "../../components/User/layout/UserPanel";
 import LessonLayout from "../../components/User/layout/LessonLayout";
 import UserDashboardPage from "../../components/User/UserDashBoard/UserDashboardPage"
 import UserProfilePage from "../../components/User/UserProfile/UserProfilePage";
+import UserMessagePage from "../../components/User/UserMessage/UserMessagePage";
+import UserReviewPage from "../../components/User/UserReview/UserReviewPage";
+import UserQuizPage from "../../components/User/UserQuiz/UserQuizPage";
+import UserCoursesPage from "../../components/User/Courses/UserCoursesPage";
+import UserWishlistPage from "../../components/User/UserWishlist/UserWishlistPage";
+import UserAssignmentPage from "../../components/User/UserAssignment/UserAssignmentPage";
 
 const router = createBrowserRouter([
   {
@@ -62,12 +68,36 @@ const router = createBrowserRouter([
             element: <UserProfilePage />,
           },
           {
-            path: "settings",
-            element: <DashboardPage />,
-          },
-          {
             path: "dashboard",
             element: <UserDashboardPage />,
+          },
+          {
+            path: "messages",
+            element: <UserMessagePage />,
+          },
+          {
+            path: "courses",
+            element: <UserCoursesPage />,
+          },
+          {
+            path: "reviews",
+            element: <UserReviewPage />,
+          },
+          {
+            path: "quiz",
+            element: <UserQuizPage />,
+          },
+          {
+            path: "settings",
+            element: <UserDashboardPage />,
+          },
+          {
+            path: "wishlist",
+            element: <UserWishlistPage />,
+          },
+          {
+            path: "assignment",
+            element: <UserAssignmentPage />,
           },
           {
             path: "",
