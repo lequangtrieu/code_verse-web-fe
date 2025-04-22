@@ -10,6 +10,7 @@ import {
   Modal,
   notification,
   Tabs,
+  Badge,
 } from "antd";
 import { message } from "antd";
 import {
@@ -20,6 +21,7 @@ import {
   ProfileOutlined,
   SettingOutlined,
   UserOutlined,
+  ShoppingCartOutlined,
 } from "@ant-design/icons";
 import scrollTop from "../../config/scrollTop";
 import { GoogleLogin } from "@react-oauth/google";
@@ -46,14 +48,18 @@ const Header = () => {
     setActiveTab(tab);
     setIsModalOpen(true);
   };
+  const handleCartClick = () => {
+    navigate("/cart");
+  };
 
   const fetchApiLogin = () => {
     return {
       data: {
-        "code": 1000,
-        "result": {
-          "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJzY29wZSI6IkFETUlOIiwiaXNzIjoiY29kZVZlcnNlLmNvbSIsImV4cCI6MTc0NDkwNDAxNCwiaWF0IjoxNzQ0OTAzMTE0LCJ1c2VySWQiOjEsImp0aSI6IjA2YzllY2NiLWJiNjgtNGJjOC04YTIyLTI1NDgyOWVmNzRiNSJ9.6LcwYkPN4FNYrfj3YUM0dWq8qZwf8ElXFMDcK69ZGT_qPcAy8AECaUC46vGCfA8hnHgZ1Vqrm0P2wDeHdQ7NUA",
-          "authenticated": true
+        code: 1000,
+        result: {
+          token:
+            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJzY29wZSI6IkFETUlOIiwiaXNzIjoiY29kZVZlcnNlLmNvbSIsImV4cCI6MTc0NDkwNDAxNCwiaWF0IjoxNzQ0OTAzMTE0LCJ1c2VySWQiOjEsImp0aSI6IjA2YzllY2NiLWJiNjgtNGJjOC04YTIyLTI1NDgyOWVmNzRiNSJ9.6LcwYkPN4FNYrfj3YUM0dWq8qZwf8ElXFMDcK69ZGT_qPcAy8AECaUC46vGCfA8hnHgZ1Vqrm0P2wDeHdQ7NUA",
+          authenticated: true,
         },
       },
     };
@@ -281,10 +287,36 @@ const Header = () => {
             >
               Challenges
             </Link>
+
+            <Link
+              to="/ranking"
+              onClick={scrollTop}
+              className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(
+                "/ranking"
+              )} hover:text-[#2c31cf] hover:border-b-[#2c31cf]`}
+            >
+              Ranking
+            </Link>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
+          <Button
+            className="text-gray-700 border-full hover:bg-[#4d96ff] hover:text-white relative"
+            style={{ fontSize: "18px", verticalAlign: "middle" }}
+            onClick={handleCartClick} // Optional: Add the cart click handler if needed
+          >
+            <ShoppingCartOutlined />
+            <Badge
+              count={5} // Replace with the actual count value
+              style={{
+                position: "absolute",
+                top: -25,
+                right: -16,
+                backgroundColor: "#E8505B", // You can adjust the badge color
+              }}
+            />
+          </Button>
           {user?.role ? (
             <Dropdown
               overlay={userMenu}
@@ -314,6 +346,7 @@ const Header = () => {
               </Button>
             </div>
           )}
+
           <div className="lg:hidden">
             <MenuOutlined className="text-xl text-gray-700" />
           </div>
