@@ -14,8 +14,11 @@ import AdminQuizPage from "../../components/Admin/AdminQuiz/AdminQuizPage";
 import AdminAccountsPage from "../../components/Admin/AdminAccount/AdminAccountsPage";
 import UserPanel from "../../components/User/layout/UserPanel";
 import LessonLayout from "../../components/User/layout/LessonLayout";
-import UserDashboardPage from "../../components/User/UserDashBoard/UserDashboardPage"
+import UserDashboardPage from "../../components/User/UserDashBoard/UserDashboardPage";
 import UserProfilePage from "../../components/User/UserProfile/UserProfilePage";
+import CartPage from "../../components/User/Cart/CartPage";
+import CheckoutPage from "../../components/User/Cart/CheckoutPage";
+import RankingPage from "../../components/User/RankingPage/RankingPage";
 
 const router = createBrowserRouter([
   {
@@ -51,6 +54,18 @@ const router = createBrowserRouter([
       {
         path: "test",
         element: <LessonLayout />,
+      },
+      {
+        path: "cart",
+        element: <CartPage />,
+      },
+      {
+        path: "checkout",
+        element: <CheckoutPage />,
+      },
+      {
+        path: "ranking",
+        element: <RankingPage />,
       },
       {
         path: "user-panel",
