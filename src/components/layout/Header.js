@@ -61,7 +61,10 @@ const Header = () => {
         localStorage.setItem("username", values.username);
         localStorage.setItem("password", values.password);
         localStorage.setItem("token", response.data?.result?.token);
-        localStorage.setItem("refreshToken", response.data?.result?.refreshToken);
+        localStorage.setItem(
+          "refreshToken",
+          response.data?.result?.refreshToken
+        );
         message.success("Login successful!");
         setIsModalOpen(false);
         fetchUserDetails();
@@ -346,6 +349,7 @@ const Header = () => {
               </Button>
             </div>
           )}
+
           <div className="lg:hidden">
             <MenuOutlined className="text-xl text-gray-700" />
           </div>

@@ -15,7 +15,7 @@ import AdminQuizPage from "../../components/Admin/AdminQuiz/AdminQuizPage";
 import AdminAccountsPage from "../../components/Admin/AdminAccount/AdminAccountsPage";
 import UserPanel from "../../components/User/layout/UserPanel";
 import LessonLayout from "../../components/User/layout/LessonLayout";
-import UserDashboardPage from "../../components/User/UserDashBoard/UserDashboardPage"
+import UserDashboardPage from "../../components/User/UserDashBoard/UserDashboardPage";
 import UserProfilePage from "../../components/User/UserProfile/UserProfilePage";
 import UserMessagePage from "../../components/User/UserMessage/UserMessagePage";
 import UserReviewPage from "../../components/User/UserReview/UserReviewPage";
@@ -23,12 +23,12 @@ import UserQuizPage from "../../components/User/UserQuiz/UserQuizPage";
 import UserCoursesPage from "../../components/User/Courses/UserCoursesPage";
 import UserWishlistPage from "../../components/User/UserWishlist/UserWishlistPage";
 import UserAssignmentPage from "../../components/User/UserAssignment/UserAssignmentPage";
-import UserHome from "../../components/User/layout/UserHome"
+import UserHome from "../../components/User/layout/UserHome";
 import CartPage from "../../components/User/Cart/CartPage";
 import CheckoutPage from "../../components/User/Cart/CheckoutPage";
 import HandlePaymentFailure from "../../components/User/Cart/HandlePaymentFailure";
 import HandlePaymentSuccess from "../../components/User/Cart/HandlePaymentSuccess";
-
+import RankingPage from "../../components/User/RankingPage/RankingPage";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -70,15 +70,19 @@ const router = createBrowserRouter([
       },
       {
         path: "/payment-success",
-        element: <HandlePaymentSuccess />
+        element: <HandlePaymentSuccess />,
       },
       {
         path: "/payment-failed",
-        element: <HandlePaymentFailure />
+        element: <HandlePaymentFailure />,
       },
       {
         path: "checkout",
         element: <CheckoutPage />,
+      },
+      {
+        path: "ranking",
+        element: <RankingPage />,
       },
       {
         path: "user-panel",
@@ -172,7 +176,7 @@ const router = createBrowserRouter([
           // INSTRUCTOR
           {
             path: "courses/create",
-            element: <CourseForm />
+            element: <CourseForm />,
           },
         ],
       },
