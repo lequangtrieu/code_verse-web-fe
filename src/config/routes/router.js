@@ -23,6 +23,7 @@ import UserQuizPage from "../../components/User/UserQuiz/UserQuizPage";
 import UserCoursesPage from "../../components/User/Courses/UserCoursesPage";
 import UserWishlistPage from "../../components/User/UserWishlist/UserWishlistPage";
 import UserAssignmentPage from "../../components/User/UserAssignment/UserAssignmentPage";
+import UserHome from "../../components/User/layout/UserHome"
 
 const router = createBrowserRouter([
   {
@@ -31,7 +32,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "",
-        element: <Home />,
+        element: <UserHome />,
       },
       {
         path: "course",

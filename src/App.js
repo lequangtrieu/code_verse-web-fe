@@ -21,7 +21,7 @@ function App() {
     const dummyUserDetail = {
       id: 1,
       username: "admin@gmail.com",
-      role: "ADMIN",
+      role: "STUDENT",
       email: "admin",
       isDeleted: false,
     };
@@ -57,7 +57,7 @@ function App() {
       }}
     >
       <Header />
-      <main className="min-h-[calc(100vh-120px)] pt-16">
+      <main className="min-h-[calc(100vh-120px)] pt-[82px]">
         <Outlet />
       </main>
       <Footer />
