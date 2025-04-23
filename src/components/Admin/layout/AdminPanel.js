@@ -17,9 +17,9 @@ import {
   TeamOutlined,
 } from "@ant-design/icons";
 import ROLE from "../../../common/role";
-import { setUserDetails } from "../../../config/store/userSlice";
+import { logoutUser } from "../../../config/store/userSlice";
 
-const { Sider, Content, Header } = Layout;
+const { Sider, Content } = Layout;
 
 const AdminPanel = () => {
   const user = useSelector((state) => state?.user?.user);
@@ -38,7 +38,7 @@ const AdminPanel = () => {
   const handleLogout = () => {
     message.success("You have been logged out successfully.");
     localStorage.clear();
-    dispatch(setUserDetails(null));
+    dispatch(logoutUser());
     navigate("/");
   };
 
