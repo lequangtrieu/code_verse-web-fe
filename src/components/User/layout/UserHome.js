@@ -1,8 +1,7 @@
 import { Carousel, Avatar, Tabs } from "antd";
 import ReusableProgress from "../layout/ReusableProgress"
 import React, { useEffect, useState } from "react";
-import { Menu, Card, Pagination, Rate, Tag } from "antd";
-import { HeartOutlined } from "@ant-design/icons";
+import { Card, Pagination, Rate, Tag } from "antd";
 import { useNavigate } from "react-router-dom";
 import scrollTop from "../../../config/scrollTop";
 import LoadingOverlay from "../../../common/LoadingOverlay";
@@ -712,18 +711,22 @@ const UserHome = () => {
       </section>
 
       {/* List course of user */}
-      <section className="p-4 bg-white">
+      <section className="p-4">
         {(initialLoading || loading) && <LoadingOverlay />}
 
         {!initialLoading && (
           <>
-            <div id="course-section" className="bg-gray-50">
+            <div id="course-section">
               <div className="max-w-[1440px]">
-                <Tabs defaultActiveKey="learning" onChange={handleTabChange}>
-                  <Tabs.TabPane tab="Khóa học gợi ý" key="suggested" />
-                  <Tabs.TabPane tab="Đang học" key="learning" />
-                  <Tabs.TabPane tab="Hoàn thành" key="completed" />
-                </Tabs>
+                <div className="flex gap-5 justify-between mt-2 flex-wrap">
+                  <Tabs defaultActiveKey="learning" onChange={handleTabChange}>
+                    <Tabs.TabPane tab="Khóa học gợi ý" key="suggested" />
+                    <Tabs.TabPane tab="Đang học" key="learning" />
+                    <Tabs.TabPane tab="Hoàn thành" key="completed" />
+                  </Tabs>
+                  <a className="leading-[46px]" href="/course">Xem tất cả</a>
+                </div>
+
 
                 <div >
                   <main className="grid grid-cols-1 xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 gap-6">
