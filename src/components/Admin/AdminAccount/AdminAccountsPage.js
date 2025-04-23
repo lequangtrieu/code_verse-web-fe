@@ -198,7 +198,7 @@ const AdminAccountsPage = () => {
                     cancelText="No"
                   >
                     <button
-                      className={`px-3 py-1 rounded text-white ${user.isBanned
+                      className={`w-16 px-3 py-1 rounded text-white ${user.isBanned
                         ? "bg-green-500 hover:bg-green-600"
                         : "bg-red-500 hover:bg-red-600"
                         }`}

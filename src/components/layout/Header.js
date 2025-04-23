@@ -142,12 +142,21 @@ const Header = () => {
       case "logout":
         handleLogout();
         break;
-      case "admin-dashboard":
+      case "dashboard":
         scrollTop();
-        navigate("/admin-panel");
+
+        if (user?.role === ROLE.ADMIN) {
+          navigate("/admin-panel");
+        } else if (user?.role === ROLE.STUDENT) {
+          navigate("/user-panel");
+        };
         break;
       case "my-profile":
-        navigate("/user-panel");
+        if (user?.role === ROLE.ADMIN) {
+          navigate("/admin-panel");
+        } else if (user?.role === ROLE.STUDENT) {
+          navigate("/user-panel");
+        }
         break;
       case "settings":
         navigate("/settings");
@@ -178,11 +187,9 @@ const Header = () => {
 
       <Menu.Divider />
 
-      {user?.role === ROLE.ADMIN && (
-        <Menu.Item key="admin-dashboard" icon={<DashboardOutlined />}>
-          Admin Dashboard
-        </Menu.Item>
-      )}
+      <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
+        {user?.role === ROLE.ADMIN ? "Admin Dashboard" : "Student Dashboard"}
+      </Menu.Item>
 
       <Menu.Item key="my-profile" icon={<ProfileOutlined />}>
         My Profile
@@ -220,7 +227,7 @@ const Header = () => {
     }
   };
 
-  useEffect(() => {}, [user]);
+  useEffect(() => { }, [user]);
   return (
     <>
       <div className="header-content transition-all duration-300 justify-between flex items-center h-[82px] px-4 bg-white fixed top-0 left-0 right-0 shadow z-50">
