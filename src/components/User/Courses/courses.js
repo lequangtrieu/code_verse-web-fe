@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Input, Menu, Card, Pagination, Rate, Tag } from "antd";
 import { SearchOutlined, HeartOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +12,8 @@ import { message } from "antd";
 import axios from "axios";
 import commonApi from "../../../common/api";
 import { useSelector } from "react-redux";
+import axiosInstance from "../../../config/axiosInstance";
+import Context from "../../../config/context/context";
 
 const { Search } = Input;
 
@@ -25,10 +27,11 @@ const Courses = () => {
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [allCourses, setAllCourses] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [cartCourseIds, setCartCourseIds] = useState([]);
   const navigate = useNavigate();
 
   const user = useSelector((state) => state?.user?.user);
-
+  const { fetchCartDetail } = useContext(Context);
   useEffect(() => {
     const timer = setTimeout(() => {
       setInitialLoading(false);
@@ -122,15 +125,38 @@ const Courses = () => {
     }, 500);
   };
 
-  const handleAddToCart = (course) => {
-    console.log(course);
-    
+  const handleAddToCart = async (course) => {
     if (!user) {
       return message.warning("Please login to add courses to cart!");
     }
-
-    message.success(`"${course.title}" added to your cart.`);
-  };
+  
+    if (cartCourseIds.includes(course.id)) {
+      return message.info("This course is already in your cart.");
+    }
+  
+    try {
+      const response = await axiosInstance.post(commonApi.addToCart.url, {
+        username: user.username,
+        courseId: course.id
+      });
+  
+      const result = response.data?.result;
+      const code = response.data?.code;
+  
+      if (code === 1000 && result === "Added successfully") {
+        message.success(`"${course.title}" added to your cart.`);
+        fetchCartDetail();
+        setCartCourseIds((prev) => [...prev, course.id]);
+      } else if (result === "Course already in cart") {
+        message.info(`"${course.title}" is already in your cart.`);
+        setCartCourseIds((prev) => [...prev, course.id]);
+      } else {
+        message.error(response.data?.message || "Failed to add to cart.");
+      }
+    } catch (error) {
+      message.error("Error adding course to cart.");
+    }
+  }
 
   return (
     <>

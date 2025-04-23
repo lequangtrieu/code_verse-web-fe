@@ -1,36 +1,45 @@
-import { useEffect, useState } from "react";
-import { Table, Button, Row, Col, notification, Checkbox } from "antd";
+import { useContext, useEffect, useState } from "react";
+import { Table, Button, Row, Col, notification, Checkbox, Modal } from "antd";
 import { ShoppingCartOutlined, CreditCardOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import LoadingOverlay from "../../../common/LoadingOverlay";
+import axiosInstance from "../../../config/axiosInstance";
+import commonApi from "../../../common/api";
+import { useSelector } from "react-redux";
+import Context from "../../../config/context/context";
 
 const CartPage = () => {
   const [initialLoading, setInitialLoading] = useState(true);
+  const [cartItems, setCartItems] = useState([]);
+  const [confirmClearVisible, setConfirmClearVisible] = useState(false);
 
   const navigate = useNavigate();
+  const user = useSelector((state) => state?.user?.user);
+  const { fetchCartDetail } = useContext(Context);
 
-  const [cartItems, setCartItems] = useState([
-    {
-      key: "1",
-      image: "image1.jpg",
-      product: "Book stand about Software",
-      price: 32.0,
-      selected: false, // Track whether the item is selected
-    },
-    {
-      key: "2",
-      image: "image2.jpg",
-      product: "Nice stand about peek",
-      price: 56.0,
-      selected: false, // Track whether the item is selected
-    },
-  ]);
+  const handleClearCart = async () => {
+    try {
+      await axiosInstance.delete(commonApi.clearCart.url, {
+        params: { username: user.username },
+      });
 
-  const handleClearCart = () => {
-    setCartItems([]);
-    notification.success({
-      message: "Cart cleared",
-    });
+      setCartItems([]);
+      fetchCartDetail();
+      notification.success({
+        message: "Cart cleared successfully",
+      });
+    } catch (error) {
+      notification.error({
+        message: "Failed to clear cart",
+      });
+    } finally {
+      setConfirmClearVisible(false);
+    }
+  };
+
+  const showClearConfirmModal = () => {
+    if (!user?.username) return;
+    setConfirmClearVisible(true);
   };
 
   const handleProceedToCheckout = () => {
@@ -48,9 +57,18 @@ const CartPage = () => {
     setCartItems(updatedCartItems);
   };
 
-  const handleRemoveItem = (key) => {
-    const updatedCartItems = cartItems.filter((item) => item.key !== key);
-    setCartItems(updatedCartItems);
+  const handleRemoveItem = async (orderDetailId) => {
+    try {
+      await axiosInstance.delete(commonApi.removeCartItem.url, {
+        params: { orderDetailId },
+      });
+
+      setCartItems((prev) => prev.filter((item) => item.key !== orderDetailId));
+      fetchCartDetail();
+      notification.success({ message: "Item removed from cart" });
+    } catch (error) {
+      notification.error({ message: "Failed to remove item from cart" });
+    }
   };
 
   const isCartEmpty = cartItems.length === 0;
@@ -84,7 +102,6 @@ const CartPage = () => {
       dataIndex: "price",
       render: (price) => `$${price ? price.toFixed(2) : "0.00"}`,
     },
-
     {
       title: "REMOVE",
       dataIndex: "key",
@@ -100,12 +117,35 @@ const CartPage = () => {
   ];
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setInitialLoading(false);
-    }, 450);
+    const fetchCartItems = async () => {
+      if (!user?.username) return;
 
-    return () => clearTimeout(timer);
-  }, []);
+      try {
+        const response = await axiosInstance.get(commonApi.detailCart.url, {
+          params: { username: user.username },
+        });
+
+        const items = response.data.result || [];
+        const formattedItems = items.map((item, index) => ({
+          key: item.id.toString(),
+          image: item.course?.thumbnailUrl || "https://via.placeholder.com/150",
+          product: item.course?.title || "Untitled",
+          price: item.finalPrice || 0,
+          selected: false,
+        }));
+
+        setCartItems(formattedItems);
+      } catch (error) {
+        notification.error({
+          message: "Failed to load cart items",
+        });
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    fetchCartItems();
+  }, [user]);
 
   return (
     <div className="p-6 text-center">
@@ -126,7 +166,7 @@ const CartPage = () => {
             <Row gutter={[16, 16]}>
               <Col span={8}>
                 <Button
-                  onClick={handleClearCart}
+                  onClick={showClearConfirmModal}
                   danger
                   className="w-auto mx-auto"
                 >
@@ -143,13 +183,13 @@ const CartPage = () => {
                   type="primary"
                   className="w-auto flex items-center"
                   onClick={handleProceedToCheckout}
-                  disabled={isCartEmpty || totalPrice === "0.00"} // Disable if cart is empty or no items selected
+                  disabled={isCartEmpty || totalPrice === "0.00"}
                   style={{
                     cursor:
                       isCartEmpty || totalPrice === "0.00"
                         ? "not-allowed"
-                        : "pointer", // Change cursor when disabled
-                    opacity: isCartEmpty || totalPrice === "0.00" ? 0.5 : 1, // Make the button look disabled
+                        : "pointer",
+                    opacity: isCartEmpty || totalPrice === "0.00" ? 0.5 : 1,
                   }}
                 >
                   <CreditCardOutlined className="mr-2" /> Proceed Checkout
@@ -159,6 +199,19 @@ const CartPage = () => {
           )}
         />
       </div>
+      <Modal
+        open={confirmClearVisible}
+        onCancel={() => setConfirmClearVisible(false)}
+        onOk={handleClearCart}
+        centered
+        getContainer={false}
+        okText="Yes, clear it"
+        cancelText="Cancel"
+        okType="danger"
+        title="Are you sure?"
+      >
+        <p>This will remove all items from your cart.</p>
+      </Modal>
     </div>
   );
 };
