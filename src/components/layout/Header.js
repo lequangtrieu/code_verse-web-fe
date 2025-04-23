@@ -10,6 +10,7 @@ import {
   Modal,
   notification,
   Tabs,
+  Badge,
 } from "antd";
 import { message } from "antd";
 import {
@@ -20,6 +21,7 @@ import {
   ProfileOutlined,
   SettingOutlined,
   UserOutlined,
+  ShoppingCartOutlined,
 } from "@ant-design/icons";
 import scrollTop from "../../config/scrollTop";
 import { GoogleLogin } from "@react-oauth/google";
@@ -27,7 +29,7 @@ import commonApi from "../../common/api";
 import axios from "axios";
 import Context from "../../config/context/context";
 import { useDispatch, useSelector } from "react-redux";
-import { setUserDetails } from "../../config/store/userSlice";
+import { logoutUser } from "../../config/store/userSlice";
 import ROLE from "../../common/role";
 
 const { TabPane } = Tabs;
@@ -40,29 +42,19 @@ const Header = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
   const location = useLocation();
-  const { fetchUserDetails } = useContext(Context);
+  const { fetchUserDetails, cartDetailCount } = useContext(Context);
 
   const openModal = (tab) => {
     setActiveTab(tab);
     setIsModalOpen(true);
   };
-
-  const fetchApiLogin = () => {
-    return {
-      data: {
-        "code": 1000,
-        "result": {
-          "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJzY29wZSI6IkFETUlOIiwiaXNzIjoiY29kZVZlcnNlLmNvbSIsImV4cCI6MTc0NDkwNDAxNCwiaWF0IjoxNzQ0OTAzMTE0LCJ1c2VySWQiOjEsImp0aSI6IjA2YzllY2NiLWJiNjgtNGJjOC04YTIyLTI1NDgyOWVmNzRiNSJ9.6LcwYkPN4FNYrfj3YUM0dWq8qZwf8ElXFMDcK69ZGT_qPcAy8AECaUC46vGCfA8hnHgZ1Vqrm0P2wDeHdQ7NUA",
-          "authenticated": true
-        },
-      },
-    };
+  const handleCartClick = () => {
+    navigate("/cart");
   };
 
   const handleLogin = async (values) => {
     try {
-      // const response = await axios.post(commonApi.signIn.url, values);
-      const response = fetchApiLogin();
+      const response = await axios.post(commonApi.signIn.url, values);
 
       if (response.data?.result?.authenticated) {
         localStorage.setItem("username", values.username);
@@ -145,7 +137,7 @@ const Header = () => {
   const handleLogout = () => {
     message.success("You have been logged out successfully.");
     localStorage.clear();
-    dispatch(setUserDetails(null));
+    dispatch(logoutUser());
     navigate("/");
   };
 
@@ -159,14 +151,14 @@ const Header = () => {
 
         if (user?.role === ROLE.ADMIN) {
           navigate("/admin-panel");
-        } else if (user?.role === ROLE.STUDENT) {
+        } else if (user?.role === ROLE.LEARNER) {
           navigate("/user-panel");
-        };
+        }
         break;
       case "my-profile":
         if (user?.role === ROLE.ADMIN) {
           navigate("/admin-panel");
-        } else if (user?.role === ROLE.STUDENT) {
+        } else if (user?.role === ROLE.LEARNER) {
           navigate("/user-panel");
         }
         break;
@@ -239,7 +231,7 @@ const Header = () => {
     }
   };
 
-  useEffect(() => { }, [user]);
+  useEffect(() => {}, [user]);
   return (
     <>
       <div className="header-content transition-all duration-300 justify-between flex items-center h-[82px] px-4 bg-white fixed top-0 left-0 right-0 shadow z-50">
@@ -288,10 +280,41 @@ const Header = () => {
             >
               Challenges
             </Link>
+
+            <Link
+              to="/ranking"
+              onClick={scrollTop}
+              className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(
+                "/ranking"
+              )} hover:text-[#2c31cf] hover:border-b-[#2c31cf]`}
+            >
+              Ranking
+            </Link>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
+          {user?.role ? (
+            <Button
+              className="text-gray-700 border-full hover:bg-[#4d96ff] hover:text-white relative"
+              style={{ fontSize: "18px", verticalAlign: "middle" }}
+              onClick={handleCartClick}
+            >
+              <ShoppingCartOutlined />
+              <Badge
+                count={cartDetailCount || 0}
+                style={{
+                  position: "absolute",
+                  top: -25,
+                  right: -16,
+                  backgroundColor: "#E8505B",
+                }}
+              />
+            </Button>
+          ) : (
+            ""
+          )}
+
           {user?.role ? (
             <Dropdown
               overlay={userMenu}

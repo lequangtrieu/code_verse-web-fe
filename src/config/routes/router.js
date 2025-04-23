@@ -24,6 +24,8 @@ import UserCoursesPage from "../../components/User/Courses/UserCoursesPage";
 import UserWishlistPage from "../../components/User/UserWishlist/UserWishlistPage";
 import UserAssignmentPage from "../../components/User/UserAssignment/UserAssignmentPage";
 import UserHome from "../../components/User/layout/UserHome"
+import CartPage from "../../components/User/Cart/CartPage";
+import CheckoutPage from "../../components/User/Cart/CheckoutPage";
 
 const router = createBrowserRouter([
   {
@@ -59,6 +61,14 @@ const router = createBrowserRouter([
       {
         path: "test",
         element: <LessonLayout />,
+      },
+      {
+        path: "cart",
+        element: <CartPage />,
+      },
+      {
+        path: "checkout",
+        element: <CheckoutPage />,
       },
       {
         path: "user-panel",
