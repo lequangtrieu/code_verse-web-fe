@@ -10,6 +10,7 @@ import {
   Modal,
   notification,
   Tabs,
+  Badge,
 } from "antd";
 import { message } from "antd";
 import {
@@ -20,6 +21,7 @@ import {
   ProfileOutlined,
   SettingOutlined,
   UserOutlined,
+  ShoppingCartOutlined,
 } from "@ant-design/icons";
 import scrollTop from "../../config/scrollTop";
 import { GoogleLogin } from "@react-oauth/google";
@@ -46,6 +48,9 @@ const Header = () => {
   const openModal = (tab) => {
     setActiveTab(tab);
     setIsModalOpen(true);
+  };
+  const handleCartClick = () => {
+    navigate("/cart");
   };
 
   const handleLogin = async (values) => {
@@ -149,7 +154,7 @@ const Header = () => {
           navigate("/admin-panel");
         } else if (user?.role === ROLE.STUDENT) {
           navigate("/user-panel");
-        };
+        }
         break;
       case "my-profile":
         if (user?.role === ROLE.ADMIN) {
@@ -276,10 +281,36 @@ const Header = () => {
             >
               Challenges
             </Link>
+
+            <Link
+              to="/ranking"
+              onClick={scrollTop}
+              className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(
+                "/ranking"
+              )} hover:text-[#2c31cf] hover:border-b-[#2c31cf]`}
+            >
+              Ranking
+            </Link>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
+          <Button
+            className="text-gray-700 border-full hover:bg-[#4d96ff] hover:text-white relative"
+            style={{ fontSize: "18px", verticalAlign: "middle" }}
+            onClick={handleCartClick} // Optional: Add the cart click handler if needed
+          >
+            <ShoppingCartOutlined />
+            <Badge
+              count={5} // Replace with the actual count value
+              style={{
+                position: "absolute",
+                top: -25,
+                right: -16,
+                backgroundColor: "#E8505B", // You can adjust the badge color
+              }}
+            />
+          </Button>
           {user?.role ? (
             <div
               className="relative cursor-pointer hover:text-[#2c31cf] transition"
