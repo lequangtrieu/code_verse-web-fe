@@ -57,7 +57,7 @@ function App() {
       if (response?.data?.result) {
         setCartDetailCount(response.data.result);
       } else {
-        message.warning("No cart data found.");
+        console.log("No cart data found.");
       }
     } catch (error) {
       if (error.response) {
