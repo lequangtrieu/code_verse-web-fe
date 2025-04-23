@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import LessonSidebar from "../Courses/lession/LessonSidebar";
-import LessonContent from "../Courses/lession/LessonContent";
+import LessonSidebar from "../Courses/lesson/LessonSidebar";
+import LessonContent from "../Courses/lesson/LessonContent";
 import CodeEditor from "./CodeEditor";
 
 export const lessons = [
