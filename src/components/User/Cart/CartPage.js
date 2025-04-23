@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Table, Button, Row, Col, notification, Checkbox } from "antd";
-import { ShoppingCartOutlined, CreditCardOutlined } from "@ant-design/icons"; // Import Cart Icon
-import { useNavigate } from "react-router-dom"; // Import useNavigate hook
+import { ShoppingCartOutlined, CreditCardOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+import LoadingOverlay from "../../../common/LoadingOverlay";
 
 const CartPage = () => {
-  const navigate = useNavigate(); // Initialize useNavigate hook
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   const [cartItems, setCartItems] = useState([
     {
@@ -31,7 +34,6 @@ const CartPage = () => {
   };
 
   const handleProceedToCheckout = () => {
-    // Pass the selected cart items data to the CheckoutPage
     const selectedItems = cartItems.filter((item) => item.selected);
     navigate("/checkout", { state: { cartItems: selectedItems } });
     notification.success({
@@ -53,7 +55,6 @@ const CartPage = () => {
 
   const isCartEmpty = cartItems.length === 0;
 
-  // Calculate the total price for the cart, formatted to 2 decimal places
   const totalPrice = cartItems
     .reduce((acc, item) => (item.selected ? acc + item.price : acc), 0)
     .toFixed(2);
@@ -81,7 +82,7 @@ const CartPage = () => {
     {
       title: "PRICE",
       dataIndex: "price",
-      render: (price) => `$${price ? price.toFixed(2) : "0.00"}`, // Handle undefined prices
+      render: (price) => `$${price ? price.toFixed(2) : "0.00"}`,
     },
 
     {
@@ -98,8 +99,17 @@ const CartPage = () => {
     },
   ];
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setInitialLoading(false);
+    }, 450);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="p-6 text-center">
+      {initialLoading && <LoadingOverlay />}
       <div className="mb-6 mt-10 flex justify-between items-center">
         <div className="flex items-center">
           <ShoppingCartOutlined className="text-4xl mr-2" />
