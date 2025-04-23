@@ -8,201 +8,26 @@ import { GiPlanetCore } from "react-icons/gi";
 import { HiOutlineLightBulb } from "react-icons/hi";
 import { RiSendPlaneLine } from "react-icons/ri";
 import LoadingOverlay from "../../../common/LoadingOverlay";
+import { message } from "antd";
+import axios from "axios";
+import commonApi from "../../../common/api";
+import { useSelector } from "react-redux";
 
 const { Search } = Input;
 
-const courseData = [
-  {
-    id: 1,
-    category: "Art & Design",
-    title: "Foundation course to understand about software",
-    lessons: 23,
-    duration: "1 hr 30 min",
-    price: 32.0,
-    discount: 0,
-    instructor: "Micie Jhon",
-    rating: 4.5,
-    ratingCount: 48,
-    imageUrl:
-      "https://via.placeholder.com/300x180/FFC107/000000?Text=Art&Design",
-  },
-  {
-    id: 2,
-    category: "Development",
-    title: "Nickles course to understand about software",
-    lessons: 28,
-    duration: "2 hr 10 min",
-    price: 32.0,
-    discount: 40.0,
-    instructor: "Rinis Jhon",
-    rating: 4.2,
-    ratingCount: 35,
-    imageUrl:
-      "https://via.placeholder.com/300x180/2196F3/FFFFFF?Text=Development",
-  },
-  {
-    id: 3,
-    category: "Lifestyle",
-    title: "Minws course to understand about solution",
-    lessons: 25,
-    duration: "1 hr 40 min",
-    price: 40.0,
-    discount: 0,
-    instructor: "Jane Austen",
-    rating: 4.9,
-    ratingCount: 55,
-    imageUrl:
-      "https://via.placeholder.com/300x180/4CAF50/FFFFFF?Text=Lifestyle",
-  },
-  {
-    id: 4,
-    category: "Web Design",
-    title: "Design course to understand about solution",
-    lessons: 36,
-    duration: "3 hr 40 min",
-    price: 40.0,
-    discount: 0,
-    instructor: "Micie Robin",
-    rating: 4.1,
-    ratingCount: 44,
-    imageUrl:
-      "https://via.placeholder.com/300x180/9C27B0/FFFFFF?Text=WebDesign",
-  },
-  {
-    id: 5,
-    category: "Business",
-    title: "Data course to understand about solution",
-    lessons: 16,
-    duration: "1 hr 40 min",
-    price: 40.0,
-    discount: 0,
-    instructor: "Ch. Dickens",
-    rating: 4.6,
-    ratingCount: 62,
-    imageUrl: "https://via.placeholder.com/300x180/FF9800/000000?Text=Business",
-  },
-  {
-    id: 6,
-    category: "Art & Design",
-    title: "Big data to understand about solution pacage",
-    lessons: 30,
-    duration: "1 hr 40 min",
-    price: 40.0,
-    discount: 0,
-    instructor: "Gc. Orwell",
-    rating: 4.3,
-    ratingCount: 38,
-    imageUrl:
-      "https://via.placeholder.com/300x180/E91E63/FFFFFF?Text=Art&Design",
-  },
-  {
-    id: 7,
-    category: "Development",
-    title: "Advanced React Concepts",
-    lessons: 45,
-    duration: "4 hr 0 min",
-    price: 55.0,
-    discount: 10.0,
-    instructor: "John Doe",
-    rating: 4.7,
-    ratingCount: 70,
-    imageUrl:
-      "https://via.placeholder.com/300x180/00BCD4/FFFFFF?Text=Development+",
-  },
-  {
-    id: 8,
-    category: "Lifestyle",
-    title: "Mindfulness and Meditation",
-    lessons: 12,
-    duration: "1 hr 15 min",
-    price: 25.0,
-    discount: 0,
-    instructor: "Sarah Lee",
-    rating: 4.8,
-    ratingCount: 40,
-    imageUrl:
-      "https://via.placeholder.com/300x180/8BC34A/FFFFFF?Text=Lifestyle+",
-  },
-  {
-    id: 9,
-    category: "Web Design",
-    title: "UI/UX Design Fundamentals",
-    lessons: 20,
-    duration: "2 hr 30 min",
-    price: 38.0,
-    discount: 5.0,
-    instructor: "David Smith",
-    rating: 4.4,
-    ratingCount: 52,
-    imageUrl:
-      "https://via.placeholder.com/300x180/673AB7/FFFFFF?Text=WebDesign+",
-  },
-  {
-    id: 10,
-    category: "Business",
-    title: "Digital Marketing Strategy",
-    lessons: 18,
-    duration: "2 hr 0 min",
-    price: 42.0,
-    discount: 0,
-    instructor: "Emily Brown",
-    rating: 4.6,
-    ratingCount: 68,
-    imageUrl:
-      "https://via.placeholder.com/300x180/FF5722/FFFFFF?Text=Business+",
-  },
-  {
-    id: 11,
-    category: "Finance",
-    title: "Personal Finance Management",
-    lessons: 10,
-    duration: "1 hr 0 min",
-    price: 20.0,
-    discount: 0,
-    instructor: "Michael Clark",
-    rating: 4.3,
-    ratingCount: 30,
-    imageUrl: "https://via.placeholder.com/300x180/009688/FFFFFF?Text=Finance",
-  },
-  {
-    id: 12,
-    category: "Personal Development",
-    title: "Effective Communication Skills",
-    lessons: 15,
-    duration: "1 hr 45 min",
-    price: 30.0,
-    discount: 2.0,
-    instructor: "Jessica White",
-    rating: 4.5,
-    ratingCount: 45,
-    imageUrl:
-      "https://via.placeholder.com/300x180/795548/FFFFFF?Text=PersonalDev",
-  },
-  {
-    id: 13,
-    category: "Personal Development13",
-    title: "Effective Communication Skills",
-    lessons: 15,
-    duration: "1 hr 45 min",
-    price: 30.0,
-    discount: 2.0,
-    instructor: "Jessica White",
-    rating: 4.5,
-    ratingCount: 45,
-    imageUrl:
-      "https://via.placeholder.com/300x180/795548/FFFFFF?Text=PersonalDev",
-  },
-];
-
 const Courses = () => {
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(6);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [filteredCourses, setFilteredCourses] = useState(courseData);
-  const [initialLoading, setInitialLoading] = useState(true);
+  const [filteredCourses, setFilteredCourses] = useState([]);
+  const [allCourses, setAllCourses] = useState([]);
+  const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
+
+  const user = useSelector((state) => state?.user?.user);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -213,7 +38,29 @@ const Courses = () => {
   }, []);
 
   useEffect(() => {
-    let results = courseData;
+    const fetchData = async () => {
+      try {
+        const responseCourse = await axios.get(commonApi.course.url);
+        const responseCategory = await axios.get(commonApi.category.url);
+
+        const courses = responseCourse.data.result || [];
+        const cats = responseCategory.data.result || [];
+
+        setAllCourses(courses);
+        setCategories(["all", ...new Set(cats.map((cat) => cat.name))]);
+        setFilteredCourses(courses);
+      } catch (error) {
+        message.error("Failed to fetch courses or categories");
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    let results = allCourses;
 
     if (searchQuery) {
       results = results.filter((course) =>
@@ -229,7 +76,7 @@ const Courses = () => {
 
     setFilteredCourses(results);
     setCurrentPage(1);
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, allCourses]);
 
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
@@ -275,10 +122,15 @@ const Courses = () => {
     }, 500);
   };
 
-  const categories = [
-    "all",
-    ...new Set(courseData.map((course) => course.category)),
-  ];
+  const handleAddToCart = (course) => {
+    console.log(course);
+    
+    if (!user) {
+      return message.warning("Please login to add courses to cart!");
+    }
+
+    message.success(`"${course.title}" added to your cart.`);
+  };
 
   return (
     <>
@@ -325,7 +177,7 @@ const Courses = () => {
                     <Menu.Item key="all">
                       All Categories{" "}
                       <span className="text-gray-500">
-                        ({courseData.length})
+                        ({allCourses.length})
                       </span>
                     </Menu.Item>
                     {categories.slice(1).map((category) => (
@@ -334,7 +186,7 @@ const Courses = () => {
                         <span className="text-gray-500">
                           (
                           {
-                            courseData.filter((c) => c.category === category)
+                            allCourses.filter((c) => c.category === category)
                               .length
                           }
                           )
@@ -359,7 +211,15 @@ const Courses = () => {
                         className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
                       />
                     }
-                    actions={[<HeartOutlined key="like" />]}
+                    actions={[
+                      <HeartOutlined
+                        key="like"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddToCart(course);
+                        }}
+                      />,
+                    ]}
                   >
                     <div className="p-4">
                       <Tag color="processing" className="mb-2">
@@ -391,9 +251,9 @@ const Courses = () => {
                       <div className="flex items-center justify-between text-sm text-gray-500">
                         <div className="flex items-center">
                           <div className="w-7 h-7 rounded-full bg-gray-300 mr-2 flex items-center justify-center text-white font-semibold">
-                            {course.instructor.charAt(0).toUpperCase()}
+                            {course.instructor?.charAt(0)?.toUpperCase() || "?"}
                           </div>
-                          <span>{course.instructor}</span>
+                          <span>{course.instructor || "Unknown"}</span>
                         </div>
                         <Rate
                           style={{ fontSize: "12px" }}

@@ -27,8 +27,9 @@ import commonApi from "../../common/api";
 import axios from "axios";
 import Context from "../../config/context/context";
 import { useDispatch, useSelector } from "react-redux";
-import { setUserDetails } from "../../config/store/userSlice";
+import { logoutUser } from "../../config/store/userSlice";
 import ROLE from "../../common/role";
+import { ShoppingCartOutlined } from "@ant-design/icons";
 
 const { TabPane } = Tabs;
 
@@ -40,29 +41,16 @@ const Header = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
   const location = useLocation();
-  const { fetchUserDetails } = useContext(Context);
+  const { fetchUserDetails, cartDetailCount } = useContext(Context);
 
   const openModal = (tab) => {
     setActiveTab(tab);
     setIsModalOpen(true);
   };
 
-  const fetchApiLogin = () => {
-    return {
-      data: {
-        "code": 1000,
-        "result": {
-          "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJzY29wZSI6IkFETUlOIiwiaXNzIjoiY29kZVZlcnNlLmNvbSIsImV4cCI6MTc0NDkwNDAxNCwiaWF0IjoxNzQ0OTAzMTE0LCJ1c2VySWQiOjEsImp0aSI6IjA2YzllY2NiLWJiNjgtNGJjOC04YTIyLTI1NDgyOWVmNzRiNSJ9.6LcwYkPN4FNYrfj3YUM0dWq8qZwf8ElXFMDcK69ZGT_qPcAy8AECaUC46vGCfA8hnHgZ1Vqrm0P2wDeHdQ7NUA",
-          "authenticated": true
-        },
-      },
-    };
-  };
-
   const handleLogin = async (values) => {
     try {
-      // const response = await axios.post(commonApi.signIn.url, values);
-      const response = fetchApiLogin();
+      const response = await axios.post(commonApi.signIn.url, values);
 
       if (response.data?.result?.authenticated) {
         localStorage.setItem("username", values.username);
@@ -145,7 +133,7 @@ const Header = () => {
   const handleLogout = () => {
     message.success("You have been logged out successfully.");
     localStorage.clear();
-    dispatch(setUserDetails(null));
+    dispatch(logoutUser());
     navigate("/");
   };
 
@@ -285,6 +273,19 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          {user?.role ? (
+            <div
+              className="relative cursor-pointer hover:text-[#2c31cf] transition"
+              onClick={() => navigate("/cart")}
+            >
+              <ShoppingCartOutlined className="text-2xl" />
+              <span className="absolute -top-2 -right-2 text-xs bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center">
+                {cartDetailCount || 0}
+              </span>
+            </div>
+          ) : (
+            ""
+          )}
           {user?.role ? (
             <Dropdown
               overlay={userMenu}

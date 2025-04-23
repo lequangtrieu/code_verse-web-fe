@@ -6,34 +6,34 @@ import Footer from "./components/layout/Footer";
 import commonApi from "./common/api";
 import { message } from "antd";
 import axios from "axios";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setUserDetails } from "./config/store/userSlice";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
+import axiosInstance from "./config/axiosInstance";
 
 function App() {
   const dispatch = useDispatch();
+  const [cartDetailCount, setCartDetailCount] = useState(0);
+  const user = useSelector((state) => state?.user?.user);
 
   const fetchUserDetails = useCallback(async () => {
     const username = localStorage.getItem("username");
     const password = localStorage.getItem("password");
     const token = localStorage.getItem("token");
 
-    const dummyUserDetail = {
-      id: 1,
-      username: "admin@gmail.com",
-      role: "ADMIN",
-      email: "admin",
-      isDeleted: false,
-    };
-
     if (username && password && token) {
       try {
-        // const response = await axios.post(commonApi.userDetail.url, {
-        //   username,
-        // });
+        const response = await axios.post(commonApi.userDetail.url, {
+          username,
+        });
 
-        // dispatch(setUserDetails(response.data.result));
-        dispatch(setUserDetails(dummyUserDetail));
+        dispatch(
+          setUserDetails({
+            user: response.data.result,
+            token: localStorage.getItem("token"),
+          })
+        );
+
       } catch (error) {
         if (error.response) {
           const { status, data } = error.response;
@@ -46,14 +46,45 @@ function App() {
     }
   }, [dispatch]);
 
+  const fetchCartDetail = async () => {
+    try {
+      const response = await axiosInstance.get(commonApi.cartDetail.url, {
+        params: {
+          username: user?.username,
+        },
+      });
+      
+      if (response?.data?.result) {
+        setCartDetailCount(response.data.result);
+      } else {
+        message.warning("No cart data found.");
+      }
+    } catch (error) {
+      if (error.response) {
+        const { status, data } = error.response;
+        message.error(
+          `Error ${status}: ${data.message || "Something went wrong."}`
+        );
+      }
+    }
+  };
+
   useEffect(() => {
     fetchUserDetails();
-  }, []);
+  }, [fetchUserDetails]);
+
+  useEffect(() => {
+    if (user?.username) {
+      fetchCartDetail();
+    }
+  }, [user]);
 
   return (
     <Context.Provider
       value={{
         fetchUserDetails,
+        cartDetailCount,
+        fetchCartDetail,
       }}
     >
       <Header />
