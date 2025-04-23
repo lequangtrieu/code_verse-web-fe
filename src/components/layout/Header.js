@@ -31,7 +31,6 @@ import Context from "../../config/context/context";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../../config/store/userSlice";
 import ROLE from "../../common/role";
-import { ShoppingCartOutlined } from "@ant-design/icons";
 
 const { TabPane } = Tabs;
 
@@ -232,7 +231,7 @@ const Header = () => {
     }
   };
 
-  useEffect(() => { }, [user]);
+  useEffect(() => {}, [user]);
   return (
     <>
       <div className="header-content transition-all duration-300 justify-between flex items-center h-[82px] px-4 bg-white fixed top-0 left-0 right-0 shadow z-50">
@@ -295,35 +294,27 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <Button
-            className="text-gray-700 border-full hover:bg-[#4d96ff] hover:text-white relative"
-            style={{ fontSize: "18px", verticalAlign: "middle" }}
-            onClick={handleCartClick} // Optional: Add the cart click handler if needed
-          >
-            <ShoppingCartOutlined />
-            <Badge
-              count={5} // Replace with the actual count value
-              style={{
-                position: "absolute",
-                top: -25,
-                right: -16,
-                backgroundColor: "#E8505B", // You can adjust the badge color
-              }}
-            />
-          </Button>
           {user?.role ? (
-            <div
-              className="relative cursor-pointer hover:text-[#2c31cf] transition"
-              onClick={() => navigate("/cart")}
+            <Button
+              className="text-gray-700 border-full hover:bg-[#4d96ff] hover:text-white relative"
+              style={{ fontSize: "18px", verticalAlign: "middle" }}
+              onClick={handleCartClick}
             >
-              <ShoppingCartOutlined className="text-2xl" />
-              <span className="absolute -top-2 -right-2 text-xs bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center">
-                {cartDetailCount || 0}
-              </span>
-            </div>
+              <ShoppingCartOutlined />
+              <Badge
+                count={cartDetailCount || 0}
+                style={{
+                  position: "absolute",
+                  top: -25,
+                  right: -16,
+                  backgroundColor: "#E8505B",
+                }}
+              />
+            </Button>
           ) : (
             ""
           )}
+
           {user?.role ? (
             <Dropdown
               overlay={userMenu}
