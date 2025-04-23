@@ -18,7 +18,7 @@ import {
   MenuFoldOutlined,
 } from "@ant-design/icons";
 import ROLE from "../../../common/role";
-import { setUserDetails } from "../../../config/store/userSlice";
+import { logoutUser, setUserDetails } from "../../../config/store/userSlice";
 
 const { Sider, Content } = Layout;
 
@@ -39,7 +39,7 @@ const UserPanel = () => {
   const handleLogout = () => {
     message.success("You have been logged out successfully.");
     localStorage.clear();
-    dispatch(setUserDetails(null));
+    dispatch(logoutUser());
     navigate("/");
   };
 
