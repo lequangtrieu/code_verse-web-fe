@@ -21,6 +21,20 @@ const commonApi = {
     resetPassword: {
         url: `${backendDomain}/auth/resetPassword`,
     },
+
+    /** Course api */
+    course: {
+        url: `${backendDomain}/course`,
+    },
+
+    /** Category api */
+    category: {
+        url: `${backendDomain}/category`,
+    },
+
+    cartDetail: {
+        url: `${backendDomain}/cart/cartDetail`,
+    },
 }
 
 

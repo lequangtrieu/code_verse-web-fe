@@ -30,7 +30,7 @@ const UserPanel = () => {
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
-    if (user?.role !== ROLE.STUDENT) {
+    if (user?.role !== ROLE.LEARNER) {
       message.error("You do not have permission to access the student panel.");
       navigate("/");
     }
