@@ -151,14 +151,14 @@ const Header = () => {
 
         if (user?.role === ROLE.ADMIN) {
           navigate("/admin-panel");
-        } else if (user?.role === ROLE.STUDENT) {
+        } else if (user?.role === ROLE.LEARNER) {
           navigate("/user-panel");
         }
         break;
       case "my-profile":
         if (user?.role === ROLE.ADMIN) {
           navigate("/admin-panel");
-        } else if (user?.role === ROLE.STUDENT) {
+        } else if (user?.role === ROLE.LEARNER) {
           navigate("/user-panel");
         }
         break;
