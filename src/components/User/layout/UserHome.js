@@ -10,7 +10,7 @@ const userInfo = {
   email: "tientnmde170657@fpt.edu.vn",
   avatar: "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg",
   courseProgress: "562/801",
-  certificates: "2 chứng nhận",
+  certificates: "2",
   achievements: [
     "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
     "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
@@ -597,9 +597,9 @@ const UserHome = () => {
         <div className="bg-[#1b2559] text-white max-w-[1440px] w-full">
           {/* Meeting */}
           <div className="mb-4 text-lg">
-            <span>Xin chào </span>
+            <span>Hello </span>
             <span className="text-red-500">{userInfo.email}</span>
-            <span>. Chào mừng bạn đến với CodeLearn. Hãy khám phá nhé!</span>
+            <span>. Welcome you to CodeVerse. Let's start to explore more!</span>
           </div>
 
           {/*User Infor */}
@@ -631,10 +631,10 @@ const UserHome = () => {
               <div className="grid lg:gap-5 gap-3 grid-cols-3 max-w-full overflow-hidden">
                 {/* Khóa học */}
                 <div>
-                  <h4 className="my-0 font-semibold text-[13px] lg:text-base">Khóa học</h4>
+                  <h4 className="my-0 font-semibold text-[13px] lg:text-base">Course</h4>
                   <div className="flex gap-5 justify-between items-baseline">
                     <div className="lg:text-[32px] font-semibold text-yellow-300">4/39</div>
-                    <div className="text-sm mt-1">{userInfo.certificates}</div>
+                    <div className="text-sm mt-1">{userInfo.certificates} certificates</div>
                   </div>
 
                   <ReusableProgress
@@ -646,7 +646,7 @@ const UserHome = () => {
 
                 {/* Luyện tập */}
                 <div>
-                  <h4 className="my-0 font-semibold text-[13px] lg:text-base">Luyện tập</h4>
+                  <h4 className="my-0 font-semibold text-[13px] lg:text-base">Training</h4>
                   <div className="lg:text-[32px] font-semibold text-yellow-300">0/1445</div>
                   <ReusableProgress
                     completed={completedLessons}
@@ -657,10 +657,10 @@ const UserHome = () => {
 
                 {/* Thứ hạng */}
                 <div>
-                  <h4 className="my-0 font-semibold text-[13px] lg:text-base">Thứ hạng tốt nhất</h4>
+                  <h4 className="my-0 font-semibold text-[13px] lg:text-base">Your best position</h4>
                   <div className="flex gap-3 items-baseline">
                     <div className="lg:text-[32px] font-semibold text-yellow-300">0/0</div>
-                    <div class="lg:text-base text-[10px]">cuộc thi</div>
+                    <div class="lg:text-base text-[10px]">fights</div>
                   </div>
 
                   <ReusableProgress
@@ -673,7 +673,7 @@ const UserHome = () => {
               {/* Thành tích */}
               <div className=" mx-auto mt-8">
                 <div className="flex items-center justify-between">
-                  <div className="text-lg font-semibold">Thành tích của bạn</div>
+                  <div className="text-lg font-semibold">Your badges</div>
                 </div>
                 <div className="flex items-center mt-4 gap-4 overflow-x-auto">
                   {userInfo.achievements.map((badge, index) => (
@@ -693,7 +693,7 @@ const UserHome = () => {
 
 
       {/* Banner */}
-      <section className="p-4 text-center max-w-[1440px]">
+      <section className="py-4 text-center max-w-[1440px]">
         <Carousel autoplay dots>
           {banners.map((banner) => (
             <div key={banner.id}>
@@ -720,11 +720,11 @@ const UserHome = () => {
               <div className="max-w-[1440px]">
                 <div className="flex gap-5 justify-between mt-2 flex-wrap">
                   <Tabs defaultActiveKey="learning" onChange={handleTabChange}>
-                    <Tabs.TabPane tab="Khóa học gợi ý" key="suggested" />
-                    <Tabs.TabPane tab="Đang học" key="learning" />
-                    <Tabs.TabPane tab="Hoàn thành" key="completed" />
+                    <Tabs.TabPane tab="Suggested courses" key="suggested" />
+                    <Tabs.TabPane tab="In progress" key="learning" />
+                    <Tabs.TabPane tab="Completed" key="completed" />
                   </Tabs>
-                  <a className="leading-[46px]" href="/course">Xem tất cả</a>
+                  <a className="leading-[46px]" href="/course">See all</a>
                 </div>
 
 
