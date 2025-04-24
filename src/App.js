@@ -33,7 +33,6 @@ function App() {
             token: localStorage.getItem("token"),
           })
         );
-
       } catch (error) {
         if (error.response) {
           const { status, data } = error.response;
@@ -48,15 +47,16 @@ function App() {
 
   const fetchCartDetail = async () => {
     try {
-      const response = await axiosInstance.get(commonApi.cartDetail.url, {
+      const response = await axiosInstance.get(commonApi.countCartDetail.url, {
         params: {
           username: user?.username,
         },
       });
-      
+
       if (response?.data?.result) {
         setCartDetailCount(response.data.result);
       } else {
+        setCartDetailCount(0);
         console.log("No cart data found.");
       }
     } catch (error) {

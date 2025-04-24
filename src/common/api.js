@@ -32,8 +32,21 @@ const commonApi = {
         url: `${backendDomain}/category`,
     },
 
-    cartDetail: {
-        url: `${backendDomain}/cart/cartDetail`,
+    /** Cart api */
+    addToCart: {
+        url: `${backendDomain}/cart/add`,
+    },
+    countCartDetail: {
+        url: `${backendDomain}/cart/countCartDetail`,
+    },
+    detailCart: {
+        url: `${backendDomain}/cart/details`,
+    },
+    removeCartItem: {
+        url: `${backendDomain}/cart/remove`,
+    },
+    clearCart: {
+        url: `${backendDomain}/cart/clear`,
     },
 }
 
