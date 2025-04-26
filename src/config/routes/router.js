@@ -26,6 +26,8 @@ import UserAssignmentPage from "../../components/User/UserAssignment/UserAssignm
 import UserHome from "../../components/User/layout/UserHome"
 import CartPage from "../../components/User/Cart/CartPage";
 import CheckoutPage from "../../components/User/Cart/CheckoutPage";
+import HandlePaymentFailure from "../../components/User/Cart/HandlePaymentFailure";
+import HandlePaymentSuccess from "../../components/User/Cart/HandlePaymentSuccess";
 
 const router = createBrowserRouter([
   {
@@ -65,6 +67,14 @@ const router = createBrowserRouter([
       {
         path: "cart",
         element: <CartPage />,
+      },
+      {
+        path: "/payment-success",
+        element: <HandlePaymentSuccess />
+      },
+      {
+        path: "/payment-failed",
+        element: <HandlePaymentFailure />
       },
       {
         path: "checkout",

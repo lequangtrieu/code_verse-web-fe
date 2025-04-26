@@ -141,14 +141,13 @@ const Courses = () => {
       });
   
       const result = response.data?.result;
-      const code = response.data?.code;
-  
-      if (code === 1000 && result === "Added successfully") {
+      
+      if (result === "Course already in cart") {
+        message.info(`"${course.title}" is already in your cart.`);
+        setCartCourseIds((prev) => [...prev, course.id]);
+      } else if (result === "Added to cart successfully") {
         message.success(`"${course.title}" added to your cart.`);
         fetchCartDetail();
-        setCartCourseIds((prev) => [...prev, course.id]);
-      } else if (result === "Course already in cart") {
-        message.info(`"${course.title}" is already in your cart.`);
         setCartCourseIds((prev) => [...prev, course.id]);
       } else {
         message.error(response.data?.message || "Failed to add to cart.");

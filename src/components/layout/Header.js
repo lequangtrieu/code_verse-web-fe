@@ -49,6 +49,7 @@ const Header = () => {
     setIsModalOpen(true);
   };
   const handleCartClick = () => {
+    scrollTop();
     navigate("/cart");
   };
 
@@ -60,6 +61,7 @@ const Header = () => {
         localStorage.setItem("username", values.username);
         localStorage.setItem("password", values.password);
         localStorage.setItem("token", response.data?.result?.token);
+        localStorage.setItem("refreshToken", response.data?.result?.refreshToken);
         message.success("Login successful!");
         setIsModalOpen(false);
         fetchUserDetails();
