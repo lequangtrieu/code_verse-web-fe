@@ -3,24 +3,22 @@ import { Modal, Form, Input, Button, Upload, message, Avatar } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import ProfileItem from "../AdminProfile/ProfileItem";
 
+const userProfile = {
+  id: 1,
+  firstName: "Michael",
+  lastName: "Nguyen",
+  username: "obema007",
+  email: "obema@example.com",
+  phoneNumber: "+5445625987",
+  registrationDate: "20, January 2024 9:00 PM",
+  role: "Admin",
+  biography: "Hello, it's really a pain to be followed. I am sorry for the elders, we accuse the chosen one...",
+  avatar: "https://lumiere-a.akamaihd.net/v1/images/a_avatarpandorapedia_moat_16x9_1098_07_23778d78.jpeg?region=0%2C0%2C1920%2C1080",
+};
+
 const AdminProfilePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
-
-  const userProfile = {
-    id: 1,
-    firstName: "Michael",
-    lastName: "Nguyen",
-    username: "obema007",
-    email: "obema@example.com",
-    phoneNumber: "+5445625987",
-    registrationDate: "20, January 2024 9:00 PM",
-    role: "Admin",
-    isBanned: false,
-    biography:
-      "Hello, it's really a pain to be followed. I am sorry for the elders, we accuse the chosen one...",
-    avatar: "https://lumiere-a.akamaihd.net/v1/images/a_avatarpandorapedia_moat_16x9_1098_07_23778d78.jpeg?region=0%2C0%2C1920%2C1080",
-  };
 
   const [editableFields, setEditableFields] = useState({
     avatar: userProfile.avatar,
@@ -31,9 +29,12 @@ const AdminProfilePage = () => {
     biography: userProfile.biography,
   });
 
+  const [avatarFileUrl, setAvatarFileUrl] = useState(null); // URL ảnh mới upload
+  const [uploadKey, setUploadKey] = useState(0);
   const handleOpenModal = () => {
     setIsModalOpen(true);
     form.setFieldsValue({ ...editableFields });
+    setAvatarFileUrl(null); // Khi mở modal mới, reset ảnh upload tạm
   };
 
   const handleCancelModal = () => {
@@ -42,26 +43,34 @@ const AdminProfilePage = () => {
 
   const handleUpdateUser = (values) => {
     console.log("Updated values:", values);
-    setEditableFields(values);
+    setEditableFields((prev) => ({
+      ...prev,
+      ...values,
+      avatar: avatarFileUrl ? avatarFileUrl : prev.avatar, // Nếu có ảnh mới thì dùng, không thì giữ avatar cũ
+    }));
     setIsModalOpen(false);
+    setAvatarFileUrl(null); //update xong, reset avatarFileUrl về null
   };
 
   const handleAvatarUpload = (info) => {
-    if (info.file.status === "done" || info.file.status === "uploading") {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const url = e.target.result;
-        form.setFieldsValue({ avatar: url });
+    const fileObj = info.file.originFileObj || info.fileList?.[0]?.originFileObj;
 
-        setEditableFields((prevFields) => ({
-          ...prevFields,
-          avatar: url,
-        }));
-      };
-      reader.readAsDataURL(info.file.originFileObj);
+    if (!fileObj) {
+      message.error("Không thể đọc file ảnh");
+      return;
     }
-  };
 
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const url = e.target.result;
+      setAvatarFileUrl(url); // Lưu ảnh mới upload vào state
+      setUploadKey((prev) => prev + 1);
+    };
+    reader.onerror = () => {
+      message.error("Lỗi khi đọc file");
+    };
+    reader.readAsDataURL(fileObj);
+  };
 
   return (
     <div>
@@ -83,7 +92,6 @@ const AdminProfilePage = () => {
         </div>
       </div>
 
-      {/* Button Update */}
       <Button type="primary" className="mb-6" onClick={handleOpenModal}>
         Update Profile
       </Button>
@@ -96,15 +104,9 @@ const AdminProfilePage = () => {
         <ProfileItem label="Phone Number" value={editableFields.phoneNumber} />
         <ProfileItem label="Registration Date" value={userProfile.registrationDate} />
         <ProfileItem label="Role" value={userProfile.role} />
-        <div className="flex items-start mb-4">
-          <span className="w-40 text-sm text-gray-500">Biography</span>
-          <p className="text-base font-medium text-gray-800">
-            {editableFields.biography}
-          </p>
-        </div>
+        <ProfileItem label="Biography" value={editableFields.biography} />
       </div>
 
-      {/* Modal Update */}
       <Modal
         title="Update Profile"
         open={isModalOpen}
@@ -123,25 +125,25 @@ const AdminProfilePage = () => {
         okText="Update"
         cancelText="Cancel"
       >
-        <Form
-          form={form}
-          initialValues={editableFields}
-          layout="vertical"
-        >
+        <Form form={form} initialValues={editableFields} layout="vertical">
           {/* Avatar Upload */}
           <Form.Item label="" name="avatar">
-            <Avatar
-              src={form.getFieldValue('avatar')}
-              size={96}
-              className="mt-2 mb-4 border-2 border-pink-500"
-            />
-            <Upload
-              showUploadList={false}
-              beforeUpload={() => false}
-              onChange={handleAvatarUpload}
-            >
-              <Button icon={<UploadOutlined />}>Upload Avatar</Button>
-            </Upload>
+            <div className="flex flex-col items-start gap-4">
+              <Avatar
+                src={avatarFileUrl ? avatarFileUrl : editableFields.avatar}
+                size={96}
+                className="border-2 border-pink-500"
+              />
+              <Upload
+                key={uploadKey}
+                showUploadList={false}
+                beforeUpload={() => false}
+                onChange={handleAvatarUpload}
+                accept="image/*"
+              >
+                <Button icon={<UploadOutlined />}>Upload Avatar</Button>
+              </Upload>
+            </div>
           </Form.Item>
 
           <Form.Item
@@ -176,10 +178,7 @@ const AdminProfilePage = () => {
             name="phoneNumber"
             rules={[
               { required: true, message: "Please input phone number!" },
-              {
-                pattern: /^\+?[0-9]{8,15}$/,
-                message: "Phone number is not valid!"
-              },
+              { pattern: /^\+?[0-9]{8,15}$/, message: "Phone number is not valid!" },
             ]}
           >
             <Input />
