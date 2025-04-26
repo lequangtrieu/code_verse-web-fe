@@ -20,6 +20,7 @@ function App() {
     const username = localStorage.getItem("username");
     const password = localStorage.getItem("password");
     const token = localStorage.getItem("token");
+    const refreshToken = localStorage.getItem("refreshToken")
 
     if (username && password && token) {
       try {
@@ -30,9 +31,11 @@ function App() {
         dispatch(
           setUserDetails({
             user: response.data.result,
-            token: localStorage.getItem("token"),
+            token: token,
+            refreshToken: refreshToken
           })
         );
+        localStorage.clear();
       } catch (error) {
         if (error.response) {
           const { status, data } = error.response;

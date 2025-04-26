@@ -12,6 +12,9 @@ const commonApi = {
     signIn: {
         url: `${backendDomain}/auth/login`,
     },
+    refreshToken: {
+        url: `${backendDomain}/auth/refresh`,
+    },
     googleLogin: {
         url: `${backendDomain}/auth/googleLogin`,
     },
@@ -48,6 +51,15 @@ const commonApi = {
     clearCart: {
         url: `${backendDomain}/cart/clear`,
     },
+    checkout: {
+        url: `${backendDomain}/cart/checkout`,
+    },
+    confirmPayment: {
+        url: `${backendDomain}/cart/confirm-payment`,
+    },
+
+      
+
 }
 
 
