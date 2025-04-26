@@ -1,65 +1,114 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios"; // Import axios
 import {
   Table,
-  Button,
   Row,
   Col,
   Input,
-  notification,
   Card,
   Select,
   Avatar,
+  notification,
 } from "antd";
 import {
   SearchOutlined,
   TrophyOutlined,
   StarOutlined,
-} from "@ant-design/icons"; // Importing icons
+} from "@ant-design/icons";
+import moment from "moment"; // Import Moment.js for date manipulation
 
 const { Option } = Select;
 
 const RankingPage = () => {
   const [searchText, setSearchText] = useState("");
-  const [rankings, setRankings] = useState([
-    {
-      key: "1",
-      username: "Đinh Phúc",
-      country: "Vietnam",
-      exp: 7231,
-      image: "image1.jpg",
-    },
-    {
-      key: "2",
-      username: "Trương Quốc Thuân",
-      country: "Vietnam",
-      exp: 6709,
-      image: "image2.jpg",
-    },
-    {
-      key: "3",
-      username: "Andrew Nguyen",
-      country: "Unknown",
-      exp: 6546,
-      image: "image3.jpg",
-    },
-    {
-      key: "4",
-      username: "Mã Thế Thành",
-      country: "Vietnam",
-      exp: 6442,
-      image: "image4.jpg",
-    },
-  ]);
+  const [rankings, setRankings] = useState([]); // Store rankings
+  const [loading, setLoading] = useState(false); // Track loading state
+  const [selectedTimeFilter, setSelectedTimeFilter] = useState("all");
+
+  // Function to fetch mock data (as if it were from an API)
+  const fetchMockData = async () => {
+    setLoading(true);
+    try {
+      // Replace with the actual API endpoint when it's ready
+      const response = await axios.get(
+        "https://jsonplaceholder.typicode.com/users"
+      ); // Mock API
+
+      // For now, using hardcoded mock data:
+      const mockData = [
+        {
+          key: "1",
+          username: "Đinh Phúc",
+          country: "Vietnam",
+          exp: 7231,
+          image: "https://via.placeholder.com/50/FF6347/FFFFFF?text=ĐP", // Fake image link
+          joinDate: "2025-04-25",
+        },
+        {
+          key: "2",
+          username: "Trương Quốc Thuân",
+          country: "Vietnam",
+          exp: 6709,
+          image:
+            "https://unsplash.com/photos/brown-and-grey-trees-and-rock-formation-painting-wKlHsooRVbg", // Fake image link
+          joinDate: "2025-02-15",
+        },
+        {
+          key: "3",
+          username: "Andrew Nguyen",
+          country: "Unknown",
+          exp: 6546,
+          image: "https://via.placeholder.com/50/32CD32/FFFFFF?text=AN", // Fake image link
+          joinDate: "2025-01-20",
+        },
+        {
+          key: "4",
+          username: "Mã Thế Thành",
+          country: "Vietnam",
+          exp: 6442,
+          image: "https://via.placeholder.com/50/FFD700/FFFFFF?text=MTH", // Fake image link
+          joinDate: "2025-03-10",
+        },
+      ];
+
+      setRankings(mockData); // Set mock data
+    } catch (error) {
+      notification.error({
+        message: "Failed to fetch data",
+        description: error.message,
+      });
+    } finally {
+      setLoading(false); // Stop loading
+    }
+  };
+
+  useEffect(() => {
+    fetchMockData(); // Fetch data when component mounts
+  }, []);
 
   // Handle search input change
   const handleSearchChange = (e) => {
     setSearchText(e.target.value);
   };
 
-  // Filter rankings based on search
-  const filteredRankings = rankings.filter((user) =>
-    user.username.toLowerCase().includes(searchText.toLowerCase())
-  );
+  // Filter rankings based on search and selected time filter
+  const filteredRankings = rankings
+    .filter((user) =>
+      user.username.toLowerCase().includes(searchText.toLowerCase())
+    )
+    .filter((user) => {
+      const joinDate = moment(user.joinDate);
+      const currentDate = moment();
+
+      if (selectedTimeFilter === "week") {
+        return joinDate.isSame(currentDate, "week");
+      } else if (selectedTimeFilter === "month") {
+        return joinDate.isSame(currentDate, "month");
+      } else if (selectedTimeFilter === "year") {
+        return joinDate.isSame(currentDate, "year");
+      }
+      return true; // For "all" filter, show all
+    });
 
   const columns = [
     {
@@ -72,11 +121,7 @@ const RankingPage = () => {
       dataIndex: "username",
       render: (username, record) => (
         <div className="flex items-center">
-          {/* Using Avatar component for users with and without images */}
-          <Avatar
-            src={record.image ? record.image : ""}
-            style={{ marginRight: 10 }}
-          />
+          <Avatar src={record.image} style={{ marginRight: 10 }} />
           {username}
         </div>
       ),
@@ -102,10 +147,8 @@ const RankingPage = () => {
     },
   ];
 
-  // Handle the time filter change
   const handleTimeFilterChange = (value) => {
-    console.log("Selected time filter: ", value);
-    // Add the logic for filtering rankings by Week, Month, Year here
+    setSelectedTimeFilter(value);
   };
 
   return (
@@ -126,46 +169,7 @@ const RankingPage = () => {
       </div>
 
       {/* Top 3 Cards */}
-      <Row gutter={[16, 16]} className="mb-6">
-        <Col span={8}>
-          <Card
-            title={
-              <div>
-                <TrophyOutlined style={{ color: "#FFD700" }} /> Top 1
-              </div>
-            }
-            bordered={false}
-            style={{
-              borderRadius: 10,
-              boxShadow: "0 4px 16px rgba(0, 0, 0, 0.15)", // More prominent shadow
-              padding: "20px",
-              transition: "transform 0.3s, box-shadow 0.3s", // Adding smooth transitions
-            }}
-            hoverable // Make the card hoverable
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.transform = "scale(1.05)")
-            }
-            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-          >
-            <div className="flex items-center">
-              <Avatar
-                src="https://via.placeholder.com/50"
-                style={{
-                  marginRight: 15,
-                  width: 80,
-                  height: 80, // Increased avatar size for more prominence
-                }}
-              />
-              <div>
-                <h3 style={{ fontSize: "1.3rem", fontWeight: "bold" }}>
-                  Đinh Phúc
-                </h3>
-                <p style={{ fontSize: "1rem", color: "#777" }}>EXP: 7231</p>
-              </div>
-            </div>
-          </Card>
-        </Col>
-
+      <Row gutter={[16, 16]} className="mb-6" justify="center">
         <Col span={8}>
           <Card
             title={
@@ -176,11 +180,11 @@ const RankingPage = () => {
             bordered={false}
             style={{
               borderRadius: 10,
-              boxShadow: "0 4px 16px rgba(0, 0, 0, 0.15)", // More prominent shadow
+              boxShadow: "0 4px 16px rgba(0, 0, 0, 0.15)",
               padding: "20px",
-              transition: "transform 0.3s, box-shadow 0.3s", // Adding smooth transitions
+              transition: "transform 0.3s, box-shadow 0.3s",
             }}
-            hoverable // Make the card hoverable
+            hoverable
             onMouseEnter={(e) =>
               (e.currentTarget.style.transform = "scale(1.05)")
             }
@@ -188,11 +192,11 @@ const RankingPage = () => {
           >
             <div className="flex items-center">
               <Avatar
-                src="https://via.placeholder.com/50"
+                src="https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"
                 style={{
                   marginRight: 15,
                   width: 80,
-                  height: 80, // Increased avatar size for more prominence
+                  height: 80,
                 }}
               />
               <div>
@@ -209,17 +213,17 @@ const RankingPage = () => {
           <Card
             title={
               <div>
-                <StarOutlined style={{ color: "#CD7F32" }} /> Top 3
+                <TrophyOutlined style={{ color: "#FFD700" }} /> Top 1
               </div>
             }
             bordered={false}
             style={{
               borderRadius: 10,
-              boxShadow: "0 4px 16px rgba(0, 0, 0, 0.15)", // More prominent shadow
+              boxShadow: "0 4px 16px rgba(0, 0, 0, 0.15)",
               padding: "20px",
-              transition: "transform 0.3s, box-shadow 0.3s", // Adding smooth transitions
+              transition: "transform 0.3s, box-shadow 0.3s",
             }}
-            hoverable // Make the card hoverable
+            hoverable
             onMouseEnter={(e) =>
               (e.currentTarget.style.transform = "scale(1.05)")
             }
@@ -227,11 +231,50 @@ const RankingPage = () => {
           >
             <div className="flex items-center">
               <Avatar
-                src="https://via.placeholder.com/50"
+                src="https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"
                 style={{
                   marginRight: 15,
                   width: 80,
-                  height: 80, // Increased avatar size for more prominence
+                  height: 80,
+                }}
+              />
+              <div>
+                <h3 style={{ fontSize: "1.3rem", fontWeight: "bold" }}>
+                  Đinh Phúc
+                </h3>
+                <p style={{ fontSize: "1rem", color: "#777" }}>EXP: 7231</p>
+              </div>
+            </div>
+          </Card>
+        </Col>
+
+        <Col span={8}>
+          <Card
+            title={
+              <div>
+                <StarOutlined style={{ color: "#CD7F32" }} /> Top 3
+              </div>
+            }
+            bordered={false}
+            style={{
+              borderRadius: 10,
+              boxShadow: "0 4px 16px rgba(0, 0, 0, 0.15)",
+              padding: "20px",
+              transition: "transform 0.3s, box-shadow 0.3s",
+            }}
+            hoverable
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.transform = "scale(1.05)")
+            }
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          >
+            <div className="flex items-center">
+              <Avatar
+                src="https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"
+                style={{
+                  marginRight: 15,
+                  width: 80,
+                  height: 80,
                 }}
               />
               <div>
@@ -253,7 +296,7 @@ const RankingPage = () => {
             prefix={<SearchOutlined />}
             value={searchText}
             onChange={handleSearchChange}
-            style={{ width: "auto" }} // Adjusting width of search bar
+            style={{ width: "auto" }}
           />
         </Col>
       </Row>
@@ -264,6 +307,7 @@ const RankingPage = () => {
         dataSource={filteredRankings}
         pagination={false}
         rowKey="key"
+        loading={loading} // Show loading spinner while data is being fetched
       />
     </div>
   );
