@@ -24,9 +24,9 @@ const userInfo = {
 };
 
 const banners = [
-  { id: 1, image: 'https://olivo.cdn.vccloud.vn/wp-content/uploads/2024/01/Banner-web-ngang-K-LOGO-scaled.jpg', link: 'https://example.com/page1' },
-  { id: 2, image: 'https://olivo.cdn.vccloud.vn/wp-content/uploads/2024/01/Banner-web-ngang-K-LOGO-scaled.jpg', link: 'https://example.com/page2' },
-  { id: 3, image: 'https://olivo.cdn.vccloud.vn/wp-content/uploads/2024/01/Banner-web-ngang-K-LOGO-scaled.jpg', link: 'https://example.com/page3' },
+  { id: 1, image: 'banerDemo.png', link: 'https://example.com/page1' },
+  { id: 2, image: 'banerDemo.png', link: 'https://example.com/page2' },
+  { id: 3, image: 'banerDemo.png', link: 'https://example.com/page3' },
 ];
 
 const completedLessons = 562;
@@ -347,35 +347,6 @@ const courseData = [
     status: "completed",
   },
   {
-    id: 22,
-    category: "Business",
-    title: "Data course to understand about solution",
-    lessons: 16,
-    duration: "1 hr 40 min",
-    price: 40.0,
-    discount: 0,
-    instructor: "Ch. Dickens",
-    rating: 4.6,
-    ratingCount: 62,
-    imageUrl: "https://via.placeholder.com/300x180/FF9800/000000?Text=Business",
-    status: "learning",
-  },
-  {
-    id: 23,
-    category: "Art & Design",
-    title: "Big data to understand about solution pacage",
-    lessons: 30,
-    duration: "1 hr 40 min",
-    price: 40.0,
-    discount: 0,
-    instructor: "Gc. Orwell",
-    rating: 4.3,
-    ratingCount: 38,
-    imageUrl:
-      "https://via.placeholder.com/300x180/E91E63/FFFFFF?Text=Art&Design",
-    status: "learning",
-  },
-  {
     id: 24,
     category: "Development",
     title: "Advanced React Concepts",
@@ -447,7 +418,7 @@ const courseData = [
     rating: 4.3,
     ratingCount: 30,
     imageUrl: "https://via.placeholder.com/300x180/009688/FFFFFF?Text=Finance",
-    status: "learning",
+    status: null,
   },
   {
     id: 29,
@@ -464,66 +435,6 @@ const courseData = [
       "https://via.placeholder.com/300x180/795548/FFFFFF?Text=PersonalDev",
     status: "completed",
   },
-  {
-    id: 30,
-    category: "Personal Development13",
-    title: "Effective Communication Skills",
-    lessons: 15,
-    duration: "1 hr 45 min",
-    price: 30.0,
-    discount: 2.0,
-    instructor: "Jessica White",
-    rating: 4.5,
-    ratingCount: 45,
-    imageUrl:
-      "https://via.placeholder.com/300x180/795548/FFFFFF?Text=PersonalDev",
-    status: "learning",
-  },
-  {
-    id: 31,
-    category: "Personal Development13",
-    title: "Effective Communication Skills",
-    lessons: 15,
-    duration: "1 hr 45 min",
-    price: 30.0,
-    discount: 2.0,
-    instructor: "Jessica White",
-    rating: 4.5,
-    ratingCount: 45,
-    imageUrl:
-      "https://via.placeholder.com/300x180/795548/FFFFFF?Text=PersonalDev",
-    status: null,
-  },
-  {
-    id: 32,
-    category: "Personal Development",
-    title: "Effective Communication Skills",
-    lessons: 15,
-    duration: "1 hr 45 min",
-    price: 30.0,
-    discount: 2.0,
-    instructor: "Jessica White",
-    rating: 4.5,
-    ratingCount: 45,
-    imageUrl:
-      "https://via.placeholder.com/300x180/795548/FFFFFF?Text=PersonalDev",
-    status: "completed",
-  },
-  {
-    id: 33,
-    category: "Personal Development13",
-    title: "Effective Communication Skills",
-    lessons: 15,
-    duration: "1 hr 45 min",
-    price: 30.0,
-    discount: 2.0,
-    instructor: "Jessica White",
-    rating: 4.5,
-    ratingCount: 45,
-    imageUrl:
-      "https://via.placeholder.com/300x180/795548/FFFFFF?Text=PersonalDev",
-      status: "learning",
-    }
 ];
 
 const UserHome = () => {
@@ -553,7 +464,7 @@ const UserHome = () => {
 
     return () => window.removeEventListener("resize", updatePageSize);
   }, []);
-  
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setInitialLoading(false);
@@ -711,7 +622,7 @@ const UserHome = () => {
 
 
       {/* Banner */}
-      <section className="p-4 text-center max-w-[1440px]">
+      <section className="p-4 text-center max-w-[1440px] w-full">
         <Carousel autoplay dots>
           {banners.map((banner) => (
             <div key={banner.id}>
