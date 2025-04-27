@@ -1,19 +1,19 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Input, Menu, Card, Pagination, Rate, Tag } from "antd";
-import { SearchOutlined, HeartOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
+import React, {useContext, useEffect, useState} from "react";
+import {Card, Carousel, Input, Menu, message, Pagination, Rate, Tag} from "antd";
+import {HeartOutlined, LeftOutlined, RightOutlined, SearchOutlined} from "@ant-design/icons";
+import {useNavigate} from "react-router-dom";
 import scrollTop from "../../../config/scrollTop";
-import { FaBookOpen } from "react-icons/fa";
-import { GiPlanetCore } from "react-icons/gi";
-import { HiOutlineLightBulb } from "react-icons/hi";
-import { RiSendPlaneLine } from "react-icons/ri";
+import {FaBookOpen} from "react-icons/fa";
+import {GiPlanetCore} from "react-icons/gi";
+import {HiOutlineLightBulb} from "react-icons/hi";
+import {RiSendPlaneLine} from "react-icons/ri";
 import LoadingOverlay from "../../../common/LoadingOverlay";
-import { message } from "antd";
 import axios from "axios";
 import commonApi from "../../../common/api";
-import { useSelector } from "react-redux";
+import {useSelector} from "react-redux";
 import axiosInstance from "../../../config/axiosInstance";
 import Context from "../../../config/context/context";
+import "../Courses/Courses.css"
 
 const { Search } = Input;
 
@@ -157,37 +157,110 @@ const Courses = () => {
     }
   }
 
+  const carouselItems = [
+    {
+      title: "Welcome to CodeVerse",
+      subtitle: "Your Learning Journey Starts Here",
+      description: "Discover a world of programming knowledge with our comprehensive courses. Whether you're a beginner or an experienced developer, we have the perfect learning path for you.",
+      image: "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/images%2Fa53129ba-4965-4353-8bd2-6e917bdc9d3a_tutien.png?alt=media",
+      buttonText: "Explore Courses",
+      buttonLink: "/courses"
+    },
+    {
+      title: "Learn from Industry Experts",
+      subtitle: "Hands-on Learning Experience",
+      description: "Our courses are designed and taught by industry professionals. Get practical, real-world experience through our project-based learning approach.",
+      image: "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/images%2Fa53129ba-4965-4353-8bd2-6e917bdc9d3a_tutien.png?alt=media",
+      buttonText: "View Instructors",
+      buttonLink: "/instructors"
+    },
+    {
+      title: "Join Our Community",
+      subtitle: "Connect with Fellow Learners",
+      description: "Become part of our growing community of developers. Share knowledge, collaborate on projects, and grow together in your coding journey.",
+      image: "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/images%2Fa53129ba-4965-4353-8bd2-6e917bdc9d3a_tutien.png?alt=media",
+      buttonText: "Join Community",
+      buttonLink: "/community"
+    }
+  ];
+
+  const onChange = (currentSlide) => {
+    console.log(currentSlide);
+  };
+
   return (
     <>
       {(initialLoading || loading) && <LoadingOverlay />}
 
       {!initialLoading && (
         <>
-          <section className="relative bg-gradient-to-br from-[#eef2f7] to-[#fefefe] py-40 overflow-hidden shadow-inner">
+          <section className="slider_section">
             <FaBookOpen className="absolute bottom-4 left-20 text-pink-300 text-8xl opacity-30 rotate-[-10deg] animate-float-slow" />
             <GiPlanetCore className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-purple-300 text-[150px] opacity-10 animate-spin-slow" />
             <HiOutlineLightBulb className="absolute top-6 right-40 text-yellow-300 text-7xl opacity-20 animate-pulse" />
             <RiSendPlaneLine className="absolute bottom-10 right-10 text-blue-300 text-7xl opacity-20 rotate-12 animate-fly-slow" />
-
-            <div className="relative z-10 text-center max-w-2xl mx-auto">
-              <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 leading-tight drop-shadow-sm font-heading tracking-tight">
-                Featured Courses
-              </h1>
-              <p className="text-sm text-gray-500 mt-3">
-                <span className="text-gray-400">Home</span> &gt; Featured
-                Courses
-              </p>
+            <div className="slider_container">
+              <Carousel 
+                autoplay={{ dotDuration: true }} autoplaySpeed={5000}
+                effect="fade"
+                arrows={true}
+                prevArrow={<LeftOutlined />}
+                nextArrow={<RightOutlined />}
+                afterChange={onChange}
+                className="custom-carousel"
+              >
+                {carouselItems.map((item, index) => (
+                  <div key={index} className="carousel-item">
+                    <div className="container-fluid">
+                      <div className="row">
+                        <div className="col-md-7">
+                          <div className="detail-box">
+                            <h1>
+                              {item.title}
+                              <br />
+                              <span className="text-2xl font-normal">{item.subtitle}</span>
+                            </h1>
+                            <p className="text-gray-600">
+                              {item.description}
+                            </p>
+                            <a 
+                              href={item.buttonLink}
+                              className="mt-4 inline-block"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                navigate(item.buttonLink);
+                              }}
+                            >
+                              {item.buttonText}
+                            </a>
+                          </div>
+                        </div>
+                        <div className="col-md-5">
+                          <div className="img-box">
+                            <img 
+                              src={item.image} 
+                              alt={item.title}
+                              className="w-full h-auto rounded-lg shadow-lg"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </Carousel>
             </div>
           </section>
+
           <div id="course-section" className="bg-gray-50 py-16">
             <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-4 gap-10">
-              <aside className="bg-white rounded-xl shadow p-6 h-fit sticky top-[100px]">
+              <aside className="bg-white rounded-xl shadow p-6 h-fit sticky top-[100px] transition-all duration-300 hover:shadow-lg">
                 <div className="mb-6">
                   <Search
                     placeholder="Search Courses"
                     onSearch={handleSearch}
                     enterButton={<SearchOutlined />}
-                    className="w-full"
+                    className="w-full transition-all duration-300 hover:shadow-md"
                   />
                 </div>
                 <div>
@@ -199,14 +272,14 @@ const Courses = () => {
                     onClick={({ key }) => handleCategoryClick(key)}
                     selectedKeys={[selectedCategory || "all"]}
                   >
-                    <Menu.Item key="all">
+                    <Menu.Item key="all" className="transition-all duration-300 hover:bg-gray-100">
                       All Categories{" "}
                       <span className="text-gray-500">
                         ({allCourses.length})
                       </span>
                     </Menu.Item>
                     {categories.slice(1).map((category) => (
-                      <Menu.Item key={category} className="capitalize">
+                      <Menu.Item key={category} className="capitalize transition-all duration-300 hover:bg-gray-100">
                         {category}{" "}
                         <span className="text-gray-500">
                           (
@@ -227,12 +300,12 @@ const Courses = () => {
                   <Card
                     onClick={() => handleCourseClick(course.id)}
                     key={course.id}
-                    className="rounded-xl overflow-hidden shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+                    className="rounded-xl overflow-hidden shadow hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
                     cover={
                       <img
                         onClick={() => handleCourseClick(course.id)}
                         alt={course.title}
-                        src="https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"
+                        src={course.thumbnailUrl}
                         className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
                       />
                     }
@@ -243,14 +316,15 @@ const Courses = () => {
                           e.stopPropagation();
                           handleAddToCart(course);
                         }}
+                        className="text-xl transition-colors duration-300 hover:text-red-500"
                       />,
                     ]}
                   >
                     <div className="p-4">
-                      <Tag color="processing" className="mb-2">
+                      <Tag color="processing" className="mb-2 transition-all duration-300 hover:opacity-80">
                         {course.category}
                       </Tag>
-                      <h3 className="text-lg font-semibold mb-2 line-clamp-2">
+                      <h3 className="text-lg font-semibold mb-2 line-clamp-2 hover:text-indigo-600 transition-colors duration-300">
                         {course.title}
                       </h3>
                       <div className="flex items-center text-sm text-gray-600 mb-2">
@@ -260,7 +334,7 @@ const Courses = () => {
                       </div>
                       <div className="flex items-center justify-between mb-2">
                         <div>
-                          <span className="text-lg font-bold text-indigo-600">
+                          <span className="text-lg font-bold text-indigo-600 transition-colors duration-300">
                             ${course.price.toFixed(2)}
                           </span>
                           {course.discount > 0 && (
@@ -275,10 +349,12 @@ const Courses = () => {
                       </div>
                       <div className="flex items-center justify-between text-sm text-gray-500">
                         <div className="flex items-center">
-                          <div className="w-7 h-7 rounded-full bg-gray-300 mr-2 flex items-center justify-center text-white font-semibold">
+                          <div className="w-7 h-7 rounded-full bg-gray-300 mr-2 flex items-center justify-center text-white font-semibold transition-all duration-300 hover:bg-indigo-500">
                             {course.instructor?.charAt(0)?.toUpperCase() || "?"}
                           </div>
-                          <span>{course.instructor || "Unknown"}</span>
+                          <span className="hover:text-indigo-600 transition-colors duration-300">
+                            {course.instructor || "Unknown"}
+                          </span>
                         </div>
                         <Rate
                           style={{ fontSize: "12px" }}

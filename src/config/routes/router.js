@@ -1,8 +1,8 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import App from "../../App";
 
-import Courses from "../../components/User/Courses/courses";
-import CourseDetail from "../../components/User/Courses/courseDetail";
+import Courses from "../../components/User/Courses/Courses";
+import CourseDetail from "../../components/User/Courses/CourseDetail";
 import CourseForm from "../../components/Admin/AdminCourses/CourseCreate/CourseForm";
 import Home from "../../components/layout/Home";
 import DashboardPage from "../../components/Admin/AdminDashBoard/DashboardPage";
