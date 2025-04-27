@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from "react";
-import {Card, Carousel, Input, Menu, message, Pagination, Rate, Tag} from "antd";
+import {Card, Carousel, Input, Menu, message, notification, Pagination, Rate, Tag} from "antd";
 import {HeartOutlined, LeftOutlined, RightOutlined, SearchOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
 import scrollTop from "../../../config/scrollTop";
@@ -127,11 +127,17 @@ const Courses = () => {
 
   const handleAddToCart = async (course) => {
     if (!user) {
-      return message.warning("Please login to add courses to cart!");
+      return notification.warning({
+        message: "Login Required",
+        description: "Please log in to add courses to your cart.",
+      });
     }
   
     if (cartCourseIds.includes(course.id)) {
-      return message.info("This course is already in your cart.");
+      return notification.info({
+        message: "Course Already in Cart",
+        description: `"${course.title}" is already in your cart.`,
+      });
     }
   
     try {
@@ -143,17 +149,29 @@ const Courses = () => {
       const result = response.data?.result;
       
       if (result === "Course already in cart") {
-        message.info(`"${course.title}" is already in your cart.`);
+        notification.info({
+          message: "Course Already in Cart",
+          description: `"${course.title}" is already in your cart.`,
+        });
         setCartCourseIds((prev) => [...prev, course.id]);
       } else if (result === "Added to cart successfully") {
-        message.success(`"${course.title}" added to your cart.`);
+        notification.success({
+          message: "Course Added Successfully",
+          description: `"${course.title}" has been added to your cart.`,
+        });
         fetchCartDetail();
         setCartCourseIds((prev) => [...prev, course.id]);
       } else {
-        message.error(response.data?.message || "Failed to add to cart.");
+        notification.error({
+          message: "Failed to Add Course",
+          description: response.data?.message || "Unable to add course to cart. Please try again.",
+        });
       }
     } catch (error) {
-      message.error("Error adding course to cart.");
+      notification.error({
+        message: "Error Adding Course",
+        description: "Something went wrong. Please try again later.",
+      });
     }
   }
 
@@ -185,7 +203,7 @@ const Courses = () => {
   ];
 
   const onChange = (currentSlide) => {
-    console.log(currentSlide);
+    // console.log(currentSlide);
   };
 
   return (

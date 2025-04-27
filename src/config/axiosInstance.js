@@ -1,8 +1,9 @@
 import axios from "axios";
 import { message } from "antd";
 import store from "./store/store";
-import { logoutUser, setUserDetails } from "./store/userSlice";
 import commonApi from "../common/api";
+import { logoutUser, setUserDetails } from "./store/userSlice";
+import getAuthInfo from "./getAuthInfo";
 
 const axiosInstance = axios.create({
   baseURL: commonApi.default,
@@ -23,83 +24,48 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-const refreshToken = async () => {
-  const refreshToken = store.getState().user.refreshToken;
-  if (!refreshToken) throw new Error("No refresh token");
-
-  const response = await axios.post(commonApi.refreshToken.url, {
-    refreshToken,
-  });
-
-  return response.data;
-};
-
-let isRefreshing = false;
-let failedQueue = [];
-
-const processQueue = (error, token = null) => {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
-  });
-
-  failedQueue = [];
-};
-
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
+    const { refreshToken, username } = getAuthInfo();
     const originalRequest = error.config;
 
-    if (error.response && error.response.status === 401 && originalRequest.url.includes('/auth/refresh')) {
-      store.dispatch(logoutUser());
-      message.error("Session expired. Please login again.");
-      // window.location.href = "/";
-      return Promise.reject(error);
-    }
-
-    if (error.response && error.response.status === 401 && !originalRequest._retry) {
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then((token) => {
-            originalRequest.headers.Authorization = "Bearer " + token;
-            return axiosInstance(originalRequest);
-          })
-          .catch((err) => Promise.reject(err));
-      }
-
+    if (refreshToken && !originalRequest._retry) {
       originalRequest._retry = true;
-      isRefreshing = true;
 
       try {
-        const data = await refreshToken();
-        const newAccessToken = data.accessToken;
+        const refreshResponse = await axios.post(
+          commonApi.refreshToken.url,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${refreshToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-        store.dispatch(setUserDetails({ 
-          user: store.getState().user.user,
-          token: newAccessToken,
-          refreshToken: store.getState().user.refreshToken,
-        }));
+        const newAccessToken = refreshResponse.data.token;
+        const newRefreshToken = refreshResponse.data.refreshToken;
+        const userResponse = await axios.post(commonApi.userDetail.url, { username });
 
-        axiosInstance.defaults.headers.common["Authorization"] = "Bearer " + newAccessToken;
-        originalRequest.headers.Authorization = "Bearer " + newAccessToken;
-        
-        processQueue(null, newAccessToken);
+        store.dispatch(
+          setUserDetails({
+            user: userResponse.data.result,
+            token: newAccessToken,
+            refreshToken: newRefreshToken,
+          })
+        );
 
-        return axiosInstance(originalRequest);
-      } catch (err) {
-        processQueue(err, null);
+        localStorage.setItem("token", newAccessToken);
+        localStorage.setItem("refreshToken", newRefreshToken);
+        message.success("Session refreshed successfully. Please try again."); 
+        return Promise.reject(error);
+
+      } catch (refreshError) {
         store.dispatch(logoutUser());
         message.error("Session expired. Please login again.");
-        // window.location.href = "/";
-        return Promise.reject(err);
-      } finally {
-        isRefreshing = false;
+        return Promise.reject(refreshError);
       }
     }
 
