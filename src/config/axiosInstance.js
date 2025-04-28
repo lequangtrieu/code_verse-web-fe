@@ -47,7 +47,9 @@ axiosInstance.interceptors.response.use(
 
         const newAccessToken = refreshResponse.data.token;
         const newRefreshToken = refreshResponse.data.refreshToken;
-        const userResponse = await axios.post(commonApi.userDetail.url, { username });
+        const userResponse = await axios.post(commonApi.userDetail.url, {
+          username,
+        });
 
         store.dispatch(
           setUserDetails({
@@ -59,9 +61,9 @@ axiosInstance.interceptors.response.use(
 
         localStorage.setItem("token", newAccessToken);
         localStorage.setItem("refreshToken", newRefreshToken);
-        message.success("Session refreshed successfully. Please try again."); 
-        return Promise.reject(error);
-
+        message.success("Session refreshed successfully. Please try again.");
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        return axiosInstance(originalRequest);
       } catch (refreshError) {
         store.dispatch(logoutUser());
         message.error("Session expired. Please login again.");

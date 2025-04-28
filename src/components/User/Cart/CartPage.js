@@ -202,25 +202,36 @@ const CartPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Table */}
           <div className="lg:col-span-2 bg-white rounded-2xl shadow p-6">
-            <Table
-              columns={columns}
-              dataSource={cartItems}
-              pagination={false}
-              footer={() => (
-                <div className="flex justify-between mt-6 border-t pt-4">
-                  <span className="text-gray-500">
-                    Total Items: {cartItems.length}
-                  </span>
-                  <Button
-                    onClick={showClearConfirmModal}
-                    danger
-                    className="rounded-md"
-                  >
-                    Clear All
-                  </Button>
-                </div>
-              )}
-            />
+            {cartItems.length > 0 ? (
+              <Table
+                columns={columns}
+                dataSource={cartItems}
+                pagination={false}
+                footer={() => (
+                  <div className="flex justify-between mt-6 border-t pt-4">
+                    <span className="text-gray-500">
+                      Total Items: {cartItems.length}
+                    </span>
+                    <Button
+                      onClick={showClearConfirmModal}
+                      danger
+                      className="rounded-md"
+                    >
+                      Clear All
+                    </Button>
+                  </div>
+                )}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20">
+                <img
+                  src="../../logoCodeVerse.png"
+                  alt="Empty Cart"
+                  className="w-32 h-32 mb-6"
+                />
+                <h2 className="text-gray-500 text-lg">Your cart is empty</h2>
+              </div>
+            )}
           </div>
 
           {/* Payment Section */}
