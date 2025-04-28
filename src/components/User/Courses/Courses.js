@@ -47,13 +47,6 @@ const Courses = () => {
 
   const user = useSelector((state) => state?.user?.user);
   const { fetchCartDetail } = useContext(Context);
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setInitialLoading(false);
-    }, 450);
-
-    return () => clearTimeout(timer);
-  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,7 +63,9 @@ const Courses = () => {
       } catch (error) {
         message.error("Failed to fetch courses or categories");
       } finally {
-        setInitialLoading(false);
+        setTimeout(() => {
+          setInitialLoading(false);
+        },450)
       }
     };
 
