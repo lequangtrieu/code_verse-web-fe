@@ -4,6 +4,7 @@ import store from "./store/store";
 import commonApi from "../common/api";
 import { logoutUser, setUserDetails } from "./store/userSlice";
 import getAuthInfo from "./getAuthInfo";
+import { Navigate } from "react-router-dom";
 
 const axiosInstance = axios.create({
   baseURL: commonApi.default,
@@ -68,6 +69,7 @@ axiosInstance.interceptors.response.use(
         localStorage.clear();
         store.dispatch(logoutUser());
         message.error("Session expired. Please login again.");
+        Navigate("/");
         return Promise.reject(refreshError);
       }
     }
