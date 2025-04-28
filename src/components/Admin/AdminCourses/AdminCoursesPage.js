@@ -15,22 +15,206 @@ const AdminCoursesPage = () => {
   const [courses, setCourses] = useState([
     {
       id: 1,
-      image: "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg",
-      name: "React Basics",
-      description: "Learn the basics of React.",
-      category: "Web Development",
-      price: 99,
       isActive: true,
+      description: {
+        title: "Full Stack Development",
+        description: "Learn full-stack development with Node.js, React, and MongoDB.",
+        category: "Web Development",
+        image: "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"
+      },
+      modules: [
+        {
+          title: "Module 1: Backend Development with Node.js",
+          lessons: [
+            {
+              title: "Lesson 1: Introduction to Node.js",
+              theory: {
+                theoryType: "Video",
+                previewVideo: "https://example.com/intro_to_node.mp4",
+                video: ["https://example.com/node1.mp4", "https://example.com/node2.mp4"]
+              },
+              exercise: {
+                exerciseType: "Code Challenge",
+                taskDescription: "Build a basic Node.js server.",
+                duration: 60
+              }
+            },
+            {
+              title: "Lesson 2: Working with MongoDB",
+              theory: {
+                theoryType: "Tutorial",
+                previewVideo: "https://example.com/mongodb_intro.mp4",
+                video: ["https://example.com/mongodb1.mp4", "https://example.com/mongodb2.mp4"]
+              },
+              exercise: {
+                exerciseType: "Hands-on",
+                taskDescription: "Create a MongoDB database and perform CRUD operations.",
+                duration: 70
+              }
+            }
+          ]
+        },
+        {
+          title: "Module 2: Frontend Development with React",
+          lessons: [
+            {
+              title: "Lesson 1: Setting up React",
+              theory: {
+                theoryType: "Video",
+                previewVideo: "https://example.com/react_setup.mp4",
+                video: ["https://example.com/react1.mp4", "https://example.com/react2.mp4"]
+              },
+              exercise: {
+                exerciseType: "Hands-on",
+                taskDescription: "Set up a basic React app and run it.",
+                duration: 40
+              }
+            }
+          ]
+        }
+      ],
+      bonus: {
+        isPaid: true,
+        levelId: 3,
+        notes: "Includes bonus materials on DevOps and CI/CD pipelines.",
+        price: 1500
+      },
     },
     {
       id: 2,
-      image: "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg",
-      name: "Advanced JavaScript",
-      description: "Deep dive into JS.",
-      category: "Programming",
-      price: 120,
-      isActive: false,
+      isActive: true,
+      description: {
+        title: "Advanced JavaScript",
+        description: "Master advanced JavaScript concepts and techniques.",
+        category: "Programming",
+        image: "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"
+      },
+      modules: [
+        {
+          title: "Module 1: Asynchronous JavaScript",
+          lessons: [
+            {
+              title: "Lesson 1: Introduction to Asynchronous Programming",
+              theory: {
+                theoryType: "Video",
+                previewVideo: "https://example.com/async_intro.mp4",
+                video: ["https://example.com/async1.mp4", "https://example.com/async2.mp4"]
+              },
+              exercise: {
+                exerciseType: "Code Challenge",
+                taskDescription: "Write a function that fetches data asynchronously.",
+                duration: 60
+              }
+            },
+            {
+              title: "Lesson 2: Promises and Async/Await",
+              theory: {
+                theoryType: "Tutorial",
+                previewVideo: "https://example.com/promises_intro.mp4",
+                video: ["https://example.com/promises1.mp4", "https://example.com/promises2.mp4"]
+              },
+              exercise: {
+                exerciseType: "Hands-on",
+                taskDescription: "Rewrite callback functions using Promises and Async/Await.",
+                duration: 70
+              }
+            }
+          ]
+        },
+        {
+          title: "Module 2: Functional Programming in JavaScript",
+          lessons: [
+            {
+              title: "Lesson 1: Introduction to Functional Programming",
+              theory: {
+                theoryType: "Video",
+                previewVideo: "https://example.com/functional_intro.mp4",
+                video: ["https://example.com/functional1.mp4", "https://example.com/functional2.mp4"]
+              },
+              exercise: {
+                exerciseType: "Hands-on",
+                taskDescription: "Implement basic functional programming techniques in JavaScript.",
+                duration: 50
+              }
+            }
+          ]
+        }
+      ],
+      bonus: {
+        isPaid: false,
+        levelId: 2,
+        notes: "Includes a bonus section on functional programming best practices.",
+        price: 1200
+      }
     },
+    {
+      id: 3,
+      isActive: true,
+      description: {
+        title: "Python for Data Science",
+        description: "Learn Python programming with a focus on data science and machine learning.",
+        category: "Data Science",
+        image: "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"
+      },
+      modules: [
+        {
+          title: "Module 1: Introduction to Python for Data Science",
+          lessons: [
+            {
+              title: "Lesson 1: Setting Up Python for Data Science",
+              theory: {
+                theoryType: "Video",
+                previewVideo: "https://example.com/python_setup.mp4",
+                video: ["https://example.com/python1.mp4", "https://example.com/python2.mp4"]
+              },
+              exercise: {
+                exerciseType: "Hands-on",
+                taskDescription: "Set up Python, install necessary libraries, and run a sample script.",
+                duration: 60
+              }
+            },
+            {
+              title: "Lesson 2: Introduction to Pandas and NumPy",
+              theory: {
+                theoryType: "Tutorial",
+                previewVideo: "https://example.com/pandas_intro.mp4",
+                video: ["https://example.com/pandas1.mp4", "https://example.com/pandas2.mp4"]
+              },
+              exercise: {
+                exerciseType: "Code Challenge",
+                taskDescription: "Perform basic data manipulation using Pandas and NumPy.",
+                duration: 75
+              }
+            }
+          ]
+        },
+        {
+          title: "Module 2: Machine Learning with Python",
+          lessons: [
+            {
+              title: "Lesson 1: Introduction to Machine Learning Algorithms",
+              theory: {
+                theoryType: "Video",
+                previewVideo: "https://example.com/ml_intro.mp4",
+                video: ["https://example.com/ml1.mp4", "https://example.com/ml2.mp4"]
+              },
+              exercise: {
+                exerciseType: "Hands-on",
+                taskDescription: "Implement a basic machine learning algorithm using scikit-learn.",
+                duration: 80
+              }
+            }
+          ]
+        }
+      ],
+      bonus: {
+        isPaid: true,
+        levelId: 4,
+        notes: "Includes bonus content on deep learning techniques.",
+        price: 1800
+      }
+    }
+
   ]);
 
   const [form] = Form.useForm();
@@ -91,12 +275,12 @@ const AdminCoursesPage = () => {
             {courses.map((course) => (
               <tr key={course.id} className="text-center">
                 <td className="border p-2">
-                  <img src={course.image} alt={course.name} className="w-20 h-20 object-cover mx-auto rounded" />
+                  <img src={course.description.image} alt={course.description.title} className="w-20 h-20 object-cover mx-auto rounded" />
                 </td>
-                <td className="border p-2">{course.name}</td>
-                <td className="border p-2">{course.description}</td>
-                <td className="border p-2">{course.category}</td>
-                <td className="border p-2">{course.price}</td>
+                <td className="border p-2">{course.description.title}</td>
+                <td className="border p-2">{course.description.description}</td>
+                <td className="border p-2">{course.description.category}</td>
+                <td className="border p-2">{course.bonus.price}</td>
                 <td className="border p-2">
                   {course.isActive ? (
                     <span className="text-green-500 font-semibold">Active</span>
@@ -147,7 +331,21 @@ const AdminCoursesPage = () => {
         title="Course Details"
         open={isModalOpen}
         onCancel={handleCancelModal}
-        footer={null}
+        footer={[
+          <button
+            key="cancel"
+            className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+            onClick={handleCancelModal}
+          >
+            Cancel
+          </button>,
+          <button
+            key="update"
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Update
+          </button>,
+        ]}
         getContainer={false}
       >
         {selectedCourse && (
@@ -157,23 +355,33 @@ const AdminCoursesPage = () => {
             layout="vertical"
           >
             <Form.Item label="Image">
-              <img src={selectedCourse.image} alt={selectedCourse.name} className="w-full h-auto rounded" />
+              <img src={selectedCourse.description.image} alt={selectedCourse.description.title} className="w-full h-auto rounded" />
             </Form.Item>
 
             <Form.Item label="Name">
-              <span>{selectedCourse.name}</span>
+              <span>{selectedCourse.description.title}</span>
             </Form.Item>
 
             <Form.Item label="Description">
-              <span>{selectedCourse.description}</span>
+              <span>{selectedCourse.description.description}</span>
             </Form.Item>
 
             <Form.Item label="Category">
-              <span>{selectedCourse.category}</span>
+              <span>{selectedCourse.description.category}</span>
             </Form.Item>
 
             <Form.Item label="Price">
-              <span>${selectedCourse.price}</span>
+              <span>${selectedCourse.bonus.price}</span>
+            </Form.Item>
+
+            <Form.Item label="Bonus">
+              {selectedCourse.bonus && (
+                <div>
+                  <p>Price: ${selectedCourse.bonus.price}</p>
+                  <p>Level ID: {selectedCourse.bonus.levelId}</p>
+                  <p>Notes: {selectedCourse.bonus.notes}</p>
+                </div>
+              )}
             </Form.Item>
 
             <Form.Item label="Status">
@@ -182,6 +390,8 @@ const AdminCoursesPage = () => {
           </Form>
         )}
       </Modal>
+
+
     </div>
   );
 };

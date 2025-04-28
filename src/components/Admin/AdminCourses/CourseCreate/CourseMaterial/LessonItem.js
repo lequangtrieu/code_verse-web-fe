@@ -4,7 +4,9 @@ import { MinusCircleOutlined, UploadOutlined, PlusOutlined } from "@ant-design/i
 import QuizItem from "./QuizItem";
 
 const { Option } = Select;
-const lessonTypes = ['Video', 'Document', 'Quiz'];
+
+const theoryTypes = ['Video', 'Document'];
+const exerciseTypes = ['Quiz', 'Task'];
 
 const LessonItem = React.memo(
     ({
@@ -23,14 +25,10 @@ const LessonItem = React.memo(
         const localSuppressed = true;
         const finalSuppressErrors = suppressErrors && localSuppressed;
         const key = `module-${moduleIndex}-lesson-${lessonIndex}`;
-        const lessonType = Form.useWatch(
-            ["modules", moduleIndex, "lessons", lessonIndex, "type"],
-            form
-        );
-        const lessonData = Form.useWatch(
-            ["modules", moduleIndex, "lessons", lessonIndex],
-            form
-        );
+
+        const lessonData = Form.useWatch(["modules", moduleIndex, "lessons", lessonIndex], form);
+        const theoryType = lessonData?.theoryType;
+        const exerciseType = lessonData?.exerciseType;
 
         const memoMarkComplete = useCallback(() => {
             markLessonComplete(moduleIndex, lessonIndex);
@@ -40,11 +38,10 @@ const LessonItem = React.memo(
             markLessonIncomplete(moduleIndex, lessonIndex);
         }, [moduleIndex, lessonIndex, markLessonIncomplete]);
 
-
         const handleBeforeUpload = (file) => {
             const isVideo = file.type.startsWith("video/");
             if (!isVideo) {
-                message.error("you can only upload video file!");
+                message.error("You can only upload video file!");
                 return Upload.LIST_IGNORE;
             }
             return false;
@@ -78,43 +75,62 @@ const LessonItem = React.memo(
                 return;
             }
 
-            const { title, type, duration } = lessonData;
-            if (!title || !type || !duration) {
+            const { title, theoryType, exerciseType, duration } = lessonData;
+            if (!title || !theoryType || !exerciseType || !duration) {
                 memoMarkIncomplete();
                 return;
             }
 
-            if (type === "Video") {
+            // Validate Theory
+            if (theoryType === "Video") {
                 const videoValid = Array.isArray(lessonData.video) && lessonData.video.length > 0;
-                return videoValid ? memoMarkComplete() : memoMarkIncomplete();
-            }
-
-            if (type === "Document") {
+                if (!videoValid) {
+                    memoMarkIncomplete();
+                    return;
+                }
+            } else if (theoryType === "Document") {
                 const doc = lessonData.document;
-                return doc && doc.trim().length > 0 ? memoMarkComplete() : memoMarkIncomplete();
+                if (!doc || !doc.trim()) {
+                    memoMarkIncomplete();
+                    return;
+                }
+            } else {
+                memoMarkIncomplete();
+                return;
             }
 
-            if (type === "Quiz") {
+            // Validate Exercise
+            if (exerciseType === "Quiz") {
                 const questions = lessonData.content;
                 if (!Array.isArray(questions) || questions.length === 0) {
-                    return memoMarkIncomplete();
+                    memoMarkIncomplete();
+                    return;
                 }
 
                 for (let q of questions) {
                     if (!q?.question?.trim() || !Array.isArray(q.answers) || q.answers.length < 2) {
-                        return memoMarkIncomplete();
+                        memoMarkIncomplete();
+                        return;
                     }
 
                     const hasCorrect = q.answers.every(a => a?.text?.trim()) && q.answers.some(a => a?.isCorrect);
                     if (!hasCorrect) {
-                        return memoMarkIncomplete();
+                        memoMarkIncomplete();
+                        return;
                     }
                 }
-
-                return memoMarkComplete();
+            } else if (exerciseType === "Task") {
+                const task = lessonData.taskDescription;
+                if (!task || !task.trim()) {
+                    memoMarkIncomplete();
+                    return;
+                }
+            } else {
+                memoMarkIncomplete();
+                return;
             }
 
-            memoMarkIncomplete();
+            memoMarkComplete();
         }, [lessonData]);
 
         return (
@@ -126,6 +142,7 @@ const LessonItem = React.memo(
             >
                 <h4 className="text-md font-semibold">Lesson {lessonIndex + 1}</h4>
 
+                {/* Lesson Title */}
                 <Form.Item
                     name={[lessonField.name, "title"]}
                     label="Lesson Title"
@@ -136,21 +153,25 @@ const LessonItem = React.memo(
                     <Input placeholder="Lesson title" />
                 </Form.Item>
 
+                {/* Theory Section */}
+                <Divider orientation="left">Theory Section</Divider>
+
                 <Form.Item
-                    name={[lessonField.name, "type"]}
-                    label="Lesson Type"
-                    rules={[{ required: true, message: "Lesson type required" }]}
+                    name={[lessonField.name, "theoryType"]}
+                    label="Theory Type"
+                    rules={[{ required: true, message: "Theory type required" }]}
                     validateStatus={finalSuppressErrors ? "" : undefined}
                     help={finalSuppressErrors ? "" : undefined}
                 >
-                    <Select placeholder="Select type">
-                        {lessonTypes.map((type) => (
+                    <Select placeholder="Select theory type">
+                        {theoryTypes.map((type) => (
                             <Option key={type} value={type}>{type}</Option>
                         ))}
                     </Select>
                 </Form.Item>
 
-                {lessonType === "Video" && (
+                {/* Render Theory Content */}
+                {theoryType === "Video" && (
                     <>
                         {(videoPreview[key] || lessonData?.previewVideo) && (
                             <video
@@ -182,59 +203,76 @@ const LessonItem = React.memo(
                     </>
                 )}
 
-                {lessonType === "Document" && (
+                {theoryType === "Document" && (
                     <Form.Item
                         name={[lessonField.name, "document"]}
                         label="Document Content"
-                        rules={[{ required: true, message: "Enter content" }]}
+                        rules={[{ required: true, message: "Enter document content" }]}
                         validateStatus={finalSuppressErrors ? "" : undefined}
                         help={finalSuppressErrors ? "" : undefined}
                     >
-                        <Input.TextArea rows={4} placeholder="Enter lesson content" />
+                        <Input.TextArea rows={4} placeholder="Enter document content" />
                     </Form.Item>
                 )}
 
-                {lessonType === "Quiz" && (
-                    <>
-                        <Form.List name={[lessonField.name, "content"]}>
-                            {(questionFields, { add: addQuestion, remove: removeQuestion }) => (
-                                <>
-                                    <Divider orientation="left">Quiz Questions</Divider>
+                {/* Exercise Section */}
+                <Divider orientation="left">Exercise Section</Divider>
 
-                                    {questionFields.map((qField, qIndex) => {
-                                        return (
-                                            <QuizItem
-                                                key={`module-${moduleIndex}-lesson-${lessonIndex}-q-${qField.key}`}
-                                                form={form}
-                                                moduleIndex={moduleIndex}
-                                                lessonIndex={lessonIndex}
-                                                qField={qField}
-                                                qIndex={qIndex}
-                                                removeQuestion={removeQuestion}
-                                                suppressErrors={suppressErrors}
-                                            />
-                                        )
-                                    })}
-                                    <Form.Item>
-                                        <Button
-                                            type="dashed"
-                                            onClick={() => addQuestion()}
-                                            block
-                                            icon={<PlusOutlined />}
-                                        >
-                                            Add Question
-                                        </Button>
-                                    </Form.Item>
+                <Form.Item
+                    name={[lessonField.name, "exerciseType"]}
+                    label="Exercise Type"
+                    rules={[{ required: true, message: "Exercise type required" }]}
+                >
+                    <Select placeholder="Select exercise type">
+                        {exerciseTypes.map((type) => (
+                            <Option key={type} value={type}>{type}</Option>
+                        ))}
+                    </Select>
+                </Form.Item>
 
-
-                                </>
-                            )}
-                        </Form.List>
-                    </>
-
-
+                {/* Render Exercise Content */}
+                {exerciseType === "Quiz" && (
+                    <Form.List name={[lessonField.name, "content"]}>
+                        {(questionFields, { add: addQuestion, remove: removeQuestion }) => (
+                            <>
+                                {questionFields.map((qField, qIndex) => (
+                                    <QuizItem
+                                        key={`module-${moduleIndex}-lesson-${lessonIndex}-q-${qField.key}`}
+                                        form={form}
+                                        moduleIndex={moduleIndex}
+                                        lessonIndex={lessonIndex}
+                                        qField={qField}
+                                        qIndex={qIndex}
+                                        removeQuestion={removeQuestion}
+                                        suppressErrors={suppressErrors}
+                                    />
+                                ))}
+                                <Form.Item>
+                                    <Button
+                                        type="dashed"
+                                        onClick={() => addQuestion()}
+                                        block
+                                        icon={<PlusOutlined />}
+                                    >
+                                        Add Question
+                                    </Button>
+                                </Form.Item>
+                            </>
+                        )}
+                    </Form.List>
                 )}
 
+                {exerciseType === "Task" && (
+                    <Form.Item
+                        name={[lessonField.name, "taskDescription"]}
+                        label="Task Description"
+                        rules={[{ required: true, message: "Enter task description" }]}
+                    >
+                        <Input.TextArea rows={4} placeholder="Describe the task for students" />
+                    </Form.Item>
+                )}
+
+                {/* Duration */}
                 <Form.Item
                     name={[lessonField.name, "duration"]}
                     label="Estimated Duration (mins)"
@@ -245,6 +283,7 @@ const LessonItem = React.memo(
                     <InputNumber min={1} placeholder="Minutes" className="w-full" />
                 </Form.Item>
 
+                {/* Remove Button */}
                 <Button
                     danger
                     type="dashed"

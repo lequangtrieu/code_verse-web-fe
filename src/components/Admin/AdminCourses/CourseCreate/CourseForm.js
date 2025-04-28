@@ -8,7 +8,7 @@ import {
 import CourseDescription from "./CourseDescription";
 import CourseMaterial from "./CourseMaterial/CourseMaterial";
 import BonusInfo from "./BonusInfo";
-import AdminCoursesPage from "../AdminCoursesPage";
+import { useNavigate } from "react-router-dom";
 
 const { Step } = Steps;
 const { confirm } = Modal;
@@ -25,6 +25,7 @@ export default function CourseForm() {
     const [current, setCurrent] = useState(0);
     const [completed, setCompleted] = useState({});
     const [showErrors, setShowErrors] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -61,11 +62,45 @@ export default function CourseForm() {
 
     const CurrentComponent = steps[current]?.component;
 
+    const transformModules = (modules) => {
+        const result = [];
+
+        modules.forEach((module, moduleIdx) => {
+            const moduleData = {
+                title: module.title,  // Tên của module
+                lessons: []  // Mảng chứa các bài học của module
+            };
+
+            module.lessons.forEach((lesson, lessonIdx) => {
+                const lessonData = {
+                    title: lesson.title,  // Tên bài học
+                    theory: {
+                        theoryType: lesson.theory?.theoryType || "",  // Loại lý thuyết
+                        previewVideo: lesson.theory?.previewVideo || "",  // Video preview
+                        video: lesson.theory?.video || [],  // Danh sách video
+                    },
+                    exercise: {
+                        exerciseType: lesson.exercise?.exerciseType || "",  // Loại bài tập
+                        taskDescription: lesson.exercise?.taskDescription || "",  // Mô tả bài tập
+                        duration: lesson.exercise?.duration || 0,  // Thời gian bài tập
+                    }
+                };
+
+                moduleData.lessons.push(lessonData);  // Thêm bài học vào module
+            });
+
+            result.push(moduleData);  // Thêm module vào kết quả
+        });
+
+        return result;
+    };
+
+
     const handleSubmit = () => {
         const allCompleted = steps
             .slice(0, steps.length - 1)
             .every((_, index) => completed[index]);
-            setShowErrors(true);
+        setShowErrors(true);
         if (!allCompleted) {
             markIncomplete(steps.length - 1);
             message.error("Please complete all sections before submitting.");
@@ -81,10 +116,16 @@ export default function CourseForm() {
             onOk: () => {
                 form.validateFields()
                     .then(() => {
-                        console.log("Submitted Course:", formData);
+                        const transformedData = {
+                            description: formData.description,
+                            modules: transformModules(formData.modules),
+                            bonus: formData.bonus
+                        };
+
+                        console.log("Submitted Course:", transformedData);
                         message.success("Course submitted successfully!");
                         markComplete(steps.length - 1);
-                        // Code redirect
+                        navigate('/admin-panel/courses');
                     })
                     .catch((err) => {
                         markIncomplete(steps.length - 1);
@@ -93,15 +134,13 @@ export default function CourseForm() {
                     });
             }
         });
-
-
-
     };
 
+
+
     return (
-        
+
         <div className="flex-1">
-            <AdminCoursesPage/>
             <div className="animate-preloader opacity-0 invisible fixed top-0 left-0 -z-1 w-full transition-all duration-300">
                 <div className="preloader flex h-screen w-full items-center justify-center bg-whiteColor transition-all duration-700">
                     <div className="w-90px h-90px border-5px border-t-blue border-r-blue border-b-blue-light border-l-blue-light rounded-full animate-spin-infinit"></div>
