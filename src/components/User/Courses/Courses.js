@@ -1,19 +1,34 @@
-import React, {useContext, useEffect, useState} from "react";
-import {Card, Carousel, Input, Menu, message, notification, Pagination, Rate, Tag} from "antd";
-import {HeartOutlined, LeftOutlined, RightOutlined, SearchOutlined} from "@ant-design/icons";
-import {useNavigate} from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import {
+  Card,
+  Carousel,
+  Input,
+  Menu,
+  message,
+  notification,
+  Pagination,
+  Rate,
+  Tag,
+} from "antd";
+import {
+  HeartOutlined,
+  LeftOutlined,
+  RightOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 import scrollTop from "../../../config/scrollTop";
-import {FaBookOpen} from "react-icons/fa";
-import {GiPlanetCore} from "react-icons/gi";
-import {HiOutlineLightBulb} from "react-icons/hi";
-import {RiSendPlaneLine} from "react-icons/ri";
+import { FaBookOpen } from "react-icons/fa";
+import { GiPlanetCore } from "react-icons/gi";
+import { HiOutlineLightBulb } from "react-icons/hi";
+import { RiSendPlaneLine } from "react-icons/ri";
 import LoadingOverlay from "../../../common/LoadingOverlay";
 import axios from "axios";
 import commonApi from "../../../common/api";
-import {useSelector} from "react-redux";
+import { useSelector } from "react-redux";
 import axiosInstance from "../../../config/axiosInstance";
 import Context from "../../../config/context/context";
-import "../Courses/Courses.css"
+import "../Courses/Courses.css";
 
 const { Search } = Input;
 
@@ -130,76 +145,96 @@ const Courses = () => {
       return notification.warning({
         message: "Login Required",
         description: "Please log in to add courses to your cart.",
+        placement: "topRight",
       });
     }
-  
+
     if (cartCourseIds.includes(course.id)) {
       return notification.info({
         message: "Course Already in Cart",
         description: `"${course.title}" is already in your cart.`,
+        placement: "topRight",
       });
     }
-  
+
     try {
       const response = await axiosInstance.post(commonApi.addToCart.url, {
         username: user.username,
-        courseId: course.id
+        courseId: course.id,
       });
-  
+
       const result = response.data?.result;
-      
+
       if (result === "Course already in cart") {
         notification.info({
           message: "Course Already in Cart",
           description: `"${course.title}" is already in your cart.`,
+          placement: "topRight",
         });
         setCartCourseIds((prev) => [...prev, course.id]);
+      } else if (result === "You already own this course") {
+        notification.warning({
+          message: "Already Purchased",
+          description: `You have already purchased "${course.title}".`,
+          placement: "topRight",
+        });
       } else if (result === "Added to cart successfully") {
         notification.success({
           message: "Course Added Successfully",
           description: `"${course.title}" has been added to your cart.`,
+          placement: "topRight",
         });
         fetchCartDetail();
         setCartCourseIds((prev) => [...prev, course.id]);
       } else {
         notification.error({
           message: "Failed to Add Course",
-          description: response.data?.message || "Unable to add course to cart. Please try again.",
+          description:
+            response.data?.message ||
+            "Unable to add course to cart. Please try again.",
+          placement: "topRight",
         });
       }
     } catch (error) {
       notification.error({
         message: "Error Adding Course",
         description: "Something went wrong. Please try again later.",
+        placement: "topRight",
       });
     }
-  }
+  };
 
   const carouselItems = [
     {
       title: "Welcome to CodeVerse",
       subtitle: "Your Learning Journey Starts Here",
-      description: "Discover a world of programming knowledge with our comprehensive courses. Whether you're a beginner or an experienced developer, we have the perfect learning path for you.",
-      image: "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/images%2Fa53129ba-4965-4353-8bd2-6e917bdc9d3a_tutien.png?alt=media",
+      description:
+        "Discover a world of programming knowledge with our comprehensive courses. Whether you're a beginner or an experienced developer, we have the perfect learning path for you.",
+      image:
+        "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/images%2Fa53129ba-4965-4353-8bd2-6e917bdc9d3a_tutien.png?alt=media",
       buttonText: "Explore Courses",
-      buttonLink: "/courses"
+      buttonLink: "/courses",
     },
     {
       title: "Learn from Industry Experts",
       subtitle: "Hands-on Learning Experience",
-      description: "Our courses are designed and taught by industry professionals. Get practical, real-world experience through our project-based learning approach.",
-      image: "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/images%2Fa53129ba-4965-4353-8bd2-6e917bdc9d3a_tutien.png?alt=media",
+      description:
+        "Our courses are designed and taught by industry professionals. Get practical, real-world experience through our project-based learning approach.",
+      image:
+        "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/images%2Fa53129ba-4965-4353-8bd2-6e917bdc9d3a_tutien.png?alt=media",
       buttonText: "View Instructors",
-      buttonLink: "/instructors"
+      buttonLink: "/instructors",
     },
     {
       title: "Join Our Community",
       subtitle: "Connect with Fellow Learners",
-      description: "Become part of our growing community of developers. Share knowledge, collaborate on projects, and grow together in your coding journey.",
-      image: "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/images%2Fa53129ba-4965-4353-8bd2-6e917bdc9d3a_tutien.png?alt=media",
+      description:
+        "Become part of our growing community of developers. Share knowledge, collaborate on projects, and grow together in your coding journey.",
+      image:
+        "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/images%2Fa53129ba-4965-4353-8bd2-6e917bdc9d3a_tutien.png?alt=media",
       buttonText: "Join Community",
-      buttonLink: "/community"
-    }
+      buttonLink: "/community",
+    },
   ];
 
   const onChange = (currentSlide) => {
@@ -218,8 +253,9 @@ const Courses = () => {
             <HiOutlineLightBulb className="absolute top-6 right-40 text-yellow-300 text-7xl opacity-20 animate-pulse" />
             <RiSendPlaneLine className="absolute bottom-10 right-10 text-blue-300 text-7xl opacity-20 rotate-12 animate-fly-slow" />
             <div className="slider_container">
-              <Carousel 
-                autoplay={{ dotDuration: true }} autoplaySpeed={5000}
+              <Carousel
+                autoplay={{ dotDuration: true }}
+                autoplaySpeed={5000}
                 effect="fade"
                 arrows={true}
                 prevArrow={<LeftOutlined />}
@@ -236,12 +272,12 @@ const Courses = () => {
                             <h1>
                               {item.title}
                               <br />
-                              <span className="text-2xl font-normal">{item.subtitle}</span>
+                              <span className="text-2xl font-normal">
+                                {item.subtitle}
+                              </span>
                             </h1>
-                            <p className="text-gray-600">
-                              {item.description}
-                            </p>
-                            <a 
+                            <p className="text-gray-600">{item.description}</p>
+                            <a
                               href={item.buttonLink}
                               className="mt-4 inline-block"
                               onClick={(e) => {
@@ -255,8 +291,8 @@ const Courses = () => {
                         </div>
                         <div className="col-md-5">
                           <div className="img-box">
-                            <img 
-                              src={item.image} 
+                            <img
+                              src={item.image}
                               alt={item.title}
                               className="w-full h-auto rounded-lg shadow-lg"
                             />
@@ -290,14 +326,20 @@ const Courses = () => {
                     onClick={({ key }) => handleCategoryClick(key)}
                     selectedKeys={[selectedCategory || "all"]}
                   >
-                    <Menu.Item key="all" className="transition-all duration-300 hover:bg-gray-100">
+                    <Menu.Item
+                      key="all"
+                      className="transition-all duration-300 hover:bg-gray-100"
+                    >
                       All Categories{" "}
                       <span className="text-gray-500">
                         ({allCourses.length})
                       </span>
                     </Menu.Item>
                     {categories.slice(1).map((category) => (
-                      <Menu.Item key={category} className="capitalize transition-all duration-300 hover:bg-gray-100">
+                      <Menu.Item
+                        key={category}
+                        className="capitalize transition-all duration-300 hover:bg-gray-100"
+                      >
                         {category}{" "}
                         <span className="text-gray-500">
                           (
@@ -339,7 +381,10 @@ const Courses = () => {
                     ]}
                   >
                     <div className="p-4">
-                      <Tag color="processing" className="mb-2 transition-all duration-300 hover:opacity-80">
+                      <Tag
+                        color="processing"
+                        className="mb-2 transition-all duration-300 hover:opacity-80"
+                      >
                         {course.category}
                       </Tag>
                       <h3 className="text-lg font-semibold mb-2 line-clamp-2 hover:text-indigo-600 transition-colors duration-300">
