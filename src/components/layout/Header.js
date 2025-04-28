@@ -59,7 +59,6 @@ const Header = () => {
 
       if (response.data?.result?.authenticated) {
         localStorage.setItem("username", values.username);
-        localStorage.setItem("password", values.password);
         localStorage.setItem("token", response.data?.result?.token);
         localStorage.setItem("refreshToken", response.data?.result?.refreshToken);
         message.success("Login successful!");

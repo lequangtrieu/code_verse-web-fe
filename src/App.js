@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setUserDetails } from "./config/store/userSlice";
 import { useCallback, useEffect, useState } from "react";
 import axiosInstance from "./config/axiosInstance";
+import getAuthInfo from "./config/getAuthInfo";
 
 function App() {
   const dispatch = useDispatch();
@@ -17,12 +18,9 @@ function App() {
   const user = useSelector((state) => state?.user?.user);
 
   const fetchUserDetails = useCallback(async () => {
-    const username = localStorage.getItem("username");
-    const password = localStorage.getItem("password");
-    const token = localStorage.getItem("token");
-    const refreshToken = localStorage.getItem("refreshToken")
+  const { username, token, refreshToken } = getAuthInfo();
 
-    if (username && password && token) {
+    if (username) {
       try {
         const response = await axios.post(commonApi.userDetail.url, {
           username,
@@ -35,7 +33,6 @@ function App() {
             refreshToken: refreshToken
           })
         );
-        localStorage.clear();
       } catch (error) {
         if (error.response) {
           const { status, data } = error.response;

@@ -24,7 +24,8 @@ const CartPage = () => {
       setCartItems([]);
       fetchCartDetail();
       notification.success({
-        message: "Cart cleared successfully",
+        message: "Cart Cleared Successfully",
+        description: "All items have been removed from your cart.",
       });
     } catch (error) {
       notification.error({
@@ -49,16 +50,17 @@ const CartPage = () => {
     }
 
     try {
-      const selectedCartItemIds = selectedItems.map((item) => parseInt(item.key));
+      const selectedCartItemIds = selectedItems.map((item) =>
+        parseInt(item.key)
+      );
 
       const response = await axiosInstance.post(commonApi.checkout.url, {
         username: user.username,
         selectedCartItemId: selectedCartItemIds,
       });
 
-      const checkoutUrl = response.data.result.checkoutUrl;   
+      const checkoutUrl = response.data.result.checkoutUrl;
       window.location.href = checkoutUrl;
-      
     } catch (error) {
       notification.error({
         message: "Failed to initiate payment",
@@ -73,15 +75,18 @@ const CartPage = () => {
     setCartItems(updatedCartItems);
   };
 
-  const handleRemoveItem = async (cartItemId ) => {
+  const handleRemoveItem = async (cartItemId) => {
     try {
       await axiosInstance.delete(commonApi.removeCartItem.url, {
-        params: { cartItemId  },
+        params: { cartItemId },
       });
 
-      setCartItems((prev) => prev.filter((item) => item.key !== cartItemId ));
+      setCartItems((prev) => prev.filter((item) => item.key !== cartItemId));
       fetchCartDetail();
-      notification.success({ message: "Item removed from cart" });
+      notification.success({
+        message: "Item Removed",
+        description: "The item has been successfully removed from your cart.",
+      });
     } catch (error) {
       notification.error({ message: "Failed to remove item from cart" });
     }
@@ -127,7 +132,7 @@ const CartPage = () => {
     {
       title: "PRICE",
       dataIndex: "price",
-      render: (price) =>        
+      render: (price) =>
         price
           ? price.toLocaleString("vi-VN", {
               style: "currency",
@@ -177,7 +182,7 @@ const CartPage = () => {
       } finally {
         setTimeout(() => {
           setInitialLoading(false);
-        },400)
+        }, 400);
       }
     };
 

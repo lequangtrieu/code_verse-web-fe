@@ -1,38 +1,51 @@
-import React, { useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { notification } from "antd";
 import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
 import scrollTop from "../../../config/scrollTop";
-import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { setUserDetails } from "../../../config/store/userSlice";
+import axios from "axios";
+import Context from "../../../config/context/context";
+import getAuthInfo from "../../../config/getAuthInfo";
 
 const HandlePaymentFailure = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const orderCode = searchParams.get("orderCode");
-  const token = useSelector((state) => state?.user?.token);
+  const dispatch = useDispatch();
+  const { fetchCartDetail } = useContext(Context);
+  const params = new URLSearchParams(window.location.search);
+  const orderId = params.get("orderId");
+  const { username, token, refreshToken } = getAuthInfo();
 
   useEffect(() => {
     const handlePaymentFailure = async () => {
-      const params = new URLSearchParams(window.location.search);
-      const orderId = params.get("orderId");
-      
       if (orderId) {
-        console.log("Vào xử lý thất bại, orderId =", orderId);
-        console.log(token);
-        
-  
+        const response = await axios.post(commonApi.userDetail.url, {
+          username,
+        });
+        dispatch(
+          setUserDetails({
+            user: response.data.result,
+            token: token,
+            refreshToken: refreshToken,
+          })
+        );
+
         try {
-           await axiosInstance.post(commonApi.confirmPayment.url, { orderId, status: "failed" });
-  
-          notification.warning({
-            message: "Payment failed. The order has been cleared.",
+          await axiosInstance.post(commonApi.confirmPayment.url, {
+            orderId,
+            status: "failed",
           });
-  
-          // Sau khi xong có thể scrollTop hoặc navigate
-          // scrollTop();
-          // navigate("/cart");
-  
+          fetchCartDetail();
+          notification.warning({
+            message: "Payment Canceled",
+            description: "You canceled the payment. Your pending order has been cleared.",
+          });
+
+          scrollTop();
+          navigate("/cart");
         } catch (error) {
           notification.error({ message: "Failed to cancel order" });
         }
@@ -40,9 +53,9 @@ const HandlePaymentFailure = () => {
         notification.error({ message: "Order ID not found!" });
       }
     };
-  
+
     handlePaymentFailure();
-  }, [orderCode]);
+  }, [dispatch]);
   return <></>;
 };
 
