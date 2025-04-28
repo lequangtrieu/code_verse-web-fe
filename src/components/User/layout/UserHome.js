@@ -24,9 +24,9 @@ const userInfo = {
 };
 
 const banners = [
-  { id: 1, image: 'https://olivo.cdn.vccloud.vn/wp-content/uploads/2024/01/Banner-web-ngang-K-LOGO-scaled.jpg', link: 'https://example.com/page1' },
-  { id: 2, image: 'https://olivo.cdn.vccloud.vn/wp-content/uploads/2024/01/Banner-web-ngang-K-LOGO-scaled.jpg', link: 'https://example.com/page2' },
-  { id: 3, image: 'https://olivo.cdn.vccloud.vn/wp-content/uploads/2024/01/Banner-web-ngang-K-LOGO-scaled.jpg', link: 'https://example.com/page3' },
+  { id: 1, image: 'banerDemo.png', link: 'https://example.com/page1' },
+  { id: 2, image: 'banerDemo.png', link: 'https://example.com/page2' },
+  { id: 3, image: 'banerDemo.png', link: 'https://example.com/page3' },
 ];
 
 const completedLessons = 562;
@@ -347,35 +347,6 @@ const courseData = [
     status: "completed",
   },
   {
-    id: 22,
-    category: "Business",
-    title: "Data course to understand about solution",
-    lessons: 16,
-    duration: "1 hr 40 min",
-    price: 40.0,
-    discount: 0,
-    instructor: "Ch. Dickens",
-    rating: 4.6,
-    ratingCount: 62,
-    imageUrl: "https://via.placeholder.com/300x180/FF9800/000000?Text=Business",
-    status: "learning",
-  },
-  {
-    id: 23,
-    category: "Art & Design",
-    title: "Big data to understand about solution pacage",
-    lessons: 30,
-    duration: "1 hr 40 min",
-    price: 40.0,
-    discount: 0,
-    instructor: "Gc. Orwell",
-    rating: 4.3,
-    ratingCount: 38,
-    imageUrl:
-      "https://via.placeholder.com/300x180/E91E63/FFFFFF?Text=Art&Design",
-    status: "learning",
-  },
-  {
     id: 24,
     category: "Development",
     title: "Advanced React Concepts",
@@ -447,7 +418,7 @@ const courseData = [
     rating: 4.3,
     ratingCount: 30,
     imageUrl: "https://via.placeholder.com/300x180/009688/FFFFFF?Text=Finance",
-    status: "learning",
+    status: null,
   },
   {
     id: 29,
@@ -464,77 +435,35 @@ const courseData = [
       "https://via.placeholder.com/300x180/795548/FFFFFF?Text=PersonalDev",
     status: "completed",
   },
-  {
-    id: 30,
-    category: "Personal Development13",
-    title: "Effective Communication Skills",
-    lessons: 15,
-    duration: "1 hr 45 min",
-    price: 30.0,
-    discount: 2.0,
-    instructor: "Jessica White",
-    rating: 4.5,
-    ratingCount: 45,
-    imageUrl:
-      "https://via.placeholder.com/300x180/795548/FFFFFF?Text=PersonalDev",
-    status: "learning",
-  },
-  {
-    id: 31,
-    category: "Personal Development13",
-    title: "Effective Communication Skills",
-    lessons: 15,
-    duration: "1 hr 45 min",
-    price: 30.0,
-    discount: 2.0,
-    instructor: "Jessica White",
-    rating: 4.5,
-    ratingCount: 45,
-    imageUrl:
-      "https://via.placeholder.com/300x180/795548/FFFFFF?Text=PersonalDev",
-    status: null,
-  },
-  {
-    id: 32,
-    category: "Personal Development",
-    title: "Effective Communication Skills",
-    lessons: 15,
-    duration: "1 hr 45 min",
-    price: 30.0,
-    discount: 2.0,
-    instructor: "Jessica White",
-    rating: 4.5,
-    ratingCount: 45,
-    imageUrl:
-      "https://via.placeholder.com/300x180/795548/FFFFFF?Text=PersonalDev",
-    status: "completed",
-  },
-  {
-    id: 33,
-    category: "Personal Development13",
-    title: "Effective Communication Skills",
-    lessons: 15,
-    duration: "1 hr 45 min",
-    price: 30.0,
-    discount: 2.0,
-    instructor: "Jessica White",
-    rating: 4.5,
-    ratingCount: 45,
-    imageUrl:
-      "https://via.placeholder.com/300x180/795548/FFFFFF?Text=PersonalDev",
-    status: "learning",
-  }
 ];
 
 const UserHome = () => {
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(8);
+  const [pageSize, setPageSize] = useState(8);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredCourses, setFilteredCourses] = useState(courseData);
   const [initialLoading, setInitialLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState("learning");
   const navigate = useNavigate();
+
+  // Update pageSize theo màn hình
+  useEffect(() => {
+    const updatePageSize = () => {
+      if (window.innerWidth >= 1280) {
+        setPageSize(8);
+      } else if (window.innerWidth >= 1024) {
+        setPageSize(6);
+      } else {
+        setPageSize(4);
+      }
+    };
+
+    updatePageSize(); // Set lúc load trang
+    window.addEventListener("resize", updatePageSize); // Update khi resize
+
+    return () => window.removeEventListener("resize", updatePageSize);
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -693,7 +622,7 @@ const UserHome = () => {
 
 
       {/* Banner */}
-      <section className="py-4 text-center max-w-[1440px]">
+      <section className="p-4 text-center max-w-[1440px] w-full">
         <Carousel autoplay dots>
           {banners.map((banner) => (
             <div key={banner.id}>
@@ -711,13 +640,13 @@ const UserHome = () => {
       </section>
 
       {/* List course of user */}
-      <section className="p-4">
+      <section className="p-4 w-full">
         {(initialLoading || loading) && <LoadingOverlay />}
 
         {!initialLoading && (
           <>
-            <div id="course-section">
-              <div className="max-w-[1440px]">
+            <div id="course-section" className="flex justify-center">
+              <div className="max-w-[1440px] w-full">
                 <div className="flex gap-5 justify-between mt-2 flex-wrap">
                   <Tabs defaultActiveKey="learning" onChange={handleTabChange}>
                     <Tabs.TabPane tab="Suggested courses" key="suggested" />
@@ -730,65 +659,107 @@ const UserHome = () => {
 
                 <div >
                   <main className="grid grid-cols-1 xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 gap-6">
-                    {displayedCourses.map((course) => (
-                      <Card
-                        onClick={() => handleCourseClick(course.id)}
-                        key={course.id}
-                        className="rounded-xl overflow-hidden shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer"
-                        cover={
-                          <img
-                            onClick={() => handleCourseClick(course.id)}
-                            alt={course.title}
-                            src="https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"
-                            className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
-                          />
-                        }
+                    {(() => {
+                      let filledCourses = [...displayedCourses];
 
-                      >
-                        <div className="p-4">
-                          <Tag color="processing" className="mb-2">
-                            {course.category}
-                          </Tag>
-                          <h3 className="text-lg font-semibold mb-2 line-clamp-2">
-                            {course.title}
-                          </h3>
-                          <div className="flex items-center text-sm text-gray-600 mb-2">
-                            <span>{course.lessons} Lessons</span>
-                            <span className="mx-2">•</span>
-                            <span>{course.duration}</span>
-                          </div>
-                          <div className="flex items-center justify-between mb-2">
-                            <div>
-                              <span className="text-lg font-bold text-indigo-600">
-                                ${course.price.toFixed(2)}
-                              </span>
-                              {course.discount > 0 && (
-                                <span className="line-through text-gray-500 ml-2">
-                                  ${course.discount.toFixed(2)}
-                                </span>
-                              )}
-                              {course.discount === 0 && (
-                                <span className="ml-2 text-green-500">Free</span>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between text-sm text-gray-500">
-                            <div className="flex items-center">
-                              <div className="w-7 h-7 rounded-full bg-gray-300 mr-2 flex items-center justify-center text-white font-semibold">
-                                {course.instructor.charAt(0).toUpperCase()}
-                              </div>
-                              <span>{course.instructor}</span>
-                            </div>
-                            <Rate
-                              style={{ fontSize: "12px" }}
-                              disabled
-                              defaultValue={course.rating}
-                              size="small"
+                      // Determine number of columns based on window width
+                      let columns = 1;
+                      if (window.innerWidth >= 1280) {
+                        columns = 4;
+                      } else if (window.innerWidth >= 1024) {
+                        columns = 3;
+                      } else if (window.innerWidth >= 768) {
+                        columns = 2;
+                      } else {
+                        columns = 1;
+                      }
+
+                      const totalCourses = filteredCourses.length;
+                      const totalPages = Math.ceil(totalCourses / pageSize);
+
+                      const isLastPage = currentPage === totalPages;
+
+                      if (isLastPage) {
+                        const remainder = filledCourses.length % columns;
+                        const placeholdersNeeded = remainder === 0 ? 0 : columns - remainder;
+
+                        for (let i = 0; i < placeholdersNeeded; i++) {
+                          filledCourses.push({ placeholder: true, id: `placeholder-${i}` });
+                        }
+                      }
+
+                      return filledCourses.map((course) => (
+                        course.placeholder ? (
+                          <div
+                            key={course.id}
+                            className="rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center"
+                          >
+                            <img
+                              src="imgPlaceholderCousre.png"
+                              alt="Placeholder"
+                              className="w-full object-cover opacity-50"
                             />
                           </div>
-                        </div>
-                      </Card>
-                    ))}
+                        ) : (
+                          <Card
+                            onClick={() => handleCourseClick(course.id)}
+                            key={course.id}
+                            className="rounded-xl overflow-hidden shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+                            cover={
+                              <img
+                                onClick={() => handleCourseClick(course.id)}
+                                alt={course.title}
+                                src="https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"
+                                className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                              />
+                            }
+                          >
+                            <div className="p-4">
+                              <Tag color="processing" className="mb-2">
+                                {course.category}
+                              </Tag>
+                              <h3 className="text-lg font-semibold mb-2 line-clamp-2">
+                                {course.title}
+                              </h3>
+                              <div className="flex items-center text-sm text-gray-600 mb-2">
+                                <span>{course.lessons} Lessons</span>
+                                <span className="mx-2">•</span>
+                                <span>{course.duration}</span>
+                              </div>
+                              <div className="flex items-center justify-between mb-2">
+                                <div>
+                                  <span className="text-lg font-bold text-indigo-600">
+                                    ${course.price.toFixed(2)}
+                                  </span>
+                                  {course.discount > 0 && (
+                                    <span className="line-through text-gray-500 ml-2">
+                                      ${course.discount.toFixed(2)}
+                                    </span>
+                                  )}
+                                  {course.discount === 0 && (
+                                    <span className="ml-2 text-green-500">Free</span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-between text-sm text-gray-500">
+                                <div className="flex items-center">
+                                  <div className="w-7 h-7 rounded-full bg-gray-300 mr-2 flex items-center justify-center text-white font-semibold">
+                                    {course.instructor.charAt(0).toUpperCase()}
+                                  </div>
+                                  <span>{course.instructor}</span>
+                                </div>
+                                <Rate
+                                  style={{ fontSize: "12px" }}
+                                  disabled
+                                  defaultValue={course.rating}
+                                  size="small"
+                                />
+                              </div>
+                            </div>
+                          </Card>
+                        )
+                      ));
+                    })()}
                   </main>
 
                   <div className="lg:col-span-4 flex justify-center mt-12">
