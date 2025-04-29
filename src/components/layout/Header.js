@@ -31,6 +31,7 @@ import Context from "../../config/context/context";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../../config/store/userSlice";
 import ROLE from "../../common/role";
+import setAuthInfo from "../../config/setAuthInfo";
 
 const { TabPane } = Tabs;
 
@@ -54,31 +55,116 @@ const Header = () => {
   };
 
   const handleLogin = async (values) => {
+    localStorage.clear();
+    dispatch(logoutUser());
+
     try {
       const response = await axios.post(commonApi.signIn.url, values);
 
       if (response.data?.result?.authenticated) {
-        localStorage.setItem("username", values.username);
-        localStorage.setItem("token", response.data?.result?.token);
-        localStorage.setItem("refreshToken", response.data?.result?.refreshToken);
-        message.success("Login successful!");
+        setAuthInfo({
+          username: values.username,
+          token: response.data.result.token,
+          refreshToken: response.data.result.refreshToken,
+        });
+
+        notification.success({
+          message: "Login Successful",
+          description: `Welcome back, ${values.username}!`,
+          placement: "topRight",
+          duration: 4,
+        });
+
         setIsModalOpen(false);
-        fetchUserDetails();
+        await fetchUserDetails();
       } else {
-        message.error("Login failed, please try again.");
+        notification.error({
+          message: "Login Failed",
+          description: "Authentication unsuccessful. Please try again.",
+          placement: "topRight",
+          duration: 4,
+        });
       }
     } catch (error) {
       if (error.response) {
         const { status, data } = error.response;
 
-        message.error(`Error ${status}: ${data.message || "Login failed."}`);
+        notification.error({
+          message: `Login Error (Status ${status})`,
+          description: data.message || "Login failed. Please try again.",
+          placement: "topRight",
+          duration: 5,
+        });
       } else {
-        message.error("Unable to connect to the server.");
+        notification.error({
+          message: "Network Error",
+          description:
+            "Unable to connect to the server. Please check your connection.",
+          placement: "topRight",
+          duration: 5,
+        });
+      }
+    }
+  };
+
+  const handleGoogleSuccess = async (response) => {
+    localStorage.clear();
+    dispatch(logoutUser());
+    const token = response.credential;
+
+    try {
+      const res = await axios.post(commonApi.googleLogin.url, {
+        username: token,
+      });
+
+      if (res.data?.result?.authenticated) {
+        setAuthInfo({
+          username: res.data.result.username,
+          token: res.data.result.token,
+          refreshToken: res.data.result.refreshToken,
+        });
+
+        notification.success({
+          message: "Login Successful",
+          description: `Welcome back, ${res.data.result.username}!`,
+          placement: "topRight",
+          duration: 4,
+        });
+
+        setIsModalOpen(false);
+        await fetchUserDetails();
+      } else {
+        notification.error({
+          message: "Google Login Failed",
+          description: "Authentication unsuccessful. Please try again.",
+          placement: "topRight",
+          duration: 4,
+        });
+      }
+    } catch (error) {
+      if (error.response) {
+        const { status, data } = error.response;
+        notification.error({
+          message: `Login Failed (Status ${status})`,
+          description: data.message || "Google login failed. Please try again.",
+          placement: "topRight",
+          duration: 5,
+        });
+      } else {
+        notification.error({
+          message: "Network Error",
+          description:
+            "Unable to connect to the server. Please check your network.",
+          placement: "topRight",
+          duration: 5,
+        });
       }
     }
   };
 
   const handleRegister = async (values) => {
+    localStorage.clear();
+    dispatch(logoutUser());
     try {
       const response = await axios.post(commonApi.signUP.url, values);
 
@@ -180,7 +266,8 @@ const Header = () => {
       >
         <div className="flex items-center gap-2 px-2 py-1">
           <Avatar
-            icon={user?.avatar ? user?.avatar : <UserOutlined />}
+            src={user?.avatar}
+            icon={!user?.avatar && <UserOutlined />}
             size="small"
           />
           <div>
@@ -216,21 +303,6 @@ const Header = () => {
     location.pathname.startsWith(path)
       ? "border-b-[#2c31cf] text-[#2c31cf]"
       : "border-transparent text-[#3b3c54]";
-
-  const handleGoogleSuccess = async (response) => {
-    try {
-      // const res = await fetch(commonApi.googleLogin.url, {
-      //   method: commonApi.googleLogin.method,
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   credentials: "include",
-      //   body: JSON.stringify({ token: response.credential }),
-      // });
-    } catch (error) {
-      console.log("error: ", error);
-    }
-  };
 
   useEffect(() => {}, [user]);
   return (
@@ -323,7 +395,8 @@ const Header = () => {
               trigger={["click"]}
             >
               <Avatar
-                icon={<UserOutlined />}
+                src={user?.avatar}
+                icon={!user?.avatar && <UserOutlined />}
                 className="cursor-pointer hover:shadow-md transition"
               />
             </Dropdown>
@@ -409,7 +482,12 @@ const Header = () => {
 
               <div className="flex justify-center gap-4 flex-wrap">
                 <div className="w-fit flex justify-center">
-                  <GoogleLogin onSuccess={handleGoogleSuccess} />
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => {
+                      message.error("Google Login Failed");
+                    }}
+                  />
                 </div>
 
                 <Button

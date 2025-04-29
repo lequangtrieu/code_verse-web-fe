@@ -16,10 +16,9 @@ function App() {
   const dispatch = useDispatch();
   const [cartDetailCount, setCartDetailCount] = useState(0);
   const user = useSelector((state) => state?.user?.user);
-
+  
   const fetchUserDetails = useCallback(async () => {
-  const { username, token, refreshToken } = getAuthInfo();
-
+    const { username, token, refreshToken } = getAuthInfo();
     if (username) {
       try {
         const response = await axios.post(commonApi.userDetail.url, {
@@ -46,10 +45,11 @@ function App() {
   }, [dispatch]);
 
   const fetchCartDetail = async () => {
+    const { username } = getAuthInfo();
     try {
       const response = await axiosInstance.get(commonApi.countCartDetail.url, {
         params: {
-          username: user?.username,
+          username: username,
         },
       });
 

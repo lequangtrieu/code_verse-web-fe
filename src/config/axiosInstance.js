@@ -4,7 +4,7 @@ import store from "./store/store";
 import commonApi from "../common/api";
 import { logoutUser, setUserDetails } from "./store/userSlice";
 import getAuthInfo from "./getAuthInfo";
-import { Navigate } from "react-router-dom";
+import setAuthInfo from "./setAuthInfo";
 
 const axiosInstance = axios.create({
   baseURL: commonApi.default,
@@ -16,8 +16,8 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = store.getState().user.token;
-    if (token) {
+    const {token } = getAuthInfo();
+    if (token && token != null) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -60,8 +60,11 @@ axiosInstance.interceptors.response.use(
           })
         );
 
-        localStorage.setItem("token", newAccessToken);
-        localStorage.setItem("refreshToken", newRefreshToken);
+        setAuthInfo({
+          username: username,
+          token: newAccessToken,
+          refreshToken: newRefreshToken,
+        });
         message.success("Session refreshed successfully. Please try again.");
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return axiosInstance(originalRequest);
@@ -69,7 +72,7 @@ axiosInstance.interceptors.response.use(
         localStorage.clear();
         store.dispatch(logoutUser());
         message.error("Session expired. Please login again.");
-        Navigate("/");
+        window.location.href = "/";
         return Promise.reject(refreshError);
       }
     }
