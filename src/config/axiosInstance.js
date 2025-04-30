@@ -31,7 +31,12 @@ axiosInstance.interceptors.response.use(
     const { refreshToken, username } = getAuthInfo();
     const originalRequest = error.config;
 
-    if (refreshToken && !originalRequest._retry) {
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      refreshToken &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true;
 
       try {
@@ -61,11 +66,11 @@ axiosInstance.interceptors.response.use(
         );
 
         setAuthInfo({
-          username: username,
+          username,
           token: newAccessToken,
           refreshToken: newRefreshToken,
         });
-        message.success("Session refreshed successfully. Please try again.");
+
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
@@ -76,18 +81,6 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
-
-    if (error.response) {
-      const { status } = error.response;
-      if (status === 403) {
-        message.warning("You don’t have permission to perform this action.");
-      } else if (status >= 500) {
-        message.error("Server error. Try again later.");
-      }
-    } else {
-      message.error("Network error. Please check your connection.");
-    }
-
     return Promise.reject(error);
   }
 );

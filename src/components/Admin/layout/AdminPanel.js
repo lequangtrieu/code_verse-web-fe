@@ -58,7 +58,6 @@ const AdminPanel = () => {
         collapsed={collapsed}
         onCollapse={setCollapsed}
         trigger={null}
-        style={{ marginTop: "20px" }}
         className="bg-white shadow-md flex flex-col justify-between"
       >
         <div className="p-4 font-semibold uppercase text-gray-600 border-b">
