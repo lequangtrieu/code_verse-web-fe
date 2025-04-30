@@ -11,6 +11,7 @@ import {
   notification,
   Tabs,
   Badge,
+  Popover,
 } from "antd";
 import { message } from "antd";
 import {
@@ -43,7 +44,7 @@ const Header = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
   const location = useLocation();
-  const { fetchUserDetails, cartDetailCount } = useContext(Context);
+  const { fetchUserDetails, cartDetailCount, cartItems } = useContext(Context);
 
   const openModal = (tab) => {
     setActiveTab(tab);
@@ -71,7 +72,7 @@ const Header = () => {
         notification.success({
           message: "Login Successful",
           description: `Welcome back, ${values.username}!`,
-          placement: "topRight",
+          placement: "topLeft",
           duration: 4,
         });
 
@@ -81,18 +82,18 @@ const Header = () => {
         notification.error({
           message: "Login Failed",
           description: "Authentication unsuccessful. Please try again.",
-          placement: "topRight",
+          placement: "topLeft",
           duration: 4,
         });
       }
     } catch (error) {
       if (error.response) {
-        const { status, data } = error.response;
+        const { data } = error.response;
 
         notification.error({
-          message: `Login Error (Status ${status})`,
+          message: `Login Error.`,
           description: data.message || "Login failed. Please try again.",
-          placement: "topRight",
+          placement: "topLeft",
           duration: 5,
         });
       } else {
@@ -100,7 +101,7 @@ const Header = () => {
           message: "Network Error",
           description:
             "Unable to connect to the server. Please check your connection.",
-          placement: "topRight",
+          placement: "topLeft",
           duration: 5,
         });
       }
@@ -127,7 +128,7 @@ const Header = () => {
         notification.success({
           message: "Login Successful",
           description: `Welcome back, ${res.data.result.username}!`,
-          placement: "topRight",
+          placement: "topLeft",
           duration: 4,
         });
 
@@ -137,17 +138,17 @@ const Header = () => {
         notification.error({
           message: "Google Login Failed",
           description: "Authentication unsuccessful. Please try again.",
-          placement: "topRight",
+          placement: "topLeft",
           duration: 4,
         });
       }
     } catch (error) {
       if (error.response) {
-        const { status, data } = error.response;
+        const { data } = error.response;
         notification.error({
-          message: `Login Failed (Status ${status})`,
+          message: `Login Failed`,
           description: data.message || "Google login failed. Please try again.",
-          placement: "topRight",
+          placement: "topLeft",
           duration: 5,
         });
       } else {
@@ -155,7 +156,7 @@ const Header = () => {
           message: "Network Error",
           description:
             "Unable to connect to the server. Please check your network.",
-          placement: "topRight",
+          placement: "topLeft",
           duration: 5,
         });
       }
@@ -173,26 +174,26 @@ const Header = () => {
           message: "Registration Successful",
           description:
             "Your account has been created successfully. Please check your email to verify your account before logging in.",
-          placement: "topRight",
+          placement: "topLeft",
         });
       }
     } catch (error) {
       if (error.response) {
-        const { status, data } = error.response;
+        const { data } = error.response;
 
         const errorMessage =
           data?.message || "Registration failed. Please try again.";
 
         notification.error({
-          message: `Registration Failed (Status ${status})`,
+          message: `Registration Failed.`,
           description: errorMessage,
-          placement: "topRight",
+          placement: "topLeft",
         });
       } else {
         notification.error({
           message: "Network Error",
           description: "Cannot connect to the server. Please try again later.",
-          placement: "topRight",
+          placement: "topLeft",
         });
       }
     }
@@ -208,6 +209,7 @@ const Header = () => {
       notification.success({
         message: "Email Sent",
         description: "Check your inbox for password reset instructions.",
+        placement: "topLeft",
       });
 
       setIsForgotModalOpen(false);
@@ -217,12 +219,17 @@ const Header = () => {
         description:
           error?.response?.data?.message ||
           "Failed to send reset link. Please try again.",
+        placement: "topLeft",
       });
     }
   };
 
   const handleLogout = () => {
-    message.success("You have been logged out successfully.");
+    notification.success({
+      message: "Logout system",
+      description: "You have been logged out successfully.",
+      placement: "topLeft",
+    });
     localStorage.clear();
     dispatch(logoutUser());
     navigate("/");
@@ -260,6 +267,59 @@ const Header = () => {
         break;
     }
   };
+
+  const handleCourseClick = (id) => {
+    scrollTop();
+    navigate(`/course/${id}`);
+  };
+
+  const cartContent = (
+    <div style={{ width: 300 }}>
+      {cartItems.length > 0 ? (
+        <>
+          {cartItems.map((item) => (
+            <div key={item.key} className="flex gap-3 py-2 border-b">
+              <img
+                onClick={() => handleCourseClick(item.idCourse)}
+                src={item.image}
+                alt={item.product}
+                className="w-12 h-12 rounded cursor-pointer transition-transform duration-300 hover:scale-110 hover:shadow-md"
+              />
+              <div className="flex-1">
+                <div className="font-semibold">{item.product}</div>
+                <div className="text-sm text-gray-500">
+                  {item.price.toLocaleString("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
+                </div>
+              </div>
+            </div>
+          ))}
+          <div className="flex justify-between mt-2 font-semibold">
+            <span>Total:</span>
+            <span>
+              {cartItems
+                .reduce((acc, i) => acc + i.price, 0)
+                .toLocaleString("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                })}
+            </span>
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-20">
+          <img
+            src="../../logoCodeVerse.png"
+            alt="Empty Cart"
+            className="w-32 h-32 mb-6"
+          />
+          <h2 className="text-gray-500 text-lg">Your cart is empty</h2>
+        </div>
+      )}
+    </div>
+  );
 
   const userMenu = (
     <Menu onClick={handleMenuClick}>
@@ -372,22 +432,28 @@ const Header = () => {
 
         <div className="flex items-center gap-3">
           {user?.role ? (
-            <Button
-              className="text-gray-700 border-full hover:bg-[#4d96ff] hover:text-white relative"
-              style={{ fontSize: "18px", verticalAlign: "middle" }}
-              onClick={handleCartClick}
+            <Popover
+              content={cartContent}
+              trigger="hover"
+              placement="bottomRight"
             >
-              <ShoppingCartOutlined />
-              <Badge
-                count={cartDetailCount || 0}
-                style={{
-                  position: "absolute",
-                  top: -25,
-                  right: -16,
-                  backgroundColor: "#E8505B",
-                }}
-              />
-            </Button>
+              <Button
+                className="text-gray-700 border-full hover:bg-[#4d96ff] hover:text-white relative"
+                style={{ fontSize: "18px", verticalAlign: "middle" }}
+                onClick={handleCartClick}
+              >
+                <ShoppingCartOutlined />
+                <Badge
+                  count={cartDetailCount || 0}
+                  style={{
+                    position: "absolute",
+                    top: -25,
+                    right: -16,
+                    backgroundColor: "#E8505B",
+                  }}
+                />
+              </Button>
+            </Popover>
           ) : (
             ""
           )}

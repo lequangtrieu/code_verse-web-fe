@@ -46,7 +46,7 @@ const Courses = () => {
   const navigate = useNavigate();
 
   const user = useSelector((state) => state?.user?.user);
-  const { fetchCartDetail } = useContext(Context);
+  const { fetchCartDetail, fetchCartItems } = useContext(Context);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,7 +56,7 @@ const Courses = () => {
 
         const courses = responseCourse.data.result || [];
         const cats = responseCategory.data.result || [];
-
+        
         setAllCourses(courses);
         setCategories(["all", ...new Set(cats.map((cat) => cat.name))]);
         setFilteredCourses(courses);
@@ -65,7 +65,7 @@ const Courses = () => {
       } finally {
         setTimeout(() => {
           setInitialLoading(false);
-        },450)
+        }, 450);
       }
     };
 
@@ -140,7 +140,7 @@ const Courses = () => {
       return notification.warning({
         message: "Login Required",
         description: "Please log in to add courses to your cart.",
-        placement: "topRight",
+        placement: "leftRight",
       });
     }
 
@@ -148,7 +148,7 @@ const Courses = () => {
       return notification.info({
         message: "Course Already in Cart",
         description: `"${course.title}" is already in your cart.`,
-        placement: "topRight",
+        placement: "bottomLeft",
       });
     }
 
@@ -164,22 +164,23 @@ const Courses = () => {
         notification.info({
           message: "Course Already in Cart",
           description: `"${course.title}" is already in your cart.`,
-          placement: "topRight",
+          placement: "bottomLeft",
         });
         setCartCourseIds((prev) => [...prev, course.id]);
       } else if (result === "You already own this course") {
         notification.warning({
           message: "Already Purchased",
           description: `You have already purchased "${course.title}".`,
-          placement: "topRight",
+          placement: "bottomLeft",
         });
       } else if (result === "Added to cart successfully") {
         notification.success({
           message: "Course Added Successfully",
           description: `"${course.title}" has been added to your cart.`,
-          placement: "topRight",
+          placement: "bottomLeft",
         });
         fetchCartDetail();
+        fetchCartItems();
         setCartCourseIds((prev) => [...prev, course.id]);
       } else {
         notification.error({
@@ -187,14 +188,14 @@ const Courses = () => {
           description:
             response.data?.message ||
             "Unable to add course to cart. Please try again.",
-          placement: "topRight",
+          placement: "bottomLeft",
         });
       }
     } catch (error) {
       notification.error({
         message: "Error Adding Course",
         description: "Something went wrong. Please try again later.",
-        placement: "topRight",
+        placement: "bottomLeft",
       });
     }
   };

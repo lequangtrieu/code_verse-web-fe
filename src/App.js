@@ -15,8 +15,9 @@ import getAuthInfo from "./config/getAuthInfo";
 function App() {
   const dispatch = useDispatch();
   const [cartDetailCount, setCartDetailCount] = useState(0);
+  const [cartItems, setCartItems] = useState([]);
   const user = useSelector((state) => state?.user?.user);
-  
+
   const fetchUserDetails = useCallback(async () => {
     const { username, token, refreshToken } = getAuthInfo();
     if (username) {
@@ -29,7 +30,7 @@ function App() {
           setUserDetails({
             user: response.data.result,
             token: token,
-            refreshToken: refreshToken
+            refreshToken: refreshToken,
           })
         );
       } catch (error) {
@@ -69,6 +70,36 @@ function App() {
     }
   };
 
+  const fetchCartItems = async () => {
+    const { username } = getAuthInfo();
+    try {
+      const response = await axiosInstance.get(commonApi.detailCart.url, {
+        params: { username: username },
+      });
+
+      const items = response.data.result || [];
+      const formattedItems = items.map((item, index) => ({
+        key: item.id.toString(),
+        idCourse: item.course?.id,
+        image:
+          item.course?.thumbnailUrl ||
+          "https://firebasestorage.googleapis.com/v0/b/sellglasses-13e72.appspot.com/o/avatar%2F67e050562ecb1fdae3fd3feb?alt=media&token=bfd4dcd5-b12c-48f3-a2eb-dbce8ae29325",
+        product: item.course?.title || "Untitled",
+        price: item.course.price || 0,
+        selected: false,
+      }));
+
+      setCartItems(formattedItems);
+    } catch (error) {
+      if (error.response) {
+        const { status, data } = error.response;
+        message.error(
+          `Error ${status}: ${data.message || "Something went wrong."}`
+        );
+      }
+    }
+  };
+
   useEffect(() => {
     fetchUserDetails();
   }, [fetchUserDetails]);
@@ -76,6 +107,7 @@ function App() {
   useEffect(() => {
     if (user?.username) {
       fetchCartDetail();
+      fetchCartItems();
     }
   }, [user]);
 
@@ -84,7 +116,9 @@ function App() {
       value={{
         fetchUserDetails,
         cartDetailCount,
+        cartItems,
         fetchCartDetail,
+        fetchCartItems,
       }}
     >
       <Header />

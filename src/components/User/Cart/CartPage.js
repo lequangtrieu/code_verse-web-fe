@@ -6,14 +6,17 @@ import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
 import { useSelector } from "react-redux";
 import Context from "../../../config/context/context";
+import scrollTop from "../../../config/scrollTop";
+import { useNavigate } from "react-router-dom";
 
 const CartPage = () => {
   const [initialLoading, setInitialLoading] = useState(true);
   const [cartItems, setCartItems] = useState([]);
   const [confirmClearVisible, setConfirmClearVisible] = useState(false);
+  const navigate = useNavigate();
 
   const user = useSelector((state) => state?.user?.user);
-  const { fetchCartDetail } = useContext(Context);
+  const { fetchCartDetail, fetchCartItems } = useContext(Context);
 
   const handleClearCart = async () => {
     try {
@@ -23,13 +26,16 @@ const CartPage = () => {
 
       setCartItems([]);
       fetchCartDetail();
+      fetchCartItems();
       notification.success({
         message: "Cart Cleared Successfully",
         description: "All items have been removed from your cart.",
+        placement: "bottomLeft",
       });
     } catch (error) {
       notification.error({
         message: "Failed to clear cart",
+        placement: "bottomLeft",
       });
     } finally {
       setConfirmClearVisible(false);
@@ -46,6 +52,7 @@ const CartPage = () => {
     if (selectedItems.length === 0) {
       return notification.warning({
         message: "Please select at least one course.",
+        placement: "bottomLeft",
       });
     }
 
@@ -64,6 +71,7 @@ const CartPage = () => {
     } catch (error) {
       notification.error({
         message: "Failed to initiate payment",
+        placement: "bottomLeft",
       });
     }
   };
@@ -83,12 +91,17 @@ const CartPage = () => {
 
       setCartItems((prev) => prev.filter((item) => item.key !== cartItemId));
       fetchCartDetail();
+      fetchCartItems();
       notification.success({
         message: "Item Removed",
         description: "The item has been successfully removed from your cart.",
+        placement: "bottomLeft",
       });
     } catch (error) {
-      notification.error({ message: "Failed to remove item from cart" });
+      notification.error({
+        message: "Failed to remove item from cart",
+        placement: "bottomLeft",
+      });
     }
   };
 
@@ -98,6 +111,11 @@ const CartPage = () => {
     (acc, item) => (item.selected ? acc + item.price : acc),
     0
   );
+
+  const handleCourseClick = (id) => {
+    scrollTop();
+    navigate(`/course/${id}`);
+  };
 
   const columns = [
     {
@@ -113,7 +131,7 @@ const CartPage = () => {
     {
       title: "IMAGE",
       dataIndex: "image",
-      render: (image) => (
+      render: (image, record) => (
         <img
           src={
             image
@@ -121,7 +139,8 @@ const CartPage = () => {
               : "https://firebasestorage.googleapis.com/v0/b/sellglasses-13e72.appspot.com/o/avatar%2F67e050562ecb1fdae3fd3feb?alt=media&token=bfd4dcd5-b12c-48f3-a2eb-dbce8ae29325"
           }
           alt="product"
-          className="w-16"
+          className="w-12 h-12 rounded cursor-pointer transition-transform duration-300 hover:scale-110 hover:shadow-md"
+          onClick={() => handleCourseClick(record.idCourse)}
         />
       ),
     },
@@ -167,10 +186,11 @@ const CartPage = () => {
         const formattedItems = items.map((item, index) => ({
           key: item.id.toString(),
           image:
+            item.course?.thumbnailUrl ||
             "https://firebasestorage.googleapis.com/v0/b/sellglasses-13e72.appspot.com/o/avatar%2F67e050562ecb1fdae3fd3feb?alt=media&token=bfd4dcd5-b12c-48f3-a2eb-dbce8ae29325",
-          // image: item.course?.thumbnailUrl || "https://firebasestorage.googleapis.com/v0/b/sellglasses-13e72.appspot.com/o/avatar%2F67e050562ecb1fdae3fd3feb?alt=media&token=bfd4dcd5-b12c-48f3-a2eb-dbce8ae29325",
           product: item.course?.title || "Untitled",
-          price: item.course.price || 0,
+          price: item.course?.price || 0,
+          idCourse: item.course?.id,
           selected: false,
         }));
 
@@ -178,6 +198,7 @@ const CartPage = () => {
       } catch (error) {
         notification.error({
           message: "Failed to load cart items",
+          placement: "bottomLeft",
         });
       } finally {
         setTimeout(() => {
