@@ -35,7 +35,7 @@ const UserChangePassword = () => {
         notification.success({
           message: "Password Changed Successfully",
           description: "You can now continue using your new password.",
-          placement: "topRight",
+          placement: "topLeft",
         });
 
         form.resetFields();
@@ -43,7 +43,7 @@ const UserChangePassword = () => {
         notification.error({
           message: "Password Change Failed",
           description: "Please try again.",
-          placement: "topRight",
+          placement: "topLeft",
         });
       }
 
@@ -57,14 +57,14 @@ const UserChangePassword = () => {
           message: "Password Change Failed",
           description:
             data?.message || "Please check your inputs and try again.",
-          placement: "topRight",
+          placement: "topLeft",
         });
       } else {
         notification.error({
           message: "Network Error",
           description:
             "Unable to connect to the server. Please try again later.",
-          placement: "topRight",
+          placement: "topLeft",
         });
       }
     }
