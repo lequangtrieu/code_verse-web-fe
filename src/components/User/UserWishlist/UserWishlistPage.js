@@ -1,9 +1,13 @@
+import { Card } from "antd";
+
 const UserWishlistPage = () => {
   return (
-    <div>
-      <h2 className="text-2xl font-semibold mb-2">Wishlist</h2>
-      <div className="w-16 h-[2px] bg-pink-500 mb-6 rounded"></div>
+    <div className="w-full h-full pt-2">
+      <Card className="w-full shadow-lg" title="Wishlist">
+        <p className="text-gray-500">Your wishlist is currently empty.</p>
+      </Card>
     </div>
   );
 };
+
 export default UserWishlistPage;

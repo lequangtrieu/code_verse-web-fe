@@ -244,13 +244,17 @@ const Header = () => {
         break;
       case "my-profile":
         if (user?.role === ROLE.ADMIN) {
-          navigate("/admin-panel");
+          navigate("/admin-panel/profile");
         } else if (user?.role === ROLE.LEARNER) {
-          navigate("/user-panel");
+          navigate("/user-panel/profile");
         }
         break;
       case "settings":
-        navigate("/settings");
+        if (user?.role === ROLE.ADMIN) {
+          navigate("/admin-panel");
+        } else if (user?.role === ROLE.LEARNER) {
+          navigate("/user-panel/settings");
+        }
         break;
       default:
         break;

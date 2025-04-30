@@ -28,6 +28,7 @@ import CartPage from "../../components/User/Cart/CartPage";
 import CheckoutPage from "../../components/User/Cart/CheckoutPage";
 import HandlePaymentFailure from "../../components/User/Cart/HandlePaymentFailure";
 import HandlePaymentSuccess from "../../components/User/Cart/HandlePaymentSuccess";
+import UserChangePassword from "../../components/User/UserChangePassword/UserChangePassword";
 
 const router = createBrowserRouter([
   {
@@ -89,6 +90,10 @@ const router = createBrowserRouter([
             element: <UserProfilePage />,
           },
           {
+            path: "settings",
+            element: <UserChangePassword />,
+          },
+          {
             path: "dashboard",
             element: <UserDashboardPage />,
           },
@@ -107,10 +112,6 @@ const router = createBrowserRouter([
           {
             path: "quiz",
             element: <UserQuizPage />,
-          },
-          {
-            path: "settings",
-            element: <UserDashboardPage />,
           },
           {
             path: "wishlist",

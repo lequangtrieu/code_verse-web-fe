@@ -1,9 +1,13 @@
+import { Card } from "antd";
+
 const UserAssignmentPage = () => {
   return (
-    <div>
-      <h2 className="text-2xl font-semibold mb-2">Assignments</h2>
-      <div className="w-16 h-[2px] bg-pink-500 mb-6 rounded"></div>
+    <div className="w-full h-full pt-2">
+      <Card className="w-full shadow-lg" title="Assignments">
+        <p className="text-gray-500">You have no assignments submitted yet.</p>
+      </Card>
     </div>
   );
 };
+
 export default UserAssignmentPage;

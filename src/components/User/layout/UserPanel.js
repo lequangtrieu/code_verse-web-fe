@@ -18,11 +18,15 @@ import {
   MenuFoldOutlined,
 } from "@ant-design/icons";
 import ROLE from "../../../common/role";
-import { logoutUser, setUserDetails } from "../../../config/store/userSlice";
+import { logoutUser } from "../../../config/store/userSlice";
+import { useLocation } from "react-router-dom";
 
 const { Sider, Content } = Layout;
 
 const UserPanel = () => {
+  const location = useLocation();
+  const match = location.pathname.match(/^\/user-panel\/([^/]+)/);
+  const pathKey = match ? match[1] : "dashboard";
   const user = useSelector((state) => state?.user?.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -59,7 +63,6 @@ const UserPanel = () => {
         collapsed={collapsed}
         onCollapse={setCollapsed}
         trigger={null}
-        style={{ marginTop: "20px" }}
         className="bg-white shadow-md flex flex-col justify-between"
       >
         <div className="p-4 font-semibold uppercase text-gray-600 border-b">
@@ -67,7 +70,7 @@ const UserPanel = () => {
         </div>
         <Menu
           mode="inline"
-          defaultSelectedKeys={["dashboard"]}
+          selectedKeys={[pathKey]}
           className="border-r-0"
           onClick={handleMenuClick}
         >
@@ -103,7 +106,7 @@ const UserPanel = () => {
           )}
 
           <Menu.Item key="settings" icon={<SettingOutlined />}>
-            Settings
+            Change Password
           </Menu.Item>
           <Menu.Item key="logout" icon={<LogoutOutlined />}>
             <span className="text-red-500">Logout</span>
