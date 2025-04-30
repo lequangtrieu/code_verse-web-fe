@@ -48,6 +48,15 @@ const Courses = () => {
   const user = useSelector((state) => state?.user?.user);
   const { fetchCartDetail } = useContext(Context);
 
+  const formatDuration = (minutes) => {
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    const hrStr = hrs > 0 ? `${hrs} hr` : '';
+    const minStr = mins > 0 ? `${mins} min` : '';
+    return `${hrStr}${hrs && mins ? ' ' : ''}${minStr}`.trim();
+  };
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -386,21 +395,21 @@ const Courses = () => {
                         {course.title}
                       </h3>
                       <div className="flex items-center text-sm text-gray-600 mb-2">
-                        <span>{course.lessons} Lessons</span>
+                        <span>{course.totalLessons} Lessons</span>
                         <span className="mx-2">•</span>
-                        <span>{course.duration}</span>
+                        <span>{formatDuration(course.totalDurations)}</span>
                       </div>
                       <div className="flex items-center justify-between mb-2">
                         <div>
                           <span className="text-lg font-bold text-indigo-600 transition-colors duration-300">
-                            ${course.price.toFixed(2)}
+                            ${(course.price * (1 - course.discount / 100)).toFixed(2)}
                           </span>
                           {course.discount > 0 && (
                             <span className="line-through text-gray-500 ml-2">
-                              ${course.discount.toFixed(2)}
+                              ${course.price.toFixed(2)}
                             </span>
                           )}
-                          {course.discount === 0 && (
+                          {course.price === 0 && (
                             <span className="ml-2 text-green-500">Free</span>
                           )}
                         </div>
@@ -414,13 +423,18 @@ const Courses = () => {
                             {course.instructor || "Unknown"}
                           </span>
                         </div>
-                        <Rate
-                          style={{ fontSize: "12px" }}
-                          disabled
-                          defaultValue={course.rating}
-                          size="small"
-                        />
                       </div>
+                      <div className="flex items-center space-x-1 my-2 pl-1">
+                        <span className="font-semibold text-gray-900">{course.rating}</span>
+                        <Rate
+                            style={{ fontSize: "14px", color: "#f4b400", padding: "2px 4px" }}
+                            disabled
+                            defaultValue={course.rating}
+                            allowHalf
+                        />
+                        <span className="text-s text-gray-500">({course.ratingCount})</span>
+                      </div>
+
                     </div>
                   </Card>
                 ))}
