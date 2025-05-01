@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import Context from "../../../config/context/context";
 import scrollTop from "../../../config/scrollTop";
 import { useNavigate } from "react-router-dom";
+import { formatCurrency, getDiscountedPrice } from "../../../common/helper";
 
 const CartPage = () => {
   const [initialLoading, setInitialLoading] = useState(true);
@@ -17,6 +18,40 @@ const CartPage = () => {
 
   const user = useSelector((state) => state?.user?.user);
   const { fetchCartDetail, fetchCartItems } = useContext(Context);
+
+  const fetchCartInItems = async () => {
+    if (!user?.username) return;
+
+    try {
+      const response = await axiosInstance.get(commonApi.detailCart.url, {
+        params: { username: user.username },
+      });
+
+      const items = response.data.result || [];
+      const formattedItems = items.map((item, index) => ({
+        key: item.id.toString(),
+        image:
+          item.course?.thumbnailUrl ||
+          "https://firebasestorage.googleapis.com/v0/b/sellglasses-13e72.appspot.com/o/avatar%2F67e050562ecb1fdae3fd3feb?alt=media&token=bfd4dcd5-b12c-48f3-a2eb-dbce8ae29325",
+        product: item.course?.title || "Untitled",
+        price: item.course?.price || 0,
+        discount: item.course?.discount || 0,
+        idCourse: item.course?.id,
+        selected: false,
+      }));
+
+      setCartItems(formattedItems);
+    } catch (error) {
+      notification.error({
+        message: "Failed to load cart items",
+        placement: "bottomLeft",
+      });
+    } finally {
+      setTimeout(() => {
+        setInitialLoading(false);
+      }, 400);
+    }
+  };
 
   const handleClearCart = async () => {
     try {
@@ -49,9 +84,24 @@ const CartPage = () => {
 
   const handleProceedToCheckout = async () => {
     const selectedItems = cartItems.filter((item) => item.selected);
+
     if (selectedItems.length === 0) {
       return notification.warning({
         message: "Please select at least one course.",
+        placement: "bottomLeft",
+      });
+    }
+
+    const hasFreeCourse = selectedItems.some((item) => {
+      const finalPrice = getDiscountedPrice(item.price, item.discount);
+      return finalPrice === 0;
+    });
+
+    if (hasFreeCourse) {
+      return notification.warning({
+        message: "Cannot proceed with free course",
+        description:
+          "Your selection contains a free course. Please enroll it directly without payment.",
         placement: "bottomLeft",
       });
     }
@@ -69,10 +119,26 @@ const CartPage = () => {
       const checkoutUrl = response.data.result.checkoutUrl;
       window.location.href = checkoutUrl;
     } catch (error) {
+      const fallbackMessage =
+        "Unable to proceed to checkout. Please try again.";
+
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.response?.data?.detail ||
+        fallbackMessage;
+
       notification.error({
         message: "Failed to initiate payment",
+        description: backendMessage,
         placement: "bottomLeft",
       });
+
+      fetchCartDetail();
+      fetchCartItems();
+      fetchCartInItems();
+
+      console.error("Checkout error:", error.response || error);
     }
   };
 
@@ -108,7 +174,8 @@ const CartPage = () => {
   const isCartEmpty = cartItems.length === 0;
 
   const totalPrice = cartItems.reduce(
-    (acc, item) => (item.selected ? acc + item.price : acc),
+    (acc, item) =>
+      item.selected ? acc + getDiscountedPrice(item.price, item.discount) : acc,
     0
   );
 
@@ -145,19 +212,27 @@ const CartPage = () => {
       ),
     },
     {
-      title: "Course name",
+      title: "Course Name",
       dataIndex: "product",
     },
     {
       title: "PRICE",
       dataIndex: "price",
-      render: (price) =>
-        price
-          ? price.toLocaleString("vi-VN", {
-              style: "currency",
-              currency: "VND",
-            })
-          : "0 ₫",
+      render: (_, record) => {
+        const finalPrice = getDiscountedPrice(record.price, record.discount);
+        return (
+          <div>
+            <span className="text-indigo-600 font-medium">
+              {formatCurrency(finalPrice)}
+            </span>
+            {record.discount > 0 && (
+              <span className="line-through text-gray-400 ml-2">
+                {formatCurrency(record.price)}
+              </span>
+            )}
+          </div>
+        );
+      },
     },
     {
       title: "REMOVE",
@@ -174,40 +249,7 @@ const CartPage = () => {
   ];
 
   useEffect(() => {
-    const fetchCartItems = async () => {
-      if (!user?.username) return;
-
-      try {
-        const response = await axiosInstance.get(commonApi.detailCart.url, {
-          params: { username: user.username },
-        });
-
-        const items = response.data.result || [];
-        const formattedItems = items.map((item, index) => ({
-          key: item.id.toString(),
-          image:
-            item.course?.thumbnailUrl ||
-            "https://firebasestorage.googleapis.com/v0/b/sellglasses-13e72.appspot.com/o/avatar%2F67e050562ecb1fdae3fd3feb?alt=media&token=bfd4dcd5-b12c-48f3-a2eb-dbce8ae29325",
-          product: item.course?.title || "Untitled",
-          price: item.course?.price || 0,
-          idCourse: item.course?.id,
-          selected: false,
-        }));
-
-        setCartItems(formattedItems);
-      } catch (error) {
-        notification.error({
-          message: "Failed to load cart items",
-          placement: "bottomLeft",
-        });
-      } finally {
-        setTimeout(() => {
-          setInitialLoading(false);
-        }, 400);
-      }
-    };
-
-    fetchCartItems();
+    fetchCartInItems();
   }, [user]);
 
   return (

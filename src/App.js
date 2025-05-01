@@ -86,6 +86,7 @@ function App() {
           "https://firebasestorage.googleapis.com/v0/b/sellglasses-13e72.appspot.com/o/avatar%2F67e050562ecb1fdae3fd3feb?alt=media&token=bfd4dcd5-b12c-48f3-a2eb-dbce8ae29325",
         product: item.course?.title || "Untitled",
         price: item.course.price || 0,
+        discount: item.course?.discount,
         selected: false,
       }));
 
