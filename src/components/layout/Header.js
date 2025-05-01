@@ -33,6 +33,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../../config/store/userSlice";
 import ROLE from "../../common/role";
 import setAuthInfo from "../../config/setAuthInfo";
+import { formatCurrency, getDiscountedPrice } from "../../common/helper";
 
 const { TabPane } = Tabs;
 
@@ -277,34 +278,42 @@ const Header = () => {
     <div style={{ width: 300 }}>
       {cartItems.length > 0 ? (
         <>
-          {cartItems.map((item) => (
-            <div key={item.key} className="flex gap-3 py-2 border-b">
-              <img
-                onClick={() => handleCourseClick(item.idCourse)}
-                src={item.image}
-                alt={item.product}
-                className="w-12 h-12 rounded cursor-pointer transition-transform duration-300 hover:scale-110 hover:shadow-md"
-              />
-              <div className="flex-1">
-                <div className="font-semibold">{item.product}</div>
-                <div className="text-sm text-gray-500">
-                  {item.price.toLocaleString("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
-                  })}
+          {cartItems.map((item) => {
+            const finalPrice = getDiscountedPrice(item.price, item.discount);
+            return (
+              <div key={item.key} className="flex gap-3 py-2 border-b">
+                <img
+                  onClick={() => handleCourseClick(item.idCourse)}
+                  src={item.image}
+                  alt={item.product}
+                  className="w-12 h-12 rounded cursor-pointer transition-transform duration-300 hover:scale-110 hover:shadow-md"
+                />
+                <div className="flex-1">
+                  <div className="font-semibold">{item.product}</div>
+                  <div className="text-sm text-gray-500">
+                    <span className="text-indigo-600 font-medium">
+                      {formatCurrency(finalPrice)}
+                    </span>
+                    {item.discount > 0 && (
+                      <span className="line-through text-gray-400 ml-2">
+                        {formatCurrency(item.price)}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           <div className="flex justify-between mt-2 font-semibold">
             <span>Total:</span>
             <span>
-              {cartItems
-                .reduce((acc, i) => acc + i.price, 0)
-                .toLocaleString("vi-VN", {
-                  style: "currency",
-                  currency: "VND",
-                })}
+              {formatCurrency(
+                cartItems.reduce(
+                  (acc, item) =>
+                    acc + getDiscountedPrice(item.price, item.discount),
+                  0
+                )
+              )}
             </span>
           </div>
         </>

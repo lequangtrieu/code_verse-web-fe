@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
+  Button,
   Card,
   Carousel,
   Input,
@@ -7,15 +8,11 @@ import {
   message,
   notification,
   Pagination,
+  Popover,
   Rate,
   Tag,
 } from "antd";
-import {
-  HeartOutlined,
-  LeftOutlined,
-  RightOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
+import { LeftOutlined, RightOutlined, SearchOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import scrollTop from "../../../config/scrollTop";
 import { FaBookOpen } from "react-icons/fa";
@@ -29,6 +26,7 @@ import { useSelector } from "react-redux";
 import axiosInstance from "../../../config/axiosInstance";
 import Context from "../../../config/context/context";
 import "../Courses/Courses.css";
+import { formatCurrency, getDiscountedPrice } from "../../../common/helper";
 
 const { Search } = Input;
 
@@ -51,11 +49,10 @@ const Courses = () => {
   const formatDuration = (minutes) => {
     const hrs = Math.floor(minutes / 60);
     const mins = minutes % 60;
-    const hrStr = hrs > 0 ? `${hrs} hr` : '';
-    const minStr = mins > 0 ? `${mins} min` : '';
-    return `${hrStr}${hrs && mins ? ' ' : ''}${minStr}`.trim();
+    const hrStr = hrs > 0 ? `${hrs} hr` : "";
+    const minStr = mins > 0 ? `${mins} min` : "";
+    return `${hrStr}${hrs && mins ? " " : ""}${minStr}`.trim();
   };
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -65,7 +62,7 @@ const Courses = () => {
 
         const courses = responseCourse.data.result || [];
         const cats = responseCategory.data.result || [];
-        
+
         setAllCourses(courses);
         setCategories(["all", ...new Set(cats.map((cat) => cat.name))]);
         setFilteredCourses(courses);
@@ -149,7 +146,16 @@ const Courses = () => {
       return notification.warning({
         message: "Login Required",
         description: "Please log in to add courses to your cart.",
-        placement: "leftRight",
+        placement: "topLeft",
+      });
+    }
+
+    const finalPrice = getDiscountedPrice(course.price, course.discount);
+    if (finalPrice === 0) {
+      return notification.info({
+        message: "Free Course",
+        description: `"${course.title}" is free and does not need to be added to the cart.`,
+        placement: "bottomLeft",
       });
     }
 
@@ -191,6 +197,14 @@ const Courses = () => {
         fetchCartDetail();
         fetchCartItems();
         setCartCourseIds((prev) => [...prev, course.id]);
+      } else if (
+        result === "This course is free and doesn't need to be added to cart"
+      ) {
+        notification.info({
+          message: "Free Course",
+          description: `"${course.title}" is free and doesn't need to be added to the cart.`,
+          placement: "bottomLeft",
+        });
       } else {
         notification.error({
           message: "Failed to Add Course",
@@ -244,6 +258,73 @@ const Courses = () => {
 
   const onChange = (currentSlide) => {
     // console.log(currentSlide);
+  };
+
+  const renderCoursePopover = (course) => {
+    const isFree = getDiscountedPrice(course.price, course.discount) === 0;
+
+    return (
+      <div className="w-80">
+        <Tag color="processing" className="mb-1">
+          {course.category}
+        </Tag>
+
+        <h3 className="text-base font-bold text-gray-800 mb-2">
+          {course.title}
+        </h3>
+
+        <p className="text-sm text-gray-600 mb-3 line-clamp-4">
+          {course.description}
+        </p>
+
+        <div className="flex items-center justify-evenly text-sm text-gray-600 mb-4">
+          <div className="flex items-center gap-1">
+            <span className="font-medium">{course.totalLessons}</span>
+            <span className="text-gray-500">Lessons</span>
+          </div>
+          <div className="w-px h-4 bg-gray-300 mx-2"></div>
+          <div className="flex items-center gap-1">
+            <span className="font-medium">
+              {formatDuration(course.totalDurations)}
+            </span>
+          </div>
+          <div className="w-px h-4 bg-gray-300 mx-2"></div>
+          <div className="flex items-center gap-1">
+            <span className="font-medium">{course.totalStudents || 0}</span>
+            <span className="text-gray-500">Students</span>
+          </div>
+        </div>
+
+        <ul className="text-sm text-gray-700 list-inside list-disc mb-4 space-y-1">
+          <li>Get familiar with Scratch</li>
+          <li>Master basic programming thinking</li>
+          <li>Create simple and fun projects</li>
+          <li>Develop logical thinking and confidence</li>
+        </ul>
+
+        {isFree ? (
+          <Button
+            type="primary"
+            size="small"
+            block
+            onClick={() => handleCourseClick(course.id)}
+          >
+            Free Enrollment
+          </Button>
+        ) : (
+          <div className="flex justify-between">
+            <Button
+              size="small"
+              type="primary"
+              className="text-white hover:bg-gray-800"
+              onClick={() => handleAddToCart(course)}
+            >
+              Add to Cart
+            </Button>
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -362,82 +443,104 @@ const Courses = () => {
 
               <main className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {displayedCourses.map((course) => (
-                  <Card
-                    onClick={() => handleCourseClick(course.id)}
-                    key={course.id}
-                    className="rounded-xl overflow-hidden shadow hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
-                    cover={
-                      <img
-                        onClick={() => handleCourseClick(course.id)}
-                        alt={course.title}
-                        src={course.thumbnailUrl}
-                        className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
-                      />
-                    }
-                    actions={[
-                      <HeartOutlined
-                        key="like"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddToCart(course);
-                        }}
-                        className="text-xl transition-colors duration-300 hover:text-red-500"
-                      />,
-                    ]}
+                  <Popover
+                    content={renderCoursePopover(course)}
+                    placement="rightTop"
+                    trigger="hover"
                   >
-                    <div className="p-4">
-                      <Tag
-                        color="processing"
-                        className="mb-2 transition-all duration-300 hover:opacity-80"
-                      >
-                        {course.category}
-                      </Tag>
-                      <h3 className="text-lg font-semibold mb-2 line-clamp-2 hover:text-indigo-600 transition-colors duration-300">
-                        {course.title}
-                      </h3>
-                      <div className="flex items-center text-sm text-gray-600 mb-2">
-                        <span>{course.totalLessons} Lessons</span>
-                        <span className="mx-2">•</span>
-                        <span>{formatDuration(course.totalDurations)}</span>
-                      </div>
-                      <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <span className="text-lg font-bold text-indigo-600 transition-colors duration-300">
-                            ${(course.price * (1 - course.discount / 100)).toFixed(2)}
-                          </span>
-                          {course.discount > 0 && (
-                            <span className="line-through text-gray-500 ml-2">
-                              ${course.price.toFixed(2)}
-                            </span>
-                          )}
-                          {course.price === 0 && (
-                            <span className="ml-2 text-green-500">Free</span>
-                          )}
+                    <Card
+                      onClick={() => handleCourseClick(course.id)}
+                      key={course.id}
+                      className="rounded-xl overflow-hidden shadow hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
+                      cover={
+                        <img
+                          onClick={() => handleCourseClick(course.id)}
+                          alt={course.title}
+                          src={course.thumbnailUrl}
+                          className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                      }
+                    >
+                      <div className="p-4">
+                        <Tag
+                          color="processing"
+                          className="mb-2 transition-all duration-300 hover:opacity-80"
+                        >
+                          {course.category}
+                        </Tag>
+
+                        <h3 className="text-lg font-semibold mb-2 line-clamp-2 hover:text-indigo-600 transition-colors duration-300">
+                          {course.title}
+                        </h3>
+
+                        <div className="flex items-center text-sm text-gray-600 mb-2">
+                          <span>{course.totalLessons} Lessons</span>
+                          <span className="mx-2">•</span>
+                          <span>{formatDuration(course.totalDurations)}</span>
                         </div>
-                      </div>
-                      <div className="flex items-center justify-between text-sm text-gray-500">
-                        <div className="flex items-center">
-                          <div className="w-7 h-7 rounded-full bg-gray-300 mr-2 flex items-center justify-center text-white font-semibold transition-all duration-300 hover:bg-indigo-500">
-                            {course.instructor?.charAt(0)?.toUpperCase() || "?"}
+
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            {getDiscountedPrice(
+                              course.price,
+                              course.discount
+                            ) === 0 ? (
+                              <span className="text-green-600 font-semibold">
+                                Free
+                              </span>
+                            ) : (
+                              <>
+                                <span className="text-lg font-bold text-indigo-600 transition-colors duration-300">
+                                  {formatCurrency(
+                                    getDiscountedPrice(
+                                      course.price,
+                                      course.discount
+                                    )
+                                  )}
+                                </span>
+                                {course.discount > 0 && course.price > 0 && (
+                                  <span className="line-through text-gray-500 ml-2">
+                                    {formatCurrency(course.price)}
+                                  </span>
+                                )}
+                              </>
+                            )}
                           </div>
-                          <span className="hover:text-indigo-600 transition-colors duration-300">
-                            {course.instructor || "Unknown"}
-                          </span>
                         </div>
-                      </div>
-                      <div className="flex items-center space-x-1 my-2 pl-1">
-                        <span className="font-semibold text-gray-900">{course.rating}</span>
-                        <Rate
-                            style={{ fontSize: "14px", color: "#f4b400", padding: "2px 4px" }}
+
+                        <div className="flex items-center justify-between text-sm text-gray-500">
+                          <div className="flex items-center">
+                            <div className="w-7 h-7 rounded-full bg-gray-300 mr-2 flex items-center justify-center text-white font-semibold transition-all duration-300 hover:bg-indigo-500">
+                              {course.instructor?.charAt(0)?.toUpperCase() ||
+                                "?"}
+                            </div>
+                            <span className="hover:text-indigo-600 transition-colors duration-300">
+                              {course.instructor || "Unknown"}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center space-x-1 my-2 pl-1">
+                          <span className="font-semibold text-gray-900">
+                            {course.rating}
+                          </span>
+                          <Rate
+                            style={{
+                              fontSize: "14px",
+                              color: "#f4b400",
+                              padding: "2px 4px",
+                            }}
                             disabled
                             defaultValue={course.rating}
                             allowHalf
-                        />
-                        <span className="text-s text-gray-500">({course.ratingCount})</span>
+                          />
+                          <span className="text-s text-gray-500">
+                            ({course.ratingCount})
+                          </span>
+                        </div>
                       </div>
-
-                    </div>
-                  </Card>
+                    </Card>
+                  </Popover>
                 ))}
               </main>
 
