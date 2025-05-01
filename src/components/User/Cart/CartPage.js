@@ -137,8 +137,6 @@ const CartPage = () => {
       fetchCartDetail();
       fetchCartItems();
       fetchCartInItems();
-
-      console.error("Checkout error:", error.response || error);
     }
   };
 
