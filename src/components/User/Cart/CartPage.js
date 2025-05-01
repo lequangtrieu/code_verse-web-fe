@@ -249,6 +249,8 @@ const CartPage = () => {
   ];
 
   useEffect(() => {
+    fetchCartDetail();
+    fetchCartItems();
     fetchCartInItems();
   }, [user]);
 
