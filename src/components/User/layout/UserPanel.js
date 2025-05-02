@@ -42,7 +42,6 @@ const UserPanel = () => {
 
   const handleLogout = () => {
     message.success("You have been logged out successfully.");
-    localStorage.clear();
     dispatch(logoutUser());
     navigate("/");
   };

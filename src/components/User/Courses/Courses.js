@@ -22,11 +22,12 @@ import { RiSendPlaneLine } from "react-icons/ri";
 import LoadingOverlay from "../../../common/LoadingOverlay";
 import axios from "axios";
 import commonApi from "../../../common/api";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../../config/axiosInstance";
 import Context from "../../../config/context/context";
 import "../Courses/Courses.css";
 import { formatCurrency, getDiscountedPrice } from "../../../common/helper";
+import { logoutUser } from "../../../config/store/userSlice";
 
 const { Search } = Input;
 
@@ -42,6 +43,7 @@ const Courses = () => {
   const [categories, setCategories] = useState([]);
   const [cartCourseIds, setCartCourseIds] = useState([]);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const user = useSelector((state) => state?.user?.user);
   const { fetchCartDetail, fetchCartItems } = useContext(Context);
@@ -217,9 +219,14 @@ const Courses = () => {
     } catch (error) {
       notification.error({
         message: "Error Adding Course",
-        description: "Something went wrong. Please try again later.",
+        description: error?.response?.data?.message,
         placement: "bottomLeft",
       });
+
+      if (error?.response?.data?.code === 1010) {
+        dispatch(logoutUser());
+        navigate("/");
+      }
     }
   };
 
