@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useNavigate } from "react-router-dom";
-
-import { Layout, Menu, Badge, message, Button } from "antd";
+import { Layout, Menu, Badge, message } from "antd";
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
@@ -37,7 +36,6 @@ const AdminPanel = () => {
 
   const handleLogout = () => {
     message.success("You have been logged out successfully.");
-    localStorage.clear();
     dispatch(logoutUser());
     navigate("/");
   };

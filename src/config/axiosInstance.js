@@ -74,7 +74,6 @@ axiosInstance.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        localStorage.clear();
         store.dispatch(logoutUser());
         message.error("Session expired. Please login again.");
         window.location.href = "/";

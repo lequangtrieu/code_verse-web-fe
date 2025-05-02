@@ -57,7 +57,6 @@ const Header = () => {
   };
 
   const handleLogin = async (values) => {
-    localStorage.clear();
     dispatch(logoutUser());
 
     try {
@@ -110,7 +109,6 @@ const Header = () => {
   };
 
   const handleGoogleSuccess = async (response) => {
-    localStorage.clear();
     dispatch(logoutUser());
     const token = response.credential;
 
@@ -165,7 +163,6 @@ const Header = () => {
   };
 
   const handleRegister = async (values) => {
-    localStorage.clear();
     dispatch(logoutUser());
     try {
       const response = await axios.post(commonApi.signUP.url, values);
@@ -234,7 +231,6 @@ const Header = () => {
       description: "You have been logged out successfully.",
       placement: "topLeft",
     });
-    localStorage.clear();
     dispatch(logoutUser());
     navigate("/");
   };

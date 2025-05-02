@@ -4,18 +4,19 @@ import { ShoppingCartOutlined } from "@ant-design/icons";
 import LoadingOverlay from "../../../common/LoadingOverlay";
 import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Context from "../../../config/context/context";
 import scrollTop from "../../../config/scrollTop";
 import { useNavigate } from "react-router-dom";
 import { formatCurrency, getDiscountedPrice } from "../../../common/helper";
+import { logoutUser } from "../../../config/store/userSlice";
 
 const CartPage = () => {
   const [initialLoading, setInitialLoading] = useState(true);
   const [cartItems, setCartItems] = useState([]);
   const [confirmClearVisible, setConfirmClearVisible] = useState(false);
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const user = useSelector((state) => state?.user?.user);
   const { fetchCartDetail, fetchCartItems } = useContext(Context);
 
@@ -44,8 +45,14 @@ const CartPage = () => {
     } catch (error) {
       notification.error({
         message: "Failed to load cart items",
+        description: error?.response?.data?.message,
         placement: "bottomLeft",
       });
+
+      if (error?.response?.data?.code === 1010) {
+        dispatch(logoutUser());
+        navigate("/");
+      }
     } finally {
       setTimeout(() => {
         setInitialLoading(false);
@@ -70,8 +77,14 @@ const CartPage = () => {
     } catch (error) {
       notification.error({
         message: "Failed to clear cart",
+        description: error?.response?.data?.message,
         placement: "bottomLeft",
       });
+
+      if (error?.response?.data?.code === 1010) {
+        dispatch(logoutUser());
+        navigate("/");
+      }
     } finally {
       setConfirmClearVisible(false);
     }
@@ -134,6 +147,11 @@ const CartPage = () => {
         placement: "bottomLeft",
       });
 
+      if (error?.response?.data?.code === 1010) {
+        dispatch(logoutUser());
+        navigate("/");
+      }
+
       fetchCartDetail();
       fetchCartItems();
       fetchCartInItems();
@@ -150,7 +168,7 @@ const CartPage = () => {
   const handleRemoveItem = async (cartItemId) => {
     try {
       await axiosInstance.delete(commonApi.removeCartItem.url, {
-        params: { cartItemId },
+        params: { cartItemId, username: user.username  },
       });
 
       setCartItems((prev) => prev.filter((item) => item.key !== cartItemId));
@@ -161,11 +179,17 @@ const CartPage = () => {
         description: "The item has been successfully removed from your cart.",
         placement: "bottomLeft",
       });
-    } catch (error) {
+    } catch (error) {   
       notification.error({
         message: "Failed to remove item from cart",
+        description: error?.response?.data?.message,
         placement: "bottomLeft",
       });
+
+      if (error?.response?.data?.code === 1010) {
+        dispatch(logoutUser());
+        navigate("/");
+      }
     }
   };
 
