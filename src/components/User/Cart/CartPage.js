@@ -168,7 +168,7 @@ const CartPage = () => {
   const handleRemoveItem = async (cartItemId) => {
     try {
       await axiosInstance.delete(commonApi.removeCartItem.url, {
-        params: { cartItemId, username: user.username  },
+        params: { cartItemId, username: user.username },
       });
 
       setCartItems((prev) => prev.filter((item) => item.key !== cartItemId));
@@ -179,7 +179,7 @@ const CartPage = () => {
         description: "The item has been successfully removed from your cart.",
         placement: "bottomLeft",
       });
-    } catch (error) {   
+    } catch (error) {
       notification.error({
         message: "Failed to remove item from cart",
         description: error?.response?.data?.message,
@@ -214,6 +214,7 @@ const CartPage = () => {
         <Checkbox
           checked={record.selected}
           onChange={(e) => handleSelectItem(record.key, e.target.checked)}
+          onClick={(e) => e.stopPropagation()}
         />
       ),
     },
@@ -261,7 +262,10 @@ const CartPage = () => {
       dataIndex: "key",
       render: (key) => (
         <Button
-          onClick={() => handleRemoveItem(key)}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleRemoveItem(key);
+          }}
           className="px-3 py-2 text-red-600"
         >
           Remove
@@ -294,6 +298,9 @@ const CartPage = () => {
                 columns={columns}
                 dataSource={cartItems}
                 pagination={false}
+                onRow={(record) => ({
+                  onClick: () => handleSelectItem(record.key, !record.selected),
+                })}
                 footer={() => (
                   <div className="flex justify-between mt-6 border-t pt-4">
                     <span className="text-gray-500">

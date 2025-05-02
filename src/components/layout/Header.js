@@ -379,7 +379,7 @@ const Header = () => {
   useEffect(() => {}, [user]);
   return (
     <>
-      <div className="header-content transition-all duration-300 justify-between flex items-center h-[82px] px-4 bg-white fixed top-0 left-0 right-0 shadow z-50">
+      <div style={{zIndex: 1031}} className="header-content transition-all duration-300 justify-between flex items-center h-[82px] px-4 bg-white fixed top-0 left-0 right-0 shadow">
         <div className="flex items-center gap-x-[34px] h-full">
           <Link to="/">
             <img

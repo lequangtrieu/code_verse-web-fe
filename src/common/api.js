@@ -39,6 +39,9 @@ const commonApi = {
     },
 
     /** Cart api */
+    addToCartFree: {
+        url: `${backendDomain}/cart/addFree`,
+    },
     addToCart: {
         url: `${backendDomain}/cart/add`,
     },

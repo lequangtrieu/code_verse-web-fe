@@ -230,6 +230,40 @@ const Courses = () => {
     }
   };
 
+  const handleAddToCartFree = async (course) => {
+    if (!user) {
+      return notification.warning({
+        message: "Login Required",
+        description: "Please log in to add courses to your cart.",
+        placement: "topLeft",
+      });
+    }
+
+    try {
+      await axiosInstance.post(commonApi.addToCartFree.url, {
+        username: user.username,
+        courseId: course.id,
+      });
+
+      notification.success({
+        message: "Enrollment Successful",
+        description: `You have successfully enrolled in "${course.title}". Enjoy learning!`,
+        placement: "bottomLeft",
+      });
+    } catch (error) {
+      notification.error({
+        message: "Enrollment Failed",
+        description: error?.response?.data?.message,
+        placement: "bottomLeft",
+      });
+
+      if (error?.response?.data?.code === 1010) {
+        dispatch(logoutUser());
+        navigate("/");
+      }
+    }
+  };
+
   const carouselItems = [
     {
       title: "Welcome to CodeVerse",
@@ -314,7 +348,7 @@ const Courses = () => {
             type="primary"
             size="small"
             block
-            onClick={() => handleCourseClick(course.id)}
+            onClick={() => handleAddToCartFree(course)}
           >
             Free Enrollment
           </Button>
