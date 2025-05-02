@@ -168,7 +168,7 @@ const CartPage = () => {
   const handleRemoveItem = async (cartItemId) => {
     try {
       await axiosInstance.delete(commonApi.removeCartItem.url, {
-        params: { cartItemId },
+        params: { cartItemId, username: user.username  },
       });
 
       setCartItems((prev) => prev.filter((item) => item.key !== cartItemId));
@@ -179,7 +179,7 @@ const CartPage = () => {
         description: "The item has been successfully removed from your cart.",
         placement: "bottomLeft",
       });
-    } catch (error) {
+    } catch (error) {   
       notification.error({
         message: "Failed to remove item from cart",
         description: error?.response?.data?.message,
