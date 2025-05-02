@@ -171,12 +171,14 @@ const Header = () => {
       const response = await axios.post(commonApi.signUP.url, values);
 
       if (response.status === 200) {
-        notification.success({
-          message: "Registration Successful",
-          description:
-            "Your account has been created successfully. Please check your email to verify your account before logging in.",
-          placement: "topLeft",
-        });
+        setTimeout(() => {
+          notification.success({
+            message: "Registration Successful",
+            description:
+              "Your account has been created successfully. Please check your email to verify your account before logging in.",
+            placement: "topLeft",
+          });
+        }, 1000);
       }
     } catch (error) {
       if (error.response) {
@@ -201,19 +203,20 @@ const Header = () => {
   };
 
   const handleForgotPassword = async (values) => {
-    setIsModalOpen(false);
     try {
       await axios.post(commonApi.resetPassword.url, {
         username: values.username,
       });
 
-      notification.success({
-        message: "Email Sent",
-        description: "Check your inbox for password reset instructions.",
-        placement: "topLeft",
-      });
-
-      setIsForgotModalOpen(false);
+      setTimeout(() => {
+        notification.success({
+          message: "Email Sent",
+          description: "Check your inbox for password reset instructions.",
+          placement: "topLeft",
+        });
+        setIsForgotModalOpen(false);
+        setIsModalOpen(false);
+      }, 1000);
     } catch (error) {
       notification.error({
         message: "Error",
