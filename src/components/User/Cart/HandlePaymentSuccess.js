@@ -34,6 +34,7 @@ const HandlePaymentSuccess = () => {
           await axiosInstance.post(commonApi.confirmPayment.url, {
             orderId,
             status: "success",
+            username,
           });
 
           notification.success({
