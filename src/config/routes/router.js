@@ -29,6 +29,7 @@ import CheckoutPage from "../../components/User/Cart/CheckoutPage";
 import HandlePaymentFailure from "../../components/User/Cart/HandlePaymentFailure";
 import HandlePaymentSuccess from "../../components/User/Cart/HandlePaymentSuccess";
 import UserChangePassword from "../../components/User/UserChangePassword/UserChangePassword";
+import HomeRedirect from "../../components/layout/HomeRedirect";
 
 const router = createBrowserRouter([
   {
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
     children: [
       {
         path: "",
+        element: <HomeRedirect />,
+      },
+      {
+        path: "home",
         element: <UserHome />,
       },
       {
