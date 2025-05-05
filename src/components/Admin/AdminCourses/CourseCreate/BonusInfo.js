@@ -12,55 +12,71 @@ export default function BonusInfo({ formData, updateFormData, markComplete, mark
     const finalSuppressErrors = suppressErrors && localSuppressed;
     // eslint-disable-next-line
     const [levels, setLevels] = useState([
-        { levelId: 1, name: "Beginner" },
-        { levelId: 2, name: "Intermediate" },
-        { levelId: 3, name: "Advanced" }
+        { levelId: "BEGINNER", name: "Beginner" },
+        { levelId: "INTERMEDIATE", name: "Intermediate" },
+        { levelId: "ADVANCED", name: "Advanced" }
     ]);
 
     const values = Form.useWatch([], form);
     const isPaid = Form.useWatch("isPaid", form);
+    const previousIsPaid = useRef(null);
 
     useEffect(() => {
         if (!hasInitialized.current) {
-            const values = {
+            const initialValues = {
                 levelId: levels[0]?.levelId,
-                ...formData?.bonus
+                ...formData?.bonus,
             };
-            form.setFieldsValue(values);
+            form.setFieldsValue(initialValues);
             hasInitialized.current = true;
         }
         // eslint-disable-next-line
     }, [formData]);
 
     useEffect(() => {
-        if (!values) return;
+       
+        previousIsPaid.current = isPaid;
+    }, [isPaid]);
 
-        updateFormData("bonus", values);
+    useEffect(() => {
+        if (!values || !hasInitialized.current) return;
 
-        if (!values.isPaid) {
-            form.setFields([
-                { name: "price", rules: [] }
-            ]);
-            form.resetFields(["price"]);
-        }
-
-        form
-            .validateFields()
-            .then(() => {
-                markComplete();
-                hasValidatedOnce.current = true;
-            })
-            .catch(() => {
-                markIncomplete();
-                hasValidatedOnce.current = false;
-            });
-            // eslint-disable-next-line
+        const timer = setTimeout(() => {
+            const cleanValues = { ...form.getFieldsValue(true) };
+            if (!cleanValues.isPaid) {
+                delete cleanValues.price;
+            }
+    
+            updateFormData("bonus", cleanValues);
+    
+            const fieldsToValidate = ["isPaid", "levelId"];
+            if (cleanValues.isPaid) {
+                fieldsToValidate.push("price");
+            }
+    
+            form
+                .validateFields(fieldsToValidate)
+                .then(() => {
+                    markComplete();
+                    hasValidatedOnce.current = true;
+                })
+                .catch(() => {
+                    markIncomplete();
+                    hasValidatedOnce.current = false;
+                });
+        }, 100);
+        return () => clearTimeout(timer);
+        // eslint-disable-next-line
     }, [values]);
 
     useEffect(() => {
         if (!hasValidatedOnce.current && hasInitialized.current) {
+            const fieldsToValidate = ["isPaid", "levelId"];
+            if (form.getFieldValue("isPaid")) {
+                fieldsToValidate.push("price");
+            }
             form
-                .validateFields()
+                .validateFields(fieldsToValidate)
                 .then(() => markComplete())
                 .catch(() => markIncomplete());
         }
@@ -92,6 +108,7 @@ export default function BonusInfo({ formData, updateFormData, markComplete, mark
                     name="price"
                     label="Course Price (VND)"
                     rules={[{ required: true, message: "Please enter the price" }]}
+                    preserve={false}
                     validateStatus={finalSuppressErrors ? "" : undefined}
                     help={finalSuppressErrors ? "" : undefined}
                 >

@@ -18,7 +18,7 @@ const QuizItem = React.memo(({
 
     return (
         <Space
-            key={`module-${moduleIndex}-lesson-${lessonIndex}-q-${qField.name}`}
+            key={`module-${moduleIndex}-lesson-${lessonIndex}-question-${qField.name}`}
             direction="vertical"
             className="w-full border border-gray-200 rounded p-4 mb-3"
         >
@@ -39,7 +39,7 @@ const QuizItem = React.memo(({
                         {answerFields.map((aField) => {
                             return (
                                 <AnswerItem
-                                    key={`module-${moduleIndex}-lesson-${lessonIndex}-q-${qIndex}-a-${aField.name}`}
+                                    key={`module-${moduleIndex}-lesson-${lessonIndex}-question-${qIndex}-answer-${aField.name}`}
                                     moduleIndex={moduleIndex}
                                     lessonIndex={lessonIndex}
                                     questionIndex={qIndex}

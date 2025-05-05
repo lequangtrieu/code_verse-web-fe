@@ -4,11 +4,14 @@ import {
     CheckCircleOutlined,
     CloseCircleOutlined,
 } from "@ant-design/icons";
-
+import LoadingOverlay from "../../../../common/LoadingOverlay";
 import CourseDescription from "./CourseDescription";
 import CourseMaterial from "./CourseMaterial/CourseMaterial";
 import BonusInfo from "./BonusInfo";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import axiosInstance from "../../../../config/axiosInstance";
+import commonApi from "../../../../common/api";
 
 const { Step } = Steps;
 const { confirm } = Modal;
@@ -23,9 +26,30 @@ const steps = [
 export default function CourseForm() {
     const [form] = Form.useForm();
     const [current, setCurrent] = useState(0);
+    const user = useSelector((state) => state?.user?.user);
     const [completed, setCompleted] = useState({});
     const [showErrors, setShowErrors] = useState(false);
+    const [categories, setCategories] = useState([]);
+    const [initialLoading, setInitialLoading] = useState(true);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        fetchCategories();
+    }, []);
+
+    const fetchCategories = async () => {
+        try {
+            const result = await axiosInstance.get(commonApi.category.url);
+            setCategories(result.data.result);
+        } catch (error) {
+            message.error("Error when fetching category data.");
+            setCategories([]);
+        } finally {
+            setTimeout(() => {
+                setInitialLoading(false);
+            }, 400);
+        }
+    };
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -62,37 +86,66 @@ export default function CourseForm() {
 
     const CurrentComponent = steps[current]?.component;
 
-    const transformModules = (modules) => {
-        const result = [];
+    const buildCourseFormData = (formData, instructor, isPublished = false) => {
+        const fData = new FormData();
 
-        modules.forEach((module, moduleIdx) => {
-            const moduleData = {
-                title: module.title,  // Tên của module
-                lessons: []  // Mảng chứa các bài học của module
-            };
+        const { description, modules, bonus } = formData;
 
-            module.lessons.forEach((lesson, lessonIdx) => {
-                const lessonData = {
-                    title: lesson.title,  // Tên bài học
-                    theory: {
-                        theoryType: lesson.theory?.theoryType || "",  // Loại lý thuyết
-                        previewVideo: lesson.theory?.previewVideo || "",  // Video preview
-                        video: lesson.theory?.video || [],  // Danh sách video
-                    },
-                    exercise: {
-                        exerciseType: lesson.exercise?.exerciseType || "",  // Loại bài tập
-                        taskDescription: lesson.exercise?.taskDescription || "",  // Mô tả bài tập
-                        duration: lesson.exercise?.duration || 0,  // Thời gian bài tập
-                    }
-                };
+        fData.append("title", description.title);
+        fData.append("description", description.description);
+        fData.append("categoryId", description.categoryId);
+        fData.append("instructor", instructor);
+        fData.append("level", bonus.levelId || "BEGINNER");
+        fData.append("price", bonus.isPaid ? bonus.price : 0);
+        fData.append("isPublished", isPublished);
 
-                moduleData.lessons.push(lessonData);  // Thêm bài học vào module
-            });
+        if (description.cover && description.cover.length > 0 && description.cover[0].originFileObj) {
+            fData.append("imageFile", description.cover[0].originFileObj);
+        }
 
-            result.push(moduleData);  // Thêm module vào kết quả
-        });
+        modules.forEach((module, moduleIndex) => {
+            fData.append(`modules[${moduleIndex}].title`, module.title);
+            fData.append(`modules[${moduleIndex}].orderIndex`, moduleIndex + 1);
 
-        return result;
+            module.lessons.forEach((lesson, lessonIndex) => {
+                const base = `modules[${moduleIndex}].lessons[${lessonIndex}]`;
+                fData.append(`${base}.title`, lesson.title);
+                fData.append(`${base}.orderIndex`, lessonIndex);
+                fData.append(`${base}.defaultCode`, lesson.defaultCode || "");
+                fData.append(`${base}.duration`, lesson.duration || 0);
+
+                if (lesson.theory) {
+                    fData.append(`${base}.theory.title`, lesson.theory?.title || "");
+                    fData.append(`${base}.theory.content`, lesson.theory?.content || "");
+                }
+
+                if (lesson.exercise) {
+                    fData.append(`${base}.exercise.title`, lesson.exercise?.title || "");
+                    fData.append(`${base}.exercise.instruction`, lesson.exercise?.instruction || "");
+                    fData.append(`${base}.exercise.expReward`, lesson.exercise?.expReward || 0);
+
+                    lesson.exercise?.tasks?.forEach((task, taskIndex) => {
+                        fData.append(`${base}.exercise.tasks[${taskIndex}].description`, task.description || "");
+                    });
+                }
+            })
+        })
+        return fData;
+    };
+
+    const handleSaveDraft = () => {
+        const fData = buildCourseFormData(formData, user.username, false);
+        axiosInstance.post(commonApi.createCourse.url, fData, {
+            headers: { "Content-Type": "multipart/form-data" }
+        })
+            .then(() => {
+                message.success("Course save as draft!");
+                navigate('/admin-panel/courses');
+            })
+            .catch((error) => {
+                console.log(error);
+                message.error("Fail to save draft.");
+            })
     };
 
 
@@ -108,24 +161,27 @@ export default function CourseForm() {
         }
 
         confirm({
-            title: "Ready to submit your course?",
-            content: "You won't be able to make any changes to the course before it is sent for evaluation.",
-            okText: "Yes, Submit",
+            title: "Ready to publish your course?",
+            content: "The course will be published to every learner.",
+            okText: "Yes, Publish",
             cancelText: "Cancel",
             centered: true,
             onOk: () => {
                 form.validateFields()
                     .then(() => {
-                        const transformedData = {
-                            description: formData.description,
-                            modules: transformModules(formData.modules),
-                            bonus: formData.bonus
-                        };
-
-                        console.log("Submitted Course:", transformedData);
-                        message.success("Course submitted successfully!");
-                        markComplete(steps.length - 1);
-                        navigate('/admin-panel/courses');
+                        const fData = buildCourseFormData(formData, user.username, true);
+                        axiosInstance.post(commonApi.createCourse.url, fData, {
+                            headers: { "Content-Type": "multipart/form-data" }
+                        })
+                            .then(() => {
+                                message.success("Course published successfully!");
+                                markComplete(steps.length - 1);
+                                navigate('/admin-panel/courses');
+                            })
+                            .catch((error) => {
+                                console.error("Publishing failed:", error);
+                                message.error("Failed to publish course.");
+                            });
                     })
                     .catch((err) => {
                         markIncomplete(steps.length - 1);
@@ -141,23 +197,7 @@ export default function CourseForm() {
     return (
 
         <div className="flex-1">
-            <div className="animate-preloader opacity-0 invisible fixed top-0 left-0 -z-1 w-full transition-all duration-300">
-                <div className="preloader flex h-screen w-full items-center justify-center bg-whiteColor transition-all duration-700">
-                    <div className="w-90px h-90px border-5px border-t-blue border-r-blue border-b-blue-light border-l-blue-light rounded-full animate-spin-infinit"></div>
-                    <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2">
-                        <img
-                            alt="Preloader"
-                            loading="lazy"
-                            width="512"
-                            height="512"
-                            decoding="async"
-                            data-nimg="1"
-                            className="h-15 w-15 block r rounded"
-                            src="../../logoCodeVerse.png"
-                        />
-                    </div>
-                </div>
-            </div>
+            {initialLoading && <LoadingOverlay />}
 
             <div className="flex min-h-screen bg-gray-50">
                 {/* Sidebar */}
@@ -209,6 +249,7 @@ export default function CourseForm() {
                     >
                         {CurrentComponent ? (
                             <CurrentComponent
+                                categoryList={categories}
                                 formData={formData}
                                 updateFormData={updateFormData}
                                 markComplete={() => markComplete(current)}
@@ -218,8 +259,11 @@ export default function CourseForm() {
                         ) : (
                             <div className="text-center">
                                 <h2 className="text-xl font-bold p-5">Ready to Submit!</h2>
-                                <Button type="primary" onClick={handleSubmit}>
-                                    Submit Course
+                                <Button type="default" onClick={handleSaveDraft}>
+                                    Save Draft
+                                </Button>
+                                <Button type="primary" onClick={handleSubmit} style={{ marginLeft: 10 }}>
+                                    Publish
                                 </Button>
                             </div>
                         )}
