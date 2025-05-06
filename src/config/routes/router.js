@@ -30,6 +30,7 @@ import HandlePaymentFailure from "../../components/User/Cart/HandlePaymentFailur
 import HandlePaymentSuccess from "../../components/User/Cart/HandlePaymentSuccess";
 import UserChangePassword from "../../components/User/UserChangePassword/UserChangePassword";
 import RankingPage from "../../components/User/RankingPage/RankingPage";
+import AccountProfile from "../../components/User/AccountProfile/Profile";
 
 const router = createBrowserRouter([
   {
@@ -85,6 +86,10 @@ const router = createBrowserRouter([
       {
         path: "ranking",
         element: <RankingPage />,
+      },
+      {
+        path: "account-profile",
+        element: <AccountProfile />,
       },
       {
         path: "user-panel",

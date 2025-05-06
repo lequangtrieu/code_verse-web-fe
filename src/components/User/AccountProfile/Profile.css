@@ -1,0 +1,852 @@
+.container-custom {
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    max-width: 83rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  
+  .justify-center {
+    display: flex;
+    justify-content: center;
+  }
+  
+  nav.w-full.py-5 {
+    width: 100%;
+    padding: 20px 0;
+  }
+  
+  .breadcrumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 0;
+    line-height: 1.5;
+    font-size: 14px;
+  }
+  
+  .breadcrumb {
+    color: #8899A8;
+    font-size: 13px;
+    white-space: normal;
+    word-break: break-word;
+  }
+  
+  .breadcrumb:hover {
+    text-decoration: underline;
+  }
+  
+  .chevron-right {
+    width: 15px;
+    height: 15px;
+    stroke: #8899A8;
+    stroke-width: 2;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  
+  .grid-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  @media (min-width: 1024px) {
+    .grid-container {
+      grid-template-columns: 312px 1fr;
+    }
+  }
+  
+  .profile-card {
+    background: white;
+    /* background-image: url('/images/bg-profile.png?v=1'); */
+    background-size: contain;
+    background-position: top;
+    background-repeat: no-repeat;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .avatar-wrapper {
+    position: relative;
+    height: min-content;
+    width: fit-content;
+    cursor: pointer;
+    display: inline-block;
+    flex: none;
+    margin-top: 33.6px;
+  }
+  
+  .frame-avatar {
+    position: absolute;
+    z-index: 20;
+    left: 50%;
+    top: 47.5%;
+    transform: translate(-50%, -50%);
+    width: auto;
+    height: auto;
+  }
+  
+  .avatar {
+    background: white;
+    border-radius: 50%;
+    overflow: hidden;
+    aspect-ratio: 1;
+    object-fit: cover;
+    width: 168px;
+    height: 168px;
+  }
+  
+  .name {
+    font-weight: 600;
+    margin-top: 16px;
+    font-size: 24px;
+    text-align: center;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+    
+  }
+  
+  .progress-bar {
+    position: relative;
+    margin: 16px 0;
+    cursor: pointer;
+  }
+  
+  .progress {
+    background: #E0E0E5;
+    border: 1px solid #D1D1D1;
+  }
+  
+  .progress-bar-fill {
+    background: linear-gradient(176.76deg, #00FF38 -42.05%, #05561B 98.31%);
+    width: 33.3333%;
+  }
+  
+  .progress-icon {
+    position: absolute;
+    top: 0;
+    left: 1px;
+    height: 19px;
+    width: 19px;
+  }
+  
+  .progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 10;
+    color: white;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+    font-weight: 600;
+    text-shadow: rgb(24, 126, 22) -1px -1px 0px, rgb(24, 126, 22) 1px -1px 0px, rgb(7, 87, 206) -1px 1px 0px, rgb(24, 126, 22) 1px 1px 0px;
+  }
+  
+  .friends {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .friends div {
+    color: #65656D;
+  }
+  
+  .friend-button {
+    border-radius: 8px;
+    margin: 0 auto;
+    width: 100%;
+    background-color: rgb(80, 108, 240);
+    color: rgb(255, 255, 255);
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+    height: 30px;
+    overflow: visible;
+  }
+  
+  .divider-horizontal {
+    margin: 20px 0;
+    border-top: 1px solid #e5e5e5;
+  }
+  .info-section, .skills-section, .intro-section, .experience-section, .social-section, .certificate-section,.education-section {
+        display: flex;
+        flex-direction: column; /* Đảm bảo các phần tử xếp theo cột */
+        gap: 16px;
+        align-items: flex-start; /* Căn chỉnh về phía trái */
+      }
+  .info-title, .skills-title, .intro-title, .experience-title, .social-title, .certificate-title {
+    font-weight: 600;
+    font-size: 18px;
+    text-transform: uppercase;
+  }
+  .education-title {
+    font-weight: 600;
+    font-size: 18px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .social-details a {
+    color: #2563eb;
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 200px; /* Điều chỉnh theo nhu cầu */
+  }
+  .info-details, .skills-details, .certificate-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+    font-size: 15px;
+  }
+  
+  .info-details .grid, .social-details .grid {
+    display: grid;
+    gap: 8px;
+    align-items: center;
+    grid-template-columns: 24px 1fr;
+  }
+  
+  .social-details .grid {
+    grid-template-columns: 24px 1fr 24px;
+  }
+  
+  .icon {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  
+  .social-details {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    padding: 0 8px;
+  }
+  
+  .social-details a {
+    color: #2563eb;
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .social-details a:hover {
+    text-decoration: underline;
+  }
+  
+  .social-details .image-root {
+    width: 0.875rem;
+  }
+  
+  .social-details .image {
+    object-fit: cover;
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+  
+  .timeline {
+    position: relative;
+    padding-left: 20px;
+  }
+  
+  .timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding-left: 20px;
+  }
+  
+  .timeline-bullet {
+    width: 10px;
+    height: 10px;
+    background: #ccc;
+    border-radius: 50%;
+    position: absolute;
+    left: -5px;
+    top: 5px;
+  }
+  .timeline-body {
+    padding-left: 15px;
+  }
+  
+  .timeline-title {
+    margin-bottom: 8px;
+  }
+  
+  .timeline-title div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    color: #5E5A5A;
+    font-size: 12px;
+  }
+  
+  .timeline-title div div {
+    color: #5E5A5A;
+    font-size: 12px;
+  }
+  .timeline-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .timeline-content span:first-child {
+    color: #2c31cf;
+    font-weight: 600;
+    font-size: 14px;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    word-break: break-word;
+  }
+  .timeline-content span:last-child {
+    color: #333;
+    font-size: 13px;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    word-break: break-word;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 2px;
+    background: #ccc;
+    margin-left: 4px;
+  }
+  
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .learning-section, .competition-section, .discussion-section, .activity-section {
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    position: relative;
+  }
+  
+  .title-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: center;
+  }
+  
+  .title-section .title {
+    font-weight: 600;
+    font-size: 18px;
+    text-transform: uppercase;
+  }
+  
+  .title-section .count {
+    font-size: 14px;
+  }
+  
+  .tabs {
+    display: flex;
+    gap: 0;
+  }
+  
+  .tab {
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    cursor: pointer;
+  }
+  
+  .tab.active {
+    background-color: rgb(80, 108, 240);
+    color: rgb(255, 255, 255);
+    font-weight: 600;
+  }
+  
+  .course-grid {
+    margin-top: 12px;
+    display: grid;
+    gap: 16px;
+  }
+  
+  @media (min-width: 1024px) {
+    .course-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  .course-card {
+    border-radius: 6px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e5e5;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .course-card .image-root {
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    overflow: hidden;
+    aspect-ratio: 340 / 220;
+    width: 100%;
+  }
+  
+  .course-card .image {
+    object-fit: cover;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 340 / 220;
+  }
+  
+  .course-card .course-details {
+    padding: 8px 12px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .course-title {
+    font-size: 18px;
+    color: #2C31CF;
+    font-weight: 600;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+  }
+  
+  .course-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: space-between;
+    font-size: 14px;
+  }
+  
+  .star-ratings {
+    position: relative;
+    box-sizing: border-box;
+    display: inline-block;
+  }
+  
+  .star-grad {
+    position: absolute;
+    z-index: 0;
+    width: 0;
+    height: 0;
+    visibility: hidden;
+  }
+  
+  .star-container {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  
+  .star-container:not(:last-child) {
+    padding: 0 1px;
+  }
+  
+  .widget-svg {
+    width: 11px;
+    height: 11px;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .star {
+    fill: rgb(249, 191, 10);
+    transition: fill 0.2s ease-in-out;
+  }
+  
+  .multi-widget-selected .star {
+    fill: url("#starGrad");
+  }
+  
+  .course-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+  
+  .progress-root {
+    background: #B5F1F4;
+  }
+  
+  .progress-bar {
+    background: #0AD0DA;
+    width: 15%;
+  }
+  
+  .competition-card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    border: 1px solid #E7E5E5;
+    background-image: linear-gradient(rgb(240, 243, 245) 0%, rgb(255, 255, 255) 100%);
+  }
+  
+  .competition-details {
+    border-radius: 12px;
+    overflow: hidden;
+    display: grid;
+    gap: 16px;
+    padding: 16px;
+  }
+  
+  @media (min-width: 1024px) {
+    .competition-details {
+      grid-template-columns: 110px 1fr 180px;
+    }
+  }
+  
+  .competition-image {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .competition-image .image-root {
+    border-radius: 12px;
+    overflow: hidden;
+    width: 6.875rem;
+  }
+  
+  .competition-image .image {
+    object-fit: contain;
+    width: 6.875rem;
+    height: 6.875rem;
+  }
+  
+  .competition-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .competition-info a span {
+    font-weight: 600;
+    font-size: 18px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+  }
+  
+  .competition-stats {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .competition-stats .group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .mantine-9830cw{
+    box-sizing: border-box;
+    display: flex;
+    flex-flow: wrap;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    padding-bottom: 0.75rem;
+  }
+  .competition-stats .image-root {
+    width: 1.5rem;
+  }
+  
+  .competition-stats .image {
+    object-fit: cover;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  
+  .competition-stats strong {
+    font-weight: 900;
+    color: #FF5C00;
+  }
+  
+  .competition-meta {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: #5E5A5A;
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .pagination-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+
+  }
+  
+  .pagination-controls span {
+    text-align: center;
+    
+  }
+  
+  .pagination-buttons {
+    display: flex;
+    gap: 8px;
+    
+  }
+  
+  .pagination-buttons button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    
+  }
+  
+  .pagination-buttons button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  
+  .pagination-buttons button[data-active="true"] {
+    font-weight: 600;
+    /* border-color: transparent;
+    color: rgb(255, 255, 255);
+    background-color: rgb(80, 108, 240); */
+  }
+  
+  .pagination-buttons svg {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .practice-grid {
+    border-radius: 12px;
+    display: grid;
+    align-items: center;
+    gap: 16px;
+    justify-content: center;
+    padding: 16px 0;
+    min-height: 140px;
+  }
+  
+  @media (min-width: 1024px) {
+    .practice-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  
+  .practice-item {
+    text-align: center;
+    padding: 16px;
+    border: 2px solid #e5e5e5;
+    border-radius: 6px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .practice-item:first-child div:first-child span {
+        font-weight: 700;
+        color: #2563eb;
+  }
+  
+  .practice-item:not(:first-child) {
+    background: #DAF8E6;
+    color: #22ad5c;
+    border-color: #acefc8;
+  }
+  
+  .practice-item:nth-child(3) {
+    background: #FFFBEB;
+    color: #f59e0b;
+    border-color: #fde68a;
+  }
+  
+  .practice-item:last-child {
+    background: #FEF3F3;
+    color: #f23030;
+    border-color: #fdd8d8;
+  }
+  
+  .practice-item div:first-child {
+    color: #111928;
+    font-weight: 700;
+  }
+
+  .practice-item div:first-child span {
+    font-weight: normal;
+  }
+  
+  .practice-item div:last-child {
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  
+  .practice-item:nth-child(2) div:last-child {
+    background: #22ad5c;
+  }
+  
+  .practice-item:nth-child(3) div:last-child {
+    background: #f59e0b;
+  }
+  
+  .practice-item:last-child div:last-child {
+    background: #f23030;
+  }
+  
+  .practice-history {
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+  }
+  
+  .practice-history-header {
+    font-weight: 600;
+    padding: 16px 20px;
+  }
+  
+  .practice-history-body {
+    margin-bottom: 32px;
+    text-align: center;
+    color: #6b7280;
+  }
+  
+  .discussion-grid {
+    display: grid;
+    gap: 16px;
+  }
+  
+  @media (min-width: 1024px) {
+    .discussion-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  
+  .discussion-item {
+    border-radius: 12px;
+    border: 2px solid #D1D5DB;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .discussion-item .image-root {
+    width: 3.0625rem;
+  }
+  
+  .discussion-item .image {
+    object-fit: cover;
+    width: 3.0625rem;
+    height: 3.0625rem;
+  }
+  
+  .discussion-item div {
+    color: #111928;
+    font-size: 16px;
+  }
+  
+  .activity-grid {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    font-size: 13px;
+  }
+  
+  .activity-grid div {
+    color: #5E5A5A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .activity-day {
+    background: #e9eafa;
+    font-size: 9px;
+    width: 32px;
+    height: 22px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .activity-day.active-1 {
+    background: #aaaceb;
+  }
+  
+  .activity-day.active-2 {
+    background: #6b6edd;
+  }
+  
+  .activity-day.active-3 {
+    background: #2c31cf;
+  }
+  
+  .activity-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-top: 1px solid #e5e5e5;
+    padding-top: 16px;
+    margin-top: 20px;
+  }
+  
+  .activity-footer div {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    background: #e9eafa;
+  }
+  
+  .activity-footer div:nth-child(2) {
+    background: #aaaceb;
+  }
+  
+  .activity-footer div:nth-child(3) {
+    background: #6b6edd;
+  }
+  
+  .activity-footer div:last-child {
+    background: #2c31cf;
+  }
