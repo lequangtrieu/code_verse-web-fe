@@ -5,25 +5,16 @@ import { UploadOutlined } from "@ant-design/icons";
 const { TextArea } = Input;
 const { Option } = Select;
 
-export default function CourseDescription({ formData, updateFormData, markComplete, markIncomplete, suppressErrors }) {
+export default function CourseDescription({ categoryList, formData, updateFormData, markComplete, markIncomplete, suppressErrors }) {
     const [form] = Form.useForm();
     const [previewVisible, setPreviewVisible] = useState(false);
     const [previewImage, setPreviewImage] = useState("");
     const [previewTitle, setPreviewTitle] = useState("");
     const localSuppressed = true;
     const finalSuppressErrors = suppressErrors && localSuppressed;
-    
+    const categories = categoryList || [];
 
     const hasInitialized = useRef(false);
-    const [categories, setCategories] = useState([
-        { categoryId: 1, name: "Programming" },
-        { categoryId: 2, name: "Web Development" },
-        { categoryId: 3, name: "Data Science" },
-        { categoryId: 4, name: "Machine Learning" },
-        { categoryId: 5, name: "Artificial Intelligence" },
-        { categoryId: 6, name: "Cloud Computing" },
-        { categoryId: 7, name: "Cybersecurity" }
-    ]);
 
     const handleBeforeUpload = (file) => {
         const isImage = file.type.startsWith("image/");
@@ -51,10 +42,10 @@ export default function CourseDescription({ formData, updateFormData, markComple
     const handleCancel = () => setPreviewVisible(false);
 
     useEffect(() => {
-        if (!hasInitialized.current) {
+        if (!hasInitialized.current && categoryList.length > 0) {
             const values = {
-                categoryId: categories[0]?.categoryId,
                 ...formData?.description,
+                categoryId: formData?.description?.categoryId || categories[0]?.id,
               };
             form.setFieldsValue(values);
             hasInitialized.current = true;
@@ -64,7 +55,7 @@ export default function CourseDescription({ formData, updateFormData, markComple
             }
         }
         // eslint-disable-next-line
-    }, [formData, form]);
+    }, [categoryList, formData, form]);
 
     const values = Form.useWatch([], form);
 
@@ -123,7 +114,7 @@ export default function CourseDescription({ formData, updateFormData, markComple
             >
                 <Select>
                     {categories.map((category) => (
-                        <Option key={category.categoryId} value={category.categoryId}>{category.name}</Option>
+                        <Option key={category.id} value={category.id}>{category.name}</Option>
                     ))}
                 </Select>
             </Form.Item>
@@ -168,16 +159,6 @@ export default function CourseDescription({ formData, updateFormData, markComple
                         <div style={{ marginTop: 8 }}>Upload</div>
                     </div>
                 </Upload>
-                {/* {previewImage && (
-                    <div className="mt-4">
-                        <p className="text-gray-600 text-sm mb-1">Cover Preview:</p>
-                        <img
-                            src={previewImage}
-                            alt="Cover Preview"
-                            className="w-48 rounded border shadow"
-                        />
-                    </div>
-                )} */}
 
                 <Modal
                     open={previewVisible}

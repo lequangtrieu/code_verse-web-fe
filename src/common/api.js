@@ -64,7 +64,13 @@ const commonApi = {
         url: `${backendDomain}/cart/confirm-payment`,
     },
 
-      
+    /** Admin api */
+    adminCourses: {
+        url: `${backendDomain}/course/admin`
+    },
+    createCourse: {
+        url: `${backendDomain}/course`
+    }
 
 }
 
