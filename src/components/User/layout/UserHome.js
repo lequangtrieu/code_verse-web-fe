@@ -729,11 +729,11 @@ const UserHome = () => {
                               <div className="flex items-center justify-between mb-2">
                                 <div>
                                   <span className="text-lg font-bold text-indigo-600">
-                                    ${course.price.toFixed(2)}
+                                    {course.price.toFixed(2)} đ
                                   </span>
                                   {course.discount > 0 && (
                                     <span className="line-through text-gray-500 ml-2">
-                                      ${course.discount.toFixed(2)}
+                                      {course.discount.toFixed(2)} đ
                                     </span>
                                   )}
                                   {course.discount === 0 && (

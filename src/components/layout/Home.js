@@ -276,7 +276,7 @@ const Home = () => {
     <div className="bg-white text-[#3b3c54] justify-items-center font-semibold">
       {/* section form login */}
       <section className="w-full flex items-center justify-center bg-[#0D2C53] text-white">
-        <div className="flex flex-col md:flex-row p-8 md:gap-10 max-w-7xl">
+        <div className="flex flex-col md:flex-row p-8 md:gap-8 max-w-7xl">
           {/* Left side */}
           <ScrollFadeIn className="flex flex-col justify-center space-y-6">
             <h1 className="text-4xl font-bold leading-snug">
@@ -306,72 +306,74 @@ const Home = () => {
             </div>
           </ScrollFadeIn>
           {/* Right side */}
-          <ScrollFadeIn className="relative flex justify-center items-center md:min-w-[410px]">
-            <div className="block absolute md:w-[400px] md:h-[550px] w-[500px] h-[500px] mt-10 md:mt-0 bg-blue-500 rotate-[8deg] rounded-3xl shadow-2xl"></div>
-            <div className="mt-10 md:mt-0  bg-white text-black rounded-xl p-8 shadow-lg relative md:w-[388px] font-semibold">
-              <h2 className="text-lg font-semibold mb-4">
-                Learn to code with millions of people with CodeVerse
-              </h2>
-              <Form layout="vertical" onFinish={handleLogin}>
-                <Form.Item
-                  name="username"
-                  label="User name"
-                  rules={[
-                    { required: true, message: "Please input your username!" },
-                    {
-                      type: "email",
-                      message: "The input is not a valid email!",
-                    },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-                <Form.Item
-                  name="password"
-                  label="Password"
-                  rules={[{ required: true }]}
-                >
-                  <Input.Password />
-                </Form.Item>
-
-                <div className="flex justify-end mb-3">
-                  <span
-                    onClick={() => setIsForgotModalOpen(true)}
-                    className="text-sm text-[#4d96ff] hover:underline cursor-pointer"
+          <ScrollFadeIn >
+            <div className="relative flex justify-center items-center md:min-w-[470px]">
+              <div className="block absolute md:w-[400px] md:h-[550px] w-[500px] h-[500px] mt-10 md:mt-0 bg-blue-500 rotate-[8deg] rounded-3xl shadow-2xl"></div>
+              <div className="mt-10 md:mt-0  bg-white text-black rounded-xl p-8 shadow-lg relative md:w-[388px] font-semibold">
+                <h2 className="text-lg font-semibold mb-4">
+                  Learn to code with millions of people with CodeVerse
+                </h2>
+                <Form layout="vertical" onFinish={handleLogin}>
+                  <Form.Item
+                    name="username"
+                    label="User name"
+                    rules={[
+                      { required: true, message: "Please input your username!" },
+                      {
+                        type: "email",
+                        message: "The input is not a valid email!",
+                      },
+                    ]}
                   >
-                    Forgot password?
-                  </span>
-                </div>
+                    <Input />
+                  </Form.Item>
+                  <Form.Item
+                    name="password"
+                    label="Password"
+                    rules={[{ required: true }]}
+                  >
+                    <Input.Password />
+                  </Form.Item>
 
-                <Form.Item>
-                  <Button type="primary" htmlType="submit" block>
-                    Login
+                  <div className="flex justify-end mb-3">
+                    <span
+                      onClick={() => setIsForgotModalOpen(true)}
+                      className="text-sm text-[#4d96ff] hover:underline cursor-pointer"
+                    >
+                      Forgot password?
+                    </span>
+                  </div>
+
+                  <Form.Item>
+                    <Button type="primary" htmlType="submit" block>
+                      Login
+                    </Button>
+                  </Form.Item>
+                </Form>
+
+                <div className="mt-4 mb-4 text-center text-sm">Or continue with</div>
+                <div className="flex justify-center gap-4 flex-wrap">
+                  <div className="w-fit flex justify-center">
+                    <GoogleLogin
+                      onSuccess={handleGoogleSuccess}
+                      onError={() => {
+                        message.error("Google Login Failed");
+                      }}
+                    />
+                  </div>
+
+                  <Button
+                    icon={<GithubOutlined />}
+                    className="flex items-center justify-center gap-2 border hover:border-[#4d96ff] min-w-[150px] h-[40px]"
+                  >
+                    GitHub
                   </Button>
-                </Form.Item>
-              </Form>
-
-              <div className="mt-4 mb-4 text-center text-sm">Or continue with</div>
-              <div className="flex justify-center gap-4 flex-wrap">
-                <div className="w-fit flex justify-center">
-                  <GoogleLogin
-                    onSuccess={handleGoogleSuccess}
-                    onError={() => {
-                      message.error("Google Login Failed");
-                    }}
-                  />
                 </div>
 
-                <Button
-                  icon={<GithubOutlined />}
-                  className="flex items-center justify-center gap-2 border hover:border-[#4d96ff] min-w-[150px] h-[40px]"
-                >
-                  GitHub
-                </Button>
-              </div>
-
-              <div className="mt-4 text-sm text-center">
-                If you do not already have an account, please
-                <div><a onClick={() => openModal("register")} className="text-blue-600 font-medium ml-1">Sign up</a></div>
+                <div className="mt-4 text-sm text-center">
+                  If you do not already have an account, please
+                  <div><a onClick={() => openModal("register")} className="text-blue-600 font-medium ml-1">Sign up</a></div>
+                </div>
               </div>
             </div>
           </ScrollFadeIn>
