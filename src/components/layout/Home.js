@@ -647,6 +647,7 @@ Students are coded and scored directly on the web, accurately assessing their cu
         </div>
       </section>
 
+      {/* section show report sys */}
       <section className="bg-[#EDF0FD] py-20  w-full justify-items-center">
         <div className="max-w-7xl px-8 flex flex-col w-full">
           <div className="flex flex-wrap gap-10 mb-6 ">
@@ -677,6 +678,7 @@ Students are coded and scored directly on the web, accurately assessing their cu
         </div>
       </section>
 
+      {/* section show feature final */}
       <section className="items-center">
         <div className={`max-w-7xl p-8 flex flex-col md:flex-row items-center gap-20`}>
           <ScrollFadeIn className="md:w-1/2">
@@ -690,6 +692,7 @@ Students are coded and scored directly on the web, accurately assessing their cu
         </div>
       </section>
 
+      {/* section show list image */}
       <section>
         <Marquee pauseOnHover speed={50}>
           {images.map((src, index) => (
@@ -703,6 +706,7 @@ Students are coded and scored directly on the web, accurately assessing their cu
         </Marquee>
       </section>
 
+      {/* section show reviews */}
       <section className="py-20 bg-[#EDF0FD] w-full">
         <div className="max-w-7xl mx-auto text-center px-8">
           <ScrollFadeIn>

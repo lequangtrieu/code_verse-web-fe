@@ -522,8 +522,8 @@ const UserHome = () => {
   return (
     <div className="bg-white text-[#3b3c54] justify-items-center">
       {/*User Infor Area */}
-      <section className="bg-[#1b2559] p-4 w-full justify-items-center">
-        <div className="bg-[#1b2559] text-white max-w-[1440px] w-full">
+      <section className="bg-[#1b2559] p-8 w-full justify-items-center">
+        <div className="bg-[#1b2559] text-white max-w-7xl w-full">
           {/* Meeting */}
           <div className="mb-4 text-lg">
             <span>Hello </span>
@@ -622,7 +622,7 @@ const UserHome = () => {
 
 
       {/* Banner */}
-      <section className="p-4 text-center max-w-[1440px] w-full">
+      <section className="p-8 text-center max-w-7xl w-full">
         <Carousel autoplay dots>
           {banners.map((banner) => (
             <div key={banner.id}>
@@ -640,7 +640,7 @@ const UserHome = () => {
       </section>
 
       {/* List course of user */}
-      <section className="p-4 w-full">
+      <section className="p-8 w-full max-w-7xl">
         {(initialLoading || loading) && <LoadingOverlay />}
 
         {!initialLoading && (
