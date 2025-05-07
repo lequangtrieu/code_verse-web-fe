@@ -5,6 +5,11 @@ const commonApi = {
         url: backendDomain,
     },
 
+    /** Code api */
+    executionCode: {
+        url: `${backendDomain}/code/execute`,
+    },
+
     /** User api */
     signUP: {
         url: `${backendDomain}/auth/signup`,
