@@ -70,7 +70,11 @@ const commonApi = {
     },
     createCourse: {
         url: `${backendDomain}/course`
-    }
+    },
+    getCoursesByUser: (userId) => `${backendDomain}/course/user/${userId}`,
+    getInProgressCourses: (userId) => `${backendDomain}/course/user/${userId}/in-progress`,
+    getCompletedCourses: (userId) => `${backendDomain}/course/user/${userId}/completed`,
+    getSuggestedCourses: (userId) => `${backendDomain}/course/user/${userId}/suggested`,
 
 }
 
