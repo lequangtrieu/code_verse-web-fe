@@ -161,7 +161,7 @@ export const lessons = [
           ],
           instruction: "Chỉ in kết quả từng dòng một.",
         },
-        testCases: [{ input: "", expected: "14 6 40 2" }],
+        testCases: [{ input: "CodeVerse", expected: "Hello CodeVerse" }],
       },
     ],
   },

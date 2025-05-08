@@ -11,13 +11,16 @@ const CodeEditor = ({
   testCases = [],
   language: fixedLanguage,
 }) => {
-  const defaultCodeMap = useMemo(() => ({
-    javascript: `function run() {\n  // Your JS code here\n}`,
-    python: `def run():\n    # Your Python code here\n    pass`,
-    java: `public class Main {\n  public static void main(String[] args) {\n    // Your Java code here\n  }\n}`,
-    c: `#include <stdio.h>\nint main() {\n  // Your C code here\n  return 0;\n}`,
-    cpp: `#include <iostream>\nint main() {\n  // Your C++ code here\n  return 0;\n}`,
-  }), []);
+  const defaultCodeMap = useMemo(
+    () => ({
+      javascript: `function run() {\n  // Your JS code here\n}`,
+      python: `def run():\n    # Your Python code here\n    pass`,
+      java: `import java.util.Scanner;\n\npublic class Main {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    // Your Java code here\n  }\n}`,
+      c: `#include <stdio.h>\nint main() {\n  // Your C code here\n  return 0;\n}`,
+      cpp: `#include <iostream>\nint main() {\n  // Your C++ code here\n  return 0;\n}`,
+    }),
+    []
+  );
 
   const languageList = ["javascript", "python", "java", "c", "cpp"];
   const themeList = ["vs-dark", "light", "hc-black"];
@@ -186,6 +189,10 @@ const CodeEditor = ({
                 className={`w-full ${
                   selectedIndex === index
                     ? "bg-blue-500 text-white"
+                    : testResults[index]?.description === "Fail"
+                    ? "bg-red-500 text-white"
+                    : testResults[index]?.description === "Pass"
+                    ? "bg-green-500 text-white"
                     : "bg-[#2e2f45] text-white border border-gray-600"
                 }`}
                 onClick={() => setSelectedIndex(index)}
