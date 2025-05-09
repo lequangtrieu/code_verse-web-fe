@@ -7,7 +7,6 @@ import {
 import LoadingOverlay from "../../../../common/LoadingOverlay";
 import CourseDescription from "./CourseDescription";
 import CourseMaterial from "./CourseMaterial/CourseMaterial";
-import BonusInfo from "./BonusInfo";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axiosInstance from "../../../../config/axiosInstance";
@@ -19,8 +18,7 @@ const { confirm } = Modal;
 const steps = [
     { title: "Course Info", component: CourseDescription },
     { title: "Course Material", component: CourseMaterial },
-    { title: "Bonus Info", component: BonusInfo },
-    { title: "Submit & Review" },
+    { title: "Submit & Review" }
 ];
 
 export default function CourseForm() {
@@ -90,12 +88,13 @@ export default function CourseForm() {
         const fData = new FormData();
 
         const { description, modules, bonus } = formData;
-
-        fData.append("title", description.title);
-        fData.append("description", description.description);
+        console.log(formData);
+        fData.append("title", description.title || "");
+        fData.append("description", description.description || "");
         fData.append("categoryId", description.categoryId);
         fData.append("instructor", instructor);
         fData.append("level", bonus.levelId || "BEGINNER");
+        fData.append("language", bonus.language || "JAVA");
         fData.append("price", bonus.isPaid ? bonus.price : 0);
         fData.append("isPublished", isPublished);
 
@@ -104,12 +103,12 @@ export default function CourseForm() {
         }
 
         modules.forEach((module, moduleIndex) => {
-            fData.append(`modules[${moduleIndex}].title`, module.title);
+            fData.append(`modules[${moduleIndex}].title`, module.title || "");
             fData.append(`modules[${moduleIndex}].orderIndex`, moduleIndex + 1);
 
-            module.lessons.forEach((lesson, lessonIndex) => {
+            module.lessons?.forEach((lesson, lessonIndex) => {
                 const base = `modules[${moduleIndex}].lessons[${lessonIndex}]`;
-                fData.append(`${base}.title`, lesson.title);
+                fData.append(`${base}.title`, lesson.title || "");
                 fData.append(`${base}.orderIndex`, lessonIndex);
                 fData.append(`${base}.defaultCode`, lesson.defaultCode || "");
                 fData.append(`${base}.duration`, lesson.duration || 0);

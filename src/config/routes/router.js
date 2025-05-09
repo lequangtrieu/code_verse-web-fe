@@ -8,6 +8,7 @@ import Home from "../../components/layout/Home";
 import DashboardPage from "../../components/Admin/AdminDashBoard/DashboardPage";
 import AdminPanel from "../../components/Admin/layout/AdminPanel";
 import AdminCoursesPage from "../../components/Admin/AdminCourses/AdminCoursesPage";
+import AdminCourseDetailView from "../../components/Admin/AdminCourses/AdminCourseDetail";
 import AdminReviewPage from "../../components/Admin/AdminReview/AdminReviewPage";
 import AdminMessagePage from "../../components/Admin/AdminMessage/AdminMessagePage";
 import AdminProfilePage from "../../components/Admin/AdminProfile/AdminProfilePage";
@@ -180,6 +181,10 @@ const router = createBrowserRouter([
             path: "courses/create",
             element: <CourseForm />
           },
+          {
+            path: "courses/:id",
+            element: <AdminCourseDetailView />
+          }
         ],
       },
     ],
