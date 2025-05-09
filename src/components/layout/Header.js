@@ -435,6 +435,16 @@ const Header = () => {
             >
               Ranking
             </Link>
+
+            <Link
+              to="/blogpage"
+              onClick={scrollTop}
+              className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(
+                "/blogpage"
+              )} hover:text-[#2c31cf] hover:border-b-[#2c31cf]`}
+            >
+              Blog
+            </Link>
           </div>
         </div>
 

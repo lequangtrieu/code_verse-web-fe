@@ -343,13 +343,6 @@ const filteredRankings = rankings
       userCopy.exp = todayExp ? todayExp.amount : 0;
       break;
     }
-    case "yesterday": {
-
-      const yesterday = moment().subtract(1, 'days').format('YYYY-MM-DD');
-      const yesterdayExp = user.expHistory.find(exp => exp.date === yesterday);
-      userCopy.exp = yesterdayExp ? yesterdayExp.amount : 0;
-      break;
-    }
     case "week": {
 
       const weekAgo = moment().subtract(6, 'days').startOf('day');
@@ -365,24 +358,10 @@ const filteredRankings = rankings
         .reduce((sum, exp) => sum + exp.amount, 0);
       break;
     }
-    case "lastMonth": {
-      const lastMonth = moment().subtract(1, 'month').format('YYYY-MM');
-      userCopy.exp = user.expHistory
-        .filter(exp => exp.date.startsWith(lastMonth))
-        .reduce((sum, exp) => sum + exp.amount, 0);
-      break;
-    }
     case "year": {
       const currentYear = moment().format('YYYY');
       userCopy.exp = user.expHistory
         .filter(exp => exp.date.startsWith(currentYear))
-        .reduce((sum, exp) => sum + exp.amount, 0);
-      break;
-    }
-    case "lastYear": {
-      const lastYear = moment().subtract(1, 'year').format('YYYY');
-      userCopy.exp = user.expHistory
-        .filter(exp => exp.date.startsWith(lastYear))
         .reduce((sum, exp) => sum + exp.amount, 0);
       break;
     }
@@ -447,13 +426,10 @@ const filteredRankings = rankings
           onChange={handleTimeFilterChange}
         >
           <Option value="all">All Time</Option>
-          <Option value="today">Today</Option>
-          <Option value="yesterday">Yesterday</Option>
-          <Option value="week">This Week</Option>
-          <Option value="month">This Month</Option>
-          <Option value="lastMonth">Last Month</Option>
-          <Option value="year">This Year</Option>
-          <Option value="lastYear">Last Year</Option>
+          <Option value="today">Day</Option>
+          <Option value="week">Week</Option>
+          <Option value="month">Month</Option>
+          <Option value="year">Year</Option>
         </Select>
       </div>
 
@@ -463,7 +439,7 @@ const filteredRankings = rankings
     <Card
       title={
         <div>
-          <StarOutlined style={{ color: "#C0C0C0" }} /> Top 2
+          <StarOutlined style={{ color: "#FFFFFF" }} /> Top 2
         </div>
       }
       bordered={false}
@@ -499,7 +475,7 @@ const filteredRankings = rankings
             <h3 style={{ fontSize: "1.3rem", fontWeight: "bold" }}>
               {filteredRankings[1].username}
             </h3>
-            <p style={{ fontSize: "1rem", color: "#777" }}>
+            <p style={{ fontSize: "1rem", color: "#FFFFFF" }}>
               EXP: {filteredRankings[1].exp}
             </p>
           </div>
@@ -512,10 +488,10 @@ const filteredRankings = rankings
 
   {/* Top 1 */}
   <Col span={10}>
-    <Card
+    <Card 
       title={
         <div style={{ fontSize: "1.2em", fontWeight: "bold" }}>
-          <TrophyOutlined style={{ color: "#ffec00" }} /> Top 1 Champion
+          <TrophyOutlined style={{ color: "#D7942D" }} /> Top 1 Champion
         </div>
       }
       bordered={false}
@@ -527,8 +503,10 @@ const filteredRankings = rankings
         backgroundColor: "#ffd700",
         height: "300px",
         marginTop: "-25px",
+        cursor: "pointer",
       }}
       hoverable
+      onClick={() => window.location.href = '/account-profile'}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = "translateY(-10px)";
         e.currentTarget.style.boxShadow = "0 12px 30px rgba(255, 215, 0, 0.4)";
@@ -569,7 +547,7 @@ const filteredRankings = rankings
     <Card
       title={
         <div>
-          <StarOutlined style={{ color: "#CD7F32" }} /> Top 3
+          <StarOutlined style={{ color: "#FFFFFF" }} /> Top 3
         </div>
       }
       bordered={false}
@@ -605,7 +583,7 @@ const filteredRankings = rankings
             <h3 style={{ fontSize: "1.3rem", fontWeight: "bold" }}>
               {filteredRankings[2].username}
             </h3>
-            <p style={{ fontSize: "1rem", color: "#777" }}>
+            <p style={{ fontSize: "1rem", color: "#FFFFFF" }}>
               EXP: {filteredRankings[2].exp}
             </p>
           </div>

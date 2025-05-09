@@ -31,6 +31,7 @@ import HandlePaymentSuccess from "../../components/User/Cart/HandlePaymentSucces
 import UserChangePassword from "../../components/User/UserChangePassword/UserChangePassword";
 import RankingPage from "../../components/User/RankingPage/RankingPage";
 import AccountProfile from "../../components/User/AccountProfile/Profile";
+import BlogPage from "../../components/User/BlogPage/BlogPage";
 
 const router = createBrowserRouter([
   {
@@ -90,6 +91,10 @@ const router = createBrowserRouter([
       {
         path: "account-profile",
         element: <AccountProfile />,
+      },
+      {
+        path: "blogpage",
+        element: <BlogPage />,
       },
       {
         path: "user-panel",
