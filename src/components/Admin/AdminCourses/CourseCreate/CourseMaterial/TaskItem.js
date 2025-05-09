@@ -8,10 +8,6 @@ const TaskItem = React.memo(({ moduleIndex, lessonIndex, exerciseIndex, tField, 
     const finalSuppressErrors = suppressErrors && localSuppressed;
 
     return (
-        // <Space
-        // key={`module-${moduleIndex}-lesson-${lessonIndex}-exercise-${exerciseIndex}-task-${tField.key}`}
-        // align="start"
-        // className="w-full">
         <div className="w-full flex items-start gap-4">
             <Form.Item
                 name={[tField.name, "description"]}
@@ -27,7 +23,6 @@ const TaskItem = React.memo(({ moduleIndex, lessonIndex, exerciseIndex, tField, 
                 <MinusCircleOutlined onClick={() => removeTask(tField.name)} />
             </div>
         </div>
-        // </Space>
     )
 });
 

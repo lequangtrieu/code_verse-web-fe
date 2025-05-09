@@ -1,7 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Form, Button, Divider } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
+import { DndContext, closestCenter } from "@dnd-kit/core";
+import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import ModuleItem from "./ModuleItem";
+import SortablePanel from "./SortablePanel";
 
 
 export default function CourseMaterial({ formData, updateFormData, markComplete, markIncomplete, suppressErrors }) {
@@ -9,9 +12,15 @@ export default function CourseMaterial({ formData, updateFormData, markComplete,
     const [videoPreview, setVideoPreview] = useState({});
     const hasInitialized = useRef(false);
     const [completedLessons, setCompletedLessons] = useState({});
-    const localSuppressed = true;
-    const finalSuppressErrors = suppressErrors && localSuppressed;
+    const [moduleOrder, setModuleOrder] = useState([]);
     const modules = Form.useWatch("modules", form);
+
+    useEffect(() => {
+        if (modules && Array.isArray(modules)) {
+            const keys = modules.map((_, index) => index);
+            setModuleOrder(keys);
+        }
+    }, [modules]);
 
     const markLessonComplete = (moduleIdx, lessonIdx) => {
         setCompletedLessons((prev) => ({
@@ -34,23 +43,23 @@ export default function CourseMaterial({ formData, updateFormData, markComplete,
         }
     }, [formData, form]);
 
-    useEffect(() => {
-        const formModules = form.getFieldValue("modules") || [];
-        const previews = {};
+    // useEffect(() => {
+    //     const formModules = form.getFieldValue("modules") || [];
+    //     const previews = {};
 
-        formModules.forEach((module, moduleIdx) => {
-            module.lessons?.forEach((lesson, lessonIdx) => {
-                const fileList = lesson?.video;
-                const file = Array.isArray(fileList) ? fileList[0]?.originFileObj : null;
-                if (file && file.type?.startsWith("video/")) {
-                    const key = `${moduleIdx}-${lessonIdx}`;
-                    previews[key] = URL.createObjectURL(file);
-                }
-            });
-        });
+    //     formModules.forEach((module, moduleIdx) => {
+    //         module?.lessons?.forEach((lesson, lessonIdx) => {
+    //             const fileList = lesson?.video;
+    //             const file = Array.isArray(fileList) ? fileList[0]?.originFileObj : null;
+    //             if (file && file.type?.startsWith("video/")) {
+    //                 const key = `${moduleIdx}-${lessonIdx}`;
+    //                 previews[key] = URL.createObjectURL(file);
+    //             }
+    //         });
+    //     });
 
-        setVideoPreview(previews);
-    }, [form]);
+    //     setVideoPreview(previews);
+    // }, [form]);
 
     useEffect(() => {
         return () => {
@@ -101,34 +110,74 @@ export default function CourseMaterial({ formData, updateFormData, markComplete,
                 onValuesChange={onValuesChange}
             >
                 <Form.List name="modules">
-                    {(moduleFields, { add: addModule, remove: removeModule }) => (
-                        <>
-                            {moduleFields.map((moduleField) => {
-                                return (<ModuleItem
-                                    key={`module-${moduleField.name}`}
-                                    form={form}
-                                    moduleField={moduleField}
-                                    removeModule={removeModule}
-                                    videoPreview={videoPreview}
-                                    setVideoPreview={setVideoPreview}
-                                    markLessonComplete={markLessonComplete}
-                                    markLessonIncomplete={markLessonIncomplete}
-                                    suppressErrors={suppressErrors}
-                                />)
-                            })}
+                    {(moduleFields, { add: addModule, remove: removeModule }) => {
 
-                            <Form.Item>
-                                <Button
-                                    type="dashed"
-                                    onClick={() => addModule()}
-                                    block
-                                    icon={<PlusOutlined />}
-                                >
-                                    Add Module
-                                </Button>
-                            </Form.Item>
-                        </>
-                    )}
+                        const handleDragEnd = (event) => {
+                            const { active, over } = event;
+                            if (!over || active.id === over.id) return;
+
+                            const oldIndex = moduleOrder.indexOf(active.id);
+                            const newIndex = moduleOrder.indexOf(over.id);
+                            const newOrder = arrayMove(moduleOrder, oldIndex, newIndex);
+                            setModuleOrder(newOrder);
+
+                            const modules = [...(form.getFieldValue("modules") || [])];
+                            const reordered = newOrder.map((key, index) => {
+                                const field = moduleFields.find((f) => f.key === key);
+                                if (!field) return null;
+
+                                return { ...modules[field.name], orderIndex: index };
+                            });
+
+                            form.setFieldsValue({ modules: reordered });
+                            updateFormData("modules", reordered);
+                        };
+
+                        return (
+                            <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                                    <SortableContext items={moduleOrder} strategy={verticalListSortingStrategy}>
+                                        {moduleFields.map((moduleField) => {
+
+                                            return (
+                                                <SortablePanel
+                                                    key={moduleField.key}
+                                                    id={moduleField.key}
+                                                    header={`Module ${moduleField.name + 1}`}
+                                                >
+                                                        <ModuleItem
+                                                            key={`module-${moduleField.name}`}
+                                                            form={form}
+                                                            moduleField={moduleField}
+                                                            removeModule={removeModule}
+                                                            videoPreview={videoPreview}
+                                                            setVideoPreview={setVideoPreview}
+                                                            markLessonComplete={markLessonComplete}
+                                                            markLessonIncomplete={markLessonIncomplete}
+                                                            suppressErrors={suppressErrors}
+                                                        />
+
+
+                                                </SortablePanel>
+                                            )
+                                        }
+                                        )
+                                        }
+                                    </SortableContext>
+
+
+                                    <Form.Item>
+                                        <Button
+                                            type="dashed"
+                                            onClick={() => addModule()}
+                                            block
+                                            icon={<PlusOutlined />}
+                                        >
+                                            Add Module
+                                        </Button>
+                                    </Form.Item>
+                            </DndContext>
+                        )
+                    }}
                 </Form.List>
             </Form>
         </>
