@@ -8,6 +8,7 @@ import Home from "../../components/layout/Home";
 import DashboardPage from "../../components/Admin/AdminDashBoard/DashboardPage";
 import AdminPanel from "../../components/Admin/layout/AdminPanel";
 import AdminCoursesPage from "../../components/Admin/AdminCourses/AdminCoursesPage";
+import AdminCourseDetailView from "../../components/Admin/AdminCourses/AdminCourseDetail";
 import AdminReviewPage from "../../components/Admin/AdminReview/AdminReviewPage";
 import AdminMessagePage from "../../components/Admin/AdminMessage/AdminMessagePage";
 import AdminProfilePage from "../../components/Admin/AdminProfile/AdminProfilePage";
@@ -32,6 +33,7 @@ import UserChangePassword from "../../components/User/UserChangePassword/UserCha
 import RankingPage from "../../components/User/RankingPage/RankingPage";
 import AccountProfile from "../../components/User/AccountProfile/Profile";
 import BlogPage from "../../components/User/BlogPage/BlogPage";
+import HomeRedirect from "../../components/layout/HomeRedirect";
 
 const router = createBrowserRouter([
   {
@@ -40,6 +42,10 @@ const router = createBrowserRouter([
     children: [
       {
         path: "",
+        element: <HomeRedirect />,
+      },
+      {
+        path: "home",
         element: <UserHome />,
       },
       {
@@ -190,6 +196,10 @@ const router = createBrowserRouter([
             path: "courses/create",
             element: <CourseForm />
           },
+          {
+            path: "courses/:id",
+            element: <AdminCourseDetailView />
+          }
         ],
       },
     ],

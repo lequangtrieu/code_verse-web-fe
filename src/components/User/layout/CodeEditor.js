@@ -1,50 +1,131 @@
-import React, { useState } from "react";
-import { Select, Button, message } from "antd";
+import React, { useState, useRef, useEffect, useMemo } from "react";
+import { Select, Button, notification } from "antd";
 import Editor from "@monaco-editor/react";
+import commonApi from "../../../common/api";
+import axiosInstance from "../../../config/axiosInstance";
 
 const { Option } = Select;
 
-const CodeEditor = ({ defaultCode, testCases = [] }) => {
+const CodeEditor = ({
+  defaultCode = "",
+  testCases = [],
+  language: fixedLanguage,
+}) => {
+  const defaultCodeMap = useMemo(
+    () => ({
+      javascript: `function run() {\n  // Your JS code here\n}`,
+      python: `def run():\n    # Your Python code here\n    pass`,
+      java: `import java.util.Scanner;\n\npublic class Main {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    // Your Java code here\n  }\n}`,
+      c: `#include <stdio.h>\nint main() {\n  // Your C code here\n  return 0;\n}`,
+      cpp: `#include <iostream>\nint main() {\n  // Your C++ code here\n  return 0;\n}`,
+    }),
+    []
+  );
+
   const languageList = ["javascript", "python", "java", "c", "cpp"];
   const themeList = ["vs-dark", "light", "hc-black"];
-  const [language, setLanguage] = useState("javascript");
+  const editorRef = useRef();
+
+  const [selectedLanguage, setSelectedLanguage] = useState("javascript");
+  const language = fixedLanguage || selectedLanguage;
   const [theme, setTheme] = useState("vs-dark");
+  const [code, setCode] = useState(
+    defaultCode || (fixedLanguage ? defaultCodeMap[fixedLanguage] : "")
+  );
   const [testResults, setTestResults] = useState([]);
   const [isRunning, setIsRunning] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const runTests = () => {
+  const runTests = async () => {
     setIsRunning(true);
+    const userCode = editorRef.current.getValue();
 
-    const updatedResults = testCases.map((test) => {
-      const isPassed = test.input === test.expected;
-      return {
-        ...test,
-        description: isPassed ? "Pass" : "Fail",
-        actual: isPassed ? test.expected : "Some error occurred",
-        executionTime: Math.floor(Math.random() * 100),
-      };
-    });
+    const results = await Promise.all(
+      testCases.map(async (test) => {
+        const startTime = performance.now();
+        try {
+          const response = await axiosInstance.post(
+            commonApi.executionCode.url,
+            {
+              language,
+              code: userCode,
+              input: test.input,
+            }
+          );
 
-    setTimeout(() => {
-      setTestResults(updatedResults);
-      setIsRunning(false);
-      setSelectedIndex(0);
-      message.success("Tests completed!");
-    }, 500);
+          const endTime = performance.now();
+          const actualOutput = response.data.output
+            ?.toString()
+            .trim()
+            .replace(/\s+/g, " ");
+          const expectedOutput = test.expected
+            ?.toString()
+            .trim()
+            .replace(/\s+/g, " ");
+          const passed = actualOutput === expectedOutput;
+
+          return {
+            ...test,
+            actual: actualOutput,
+            executionTime: Math.floor(endTime - startTime),
+            description: passed ? "Pass" : "Fail",
+          };
+        } catch (err) {
+          const endTime = performance.now();
+          return {
+            ...test,
+            actual: err.response?.data?.error || "Execution failed",
+            executionTime: Math.floor(endTime - startTime),
+            description: "Error",
+          };
+        }
+      })
+    );
+
+    setTestResults(results);
+    setIsRunning(false);
+    setSelectedIndex(0);
+
+    const hasError = results.some(
+      (r) => r.description === "Error" || r.description === "Fail"
+    );
+
+    if (hasError) {
+      notification.error({
+        message: "Some test cases failed",
+        description: "Please check the result details.",
+        placement: "bottomLeft",
+      });
+    } else {
+      notification.success({
+        message: "All test cases passed!",
+        description: "Great job, everything works perfectly!",
+        placement: "bottomLeft",
+      });
+    }
   };
 
   const handleSubmit = () => {
-    message.success("Code submitted successfully!");
+    notification.success({
+      message: "Code Submitted",
+      description: "Your code has been submitted successfully!",
+      placement: "bottomLeft",
+    });
   };
+
+  useEffect(() => {
+    if (!fixedLanguage) {
+      setCode(defaultCodeMap[selectedLanguage] || "");
+    }
+  }, [selectedLanguage, fixedLanguage, defaultCodeMap]);
 
   return (
     <div className="w-full p-4 bg-gray-900 rounded-lg shadow max-h-[850px] overflow-y-auto">
       <div className="flex items-center justify-between mb-4 space-x-4">
         <div className="flex gap-2">
           <Select
-            value={language}
-            onChange={setLanguage}
+            value={fixedLanguage || selectedLanguage}
+            onChange={setSelectedLanguage}
             style={{ width: 180 }}
             className="bg-white"
           >
@@ -55,7 +136,6 @@ const CodeEditor = ({ defaultCode, testCases = [] }) => {
             ))}
           </Select>
 
-          {/* Select theme */}
           <Select
             value={theme}
             onChange={setTheme}
@@ -88,9 +168,11 @@ const CodeEditor = ({ defaultCode, testCases = [] }) => {
       <div className="border border-gray-700 rounded overflow-hidden mb-6">
         <Editor
           height="450px"
-          defaultLanguage="javascript"
-          defaultValue={defaultCode}
+          language={language}
+          value={code}
           theme={theme}
+          onMount={(editor) => (editorRef.current = editor)}
+          onChange={(newValue) => setCode(newValue)}
         />
       </div>
 
@@ -107,6 +189,10 @@ const CodeEditor = ({ defaultCode, testCases = [] }) => {
                 className={`w-full ${
                   selectedIndex === index
                     ? "bg-blue-500 text-white"
+                    : testResults[index]?.description === "Fail"
+                    ? "bg-red-500 text-white"
+                    : testResults[index]?.description === "Pass"
+                    ? "bg-green-500 text-white"
                     : "bg-[#2e2f45] text-white border border-gray-600"
                 }`}
                 onClick={() => setSelectedIndex(index)}

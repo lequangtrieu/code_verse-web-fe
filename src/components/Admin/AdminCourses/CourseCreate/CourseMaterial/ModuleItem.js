@@ -23,7 +23,7 @@ const ModuleItem = React.memo(({
             size="large"
             className="w-full mb-6 p-4 border border-gray-300 rounded bg-gray-50"
         >
-            <h3 className="text-xl font-semibold">Module {moduleField.name + 1}</h3>
+            {/* <h3 className="text-xl font-semibold">Module {moduleField.name + 1}</h3> */}
 
             <Form.Item
                 {...moduleField}
@@ -48,8 +48,8 @@ const ModuleItem = React.memo(({
                                     moduleIndex={moduleField.name}
                                     lessonIndex={lessonIndex}
                                     removeLesson={remove}
-                                    videoPreview={videoPreview}
-                                    setVideoPreview={setVideoPreview}
+                                    // videoPreview={videoPreview}
+                                    // setVideoPreview={setVideoPreview}
                                     markLessonComplete={markLessonComplete}
                                     markLessonIncomplete={markLessonIncomplete}
                                     suppressErrors={suppressErrors}

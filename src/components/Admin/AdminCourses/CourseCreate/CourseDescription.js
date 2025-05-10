@@ -1,29 +1,51 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Form, Input, Upload, Modal, Select, message } from "antd";
+import { Form, Input, InputNumber, Radio, Upload, Modal, Select, message, Space, Button } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 
 const { TextArea } = Input;
 const { Option } = Select;
 
-export default function CourseDescription({ formData, updateFormData, markComplete, markIncomplete, suppressErrors }) {
-    const [form] = Form.useForm();
+export default function CourseDescription({
+    form: initialForm,
+    categoryList, formData,
+    updateFormData,
+    markComplete,
+    markIncomplete,
+    suppressErrors,
+    isEditing = false,
+    onSave,
+    onCancel
+}) {
+    const [currentForm] = Form.useForm();
+    const form = initialForm || currentForm;
     const [previewVisible, setPreviewVisible] = useState(false);
     const [previewImage, setPreviewImage] = useState("");
     const [previewTitle, setPreviewTitle] = useState("");
     const localSuppressed = true;
     const finalSuppressErrors = suppressErrors && localSuppressed;
-    
+    const categories = categoryList || [];
+    const [levels] = useState([
+        { levelId: "BEGINNER", name: "Beginner" },
+        { levelId: "INTERMEDIATE", name: "Intermediate" },
+        { levelId: "ADVANCED", name: "Advanced" }
+    ]);
+    const [languages] = useState([
+        { language: "JAVA", name: "Java" },
+        { language: "PYTHON", name: "Python" },
+        { language: "C", name: "C" },
+        { language: "JAVASCRIPT", name: "JavaScript" },
+        { language: "CPP", name: "C++" },
+        { language: "CSHARP", name: "C#" },
+        { language: "RUBY", name: "Ruby" },
+        { language: "KOTLIN", name: "Kotlin" }
+    ]);
 
     const hasInitialized = useRef(false);
-    const [categories, setCategories] = useState([
-        { categoryId: 1, name: "Programming" },
-        { categoryId: 2, name: "Web Development" },
-        { categoryId: 3, name: "Data Science" },
-        { categoryId: 4, name: "Machine Learning" },
-        { categoryId: 5, name: "Artificial Intelligence" },
-        { categoryId: 6, name: "Cloud Computing" },
-        { categoryId: 7, name: "Cybersecurity" }
-    ]);
+    const hasValidatedOnce = useRef(false);
+    const previousIsPaid = useRef(null);
+
+    const values = Form.useWatch([], form);
+    const isPaid = Form.useWatch("isPaid", form);
 
     const handleBeforeUpload = (file) => {
         const isImage = file.type.startsWith("image/");
@@ -46,50 +68,81 @@ export default function CourseDescription({ formData, updateFormData, markComple
         setPreviewVisible(true);
     };
 
-
-
     const handleCancel = () => setPreviewVisible(false);
 
     useEffect(() => {
-        if (!hasInitialized.current) {
-            const values = {
-                categoryId: categories[0]?.categoryId,
+        if (!hasInitialized.current && categoryList.length > 0) {
+            const initialValues = {
                 ...formData?.description,
-              };
-            form.setFieldsValue(values);
+                ...formData?.bonus,
+                categoryId: formData?.description?.categoryId || categories[0]?.id,
+                levelId: formData?.bonus?.levelId || levels[0]?.levelId,
+                language: formData?.bonus?.language || languages[0]?.language
+            };
+            form.setFieldsValue(initialValues);
             hasInitialized.current = true;
 
-            if (values?.previewImage) {
-                setPreviewImage(values.previewImage);
+            if (initialValues?.previewImage) {
+                setPreviewImage(initialValues.previewImage);
             }
         }
         // eslint-disable-next-line
-    }, [formData, form]);
-
-    const values = Form.useWatch([], form);
+    }, [categoryList, formData]);
 
     useEffect(() => {
-        if (!values) return;
+        previousIsPaid.current = isPaid;
+    }, [isPaid]);
 
-        const updated = {
-            ...values,
-            previewImage: previewImage || formData?.description?.previewImage,
-        };
+    useEffect(() => {
+        if (!values || !hasInitialized.current) return;
 
-        updateFormData("description", updated);
+        const cleanValues = { ...form.getFieldsValue(true) };
+        if (!cleanValues.isPaid) delete cleanValues.price;
 
-        form
-            .validateFields()
-            .then(() => markComplete())
-            .catch(() => markIncomplete());
-            // eslint-disable-next-line
+        updateFormData("description", {
+            title: cleanValues.title,
+            description: cleanValues.description,
+            categoryId: cleanValues.categoryId,
+            cover: cleanValues.cover,
+            previewImage: previewImage || formData?.description?.previewImage
+        });
+
+        updateFormData("bonus", {
+            isPaid: cleanValues.isPaid,
+            price: cleanValues.isPaid ? cleanValues.price : undefined,
+            levelId: cleanValues.levelId,
+            language: cleanValues.language
+        });
+
+        const timeout = setTimeout(() => {
+            const fieldsToValidate = [
+                "title", "description", "categoryId", "cover",
+                "isPaid", "levelId", "language"
+            ];
+            if (form.getFieldValue("isPaid")) fieldsToValidate.push("price");
+
+            form.validateFields(fieldsToValidate)
+                .then(() => {
+                    markComplete?.();
+                    hasValidatedOnce.current = true;
+                })
+                .catch(() => {
+                    markIncomplete?.();
+                    hasValidatedOnce.current = false;
+                });
+        }, 100);
+
+        return () => clearTimeout(timeout);
+        // eslint-disable-next-line
     }, [values, previewImage]);
 
     return (
         <Form
+            name="courseDescription"
             form={form}
             layout="vertical"
             className="max-w-3xl mx-auto"
+            // onFinish={onFinish}
         >
             {/* Title */}
             <Form.Item
@@ -123,7 +176,7 @@ export default function CourseDescription({ formData, updateFormData, markComple
             >
                 <Select>
                     {categories.map((category) => (
-                        <Option key={category.categoryId} value={category.categoryId}>{category.name}</Option>
+                        <Option key={category.id} value={category.id}>{category.name}</Option>
                     ))}
                 </Select>
             </Form.Item>
@@ -168,16 +221,6 @@ export default function CourseDescription({ formData, updateFormData, markComple
                         <div style={{ marginTop: 8 }}>Upload</div>
                     </div>
                 </Upload>
-                {/* {previewImage && (
-                    <div className="mt-4">
-                        <p className="text-gray-600 text-sm mb-1">Cover Preview:</p>
-                        <img
-                            src={previewImage}
-                            alt="Cover Preview"
-                            className="w-48 rounded border shadow"
-                        />
-                    </div>
-                )} */}
 
                 <Modal
                     open={previewVisible}
@@ -188,6 +231,79 @@ export default function CourseDescription({ formData, updateFormData, markComple
                     <img alt="preview" style={{ width: "100%" }} src={formData.description.previewImage} />
                 </Modal>
             </Form.Item>
+
+            <Form.Item
+                name="isPaid"
+                label="Is this course paid?"
+                htmlFor={null}
+                rules={[{ required: true, message: "Please choose Free or Paid" }]}
+                validateStatus={finalSuppressErrors ? "" : undefined}
+                help={finalSuppressErrors ? "" : undefined}
+            >
+                <Radio.Group optionType="button" buttonStyle="solid">
+                    <Radio value={false}>Free</Radio>
+                    <Radio value={true}>Paid</Radio>
+                </Radio.Group>
+            </Form.Item>
+
+            {isPaid && (
+                <Form.Item
+                    name="price"
+                    label="Course Price (VND)"
+                    rules={[{ required: true, message: "Please enter the price" }]}
+                    preserve={false}
+                    validateStatus={finalSuppressErrors ? "" : undefined}
+                    help={finalSuppressErrors ? "" : undefined}
+                >
+                    <InputNumber min={1} placeholder="e.g. 100000" className="w-full" />
+                </Form.Item>
+            )}
+
+            <Form.Item
+                name="levelId"
+                label="Course Level"
+                rules={[{ required: true, message: "Please select level" }]}
+                validateStatus={finalSuppressErrors ? "" : undefined}
+                help={finalSuppressErrors ? "" : undefined}
+            >
+                <Select>
+                    {levels.map((level) => (
+                        <Option key={level.levelId} value={level.levelId}>
+                            {level.name}
+                        </Option>
+                    ))}
+                </Select>
+            </Form.Item>
+
+            <Form.Item
+                name="language"
+                label="Course Language"
+                rules={[{ required: true, message: "Please select language" }]}
+                validateStatus={finalSuppressErrors ? "" : undefined}
+                help={finalSuppressErrors ? "" : undefined}
+            >
+                <Select>
+                    {languages.map((language) => (
+                        <Option key={language.language} value={language.language}>
+                            {language.name}
+                        </Option>
+                    ))}
+                </Select>
+            </Form.Item>
+
+            {isEditing && (
+                <Form.Item>
+                    <Space className="flex justify-end">
+                        <Button type="default" onClick={onCancel}>Cancel</Button>
+                        <Button
+                            type="primary"
+                            onClick={() => onSave?.(form)}
+                        >
+                            Save
+                        </Button>
+                    </Space>
+                </Form.Item>
+            )}
         </Form>
     );
 }

@@ -5,6 +5,11 @@ const commonApi = {
         url: backendDomain,
     },
 
+    /** Code api */
+    executionCode: {
+        url: `${backendDomain}/code/execute`,
+    },
+
     /** User api */
     signUP: {
         url: `${backendDomain}/auth/signup`,
@@ -64,7 +69,24 @@ const commonApi = {
         url: `${backendDomain}/cart/confirm-payment`,
     },
 
-      
+    /** Admin api */
+    adminCourses: {
+        url: `${backendDomain}/course/admin`
+    },
+    createCourse: {
+        url: `${backendDomain}/course`
+    },
+    getCoursesByUser: (userId) => `${backendDomain}/course/user/${userId}`,
+    getInProgressCourses: (userId) => `${backendDomain}/course/user/${userId}/in-progress`,
+    getCompletedCourses: (userId) => `${backendDomain}/course/user/${userId}/completed`,
+    getSuggestedCourses: (userId) => `${backendDomain}/course/user/${userId}/suggested`,
+    adminGetCourse: {
+        url: (id) => `${backendDomain}/course/admin/${id}`
+    },
+    updateCourse: {
+        url: (id) => `${backendDomain}/course/${id}`
+    }
+    
 
 }
 
