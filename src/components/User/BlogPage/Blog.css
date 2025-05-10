@@ -390,9 +390,9 @@
     gap: 0.5rem;
   }
   
-  .hidden {
+  /*.hidden {
     display: none;
-  }
+  } */
   
   .lg\:block {
     @media (min-width: 1024px) {

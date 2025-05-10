@@ -47,7 +47,7 @@ const profileData = {
         likes: 0,
         totalLikes: 650,
         date: "28/09/2023 - 28/09/2023",
-        status: "Đã kết thúc",
+        status: "Ended",
       },
     ],
     practice: {
@@ -143,14 +143,14 @@ function Profile({}) {
             </div>
           </a>
           <div className="friends">
-            <div>{profileData.user.mutualFriends} bạn chung</div>
+            <div>{profileData.user.mutualFriends} mutual friend </div>
             <button className="friend-button" type="button" data-button="true">
-              <span>Kết bạn</span>
+              <span>Add friend</span>
             </button>
           </div>
           <div className="divider-horizontal" role="separator" />
           <div className="info-section">
-            <div className="info-title">Thông tin</div>
+            <div className="info-title">Information</div>
           </div>
           <div className="info-details">
             <div className="grid">
@@ -198,24 +198,24 @@ function Profile({}) {
           </div>
           <div className="divider-horizontal" role="separator" />
           <div className="skills-section">
-            <div className="skills-title">Kỹ năng</div>
+            <div className="skills-title">Skill</div>
             <div className="skills-details" />
           </div>
           <div className="divider-horizontal" role="separator" />
           <div className="intro-section">
-            <div className="intro-title">Giới thiệu</div>
+            <div className="intro-title">Introduce</div>
             <span>
               <div data-tooltip-content="" data-tooltip-id="global-tooltip" className="raw-text" />
             </span>
           </div>
           <div className="divider-horizontal" role="separator" />
           <div className="experience-section">
-            <div className="experience-title">Kinh nghiệm</div>
+            <div className="experience-title">Experience</div>
             <div />
           </div>
           <div className="divider-horizontal" role="separator" />
           <div className="education-section">
-            <div className="education-title">Học vấn</div>
+            <div className="education-title">Education</div>
             <div className="timeline">
               {profileData.user.education.map((edu, index) => (
                 <div key={index} className="timeline-item">
@@ -247,7 +247,7 @@ function Profile({}) {
           </div>
           <div className="divider-horizontal" role="separator" />
           <div className="social-section">
-            <div className="social-title">Mạng xã hội</div>
+            <div className="social-title">Social network</div>
             {profileData.user.socialLinks.map((link, index) => (
               <div key={index} className="social-details">
                 <div style={{ backgroundColor: link.color }} className="p-2 rounded-full">
@@ -267,7 +267,7 @@ function Profile({}) {
           </div>
           <div className="divider-horizontal" role="separator" />
           <div className="certificate-section">
-            <div className="certificate-title">Chứng chỉ</div>
+            <div className="certificate-title">Certificate</div>
             <div className="certificate-details" />
           </div>
         </div>
@@ -275,7 +275,7 @@ function Profile({}) {
       <div className="content">
         <div className="learning-section">
           <div className="title-section">
-            <div className="title">Học tập <span className="count">({profileData.courses.length})</span></div>
+            <div className="title">Study <span className="count">({profileData.courses.length})</span></div>
             <div className="tabs">
             <div className="tabs-list" role="tablist" aria-orientation="horizontal">
             <button
@@ -288,7 +288,7 @@ function Profile({}) {
               tabIndex={selectedTab === 'tab-0' ? 0 : -1}
               onClick={() => handleTabClick('tab-0')}
             >
-              <span className="tab-label">Tất cả khóa học</span>
+              <span className="tab-label">All courses </span>
             </button>
             <button
               className={`tab ${selectedTab === 'tab-2' ? 'active' : ''}`}
@@ -300,7 +300,7 @@ function Profile({}) {
               tabIndex={selectedTab === 'tab-2' ? 0 : -1}
               onClick={() => handleTabClick('tab-2')}
             >
-              <span className="tab-label">Đang học</span>
+              <span className="tab-label">Studying</span>
             </button>
             <button
               className={`tab ${selectedTab === 'tab-3' ? 'active' : ''}`}
@@ -312,7 +312,7 @@ function Profile({}) {
               tabIndex={selectedTab === 'tab-3' ? 0 : -1}
               onClick={() => handleTabClick('tab-3')}
             >
-              <span className="tab-label">Hoàn thành</span>
+              <span className="tab-label">Complete </span>
             </button>
           </div>
             </div>
@@ -537,21 +537,21 @@ function Profile({}) {
                 </a>
               ))
           ) : (
-            <div className="no-results" style={{textAlign:'center'}}>Không tìm thấy kết quả nào</div>
+            <div className="no-results" style={{textAlign:'center'}}>No results found</div>
           )
         )}
           </div>
         </div>
         <div className="competition-section">
           <div className="title-section">
-            <div className="title">Cuộc thi <span className="count">({profileData.competitions.length})</span></div>
+            <div className="title">Competition <span className="count">({profileData.competitions.length})</span></div>
             <div className="tabs">
               <div className="tabs-list" role="tablist" aria-orientation="horizontal">
                 <button className="tab active" type="button" data-active="true" role="tab" id="tab-2" aria-selected="true" tabIndex={0}>
-                  <span className="tab-label">Đang tham gia</span>
+                  <span className="tab-label">Currently participating</span>
                 </button>
                 <button className="tab" type="button" role="tab" id="tab-3" aria-selected="false" tabIndex={-1}>
-                  <span className="tab-label">Đã kết thúc</span>
+                  <span className="tab-label">Ended</span>
                 </button>
               </div>
             </div>
@@ -608,7 +608,7 @@ function Profile({}) {
           </div>
           <div className="pagination">
             <div className="pagination-controls">
-              <span>Hiển thị 1 - 1 của 1 bản ghi</span>
+              <span>Showing 1 - 1 of 1 records</span>
               <div className="pagination-buttons">
                 <button type="button" disabled data-disabled="true">
                   <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
@@ -651,30 +651,30 @@ function Profile({}) {
         </div>
         <div className="learning-section">
           <div className="title-section">
-            <div className="title">Luyện tập</div>
+            <div className="title">Practice</div>
           </div>
           <div className="practice-grid">
             <div className="practice-item">
               <div style={{fontWeight:'700',fontSize:'38px'}}>{profileData.practice.totalPoints}</div>
-              <div style={{fontWeight:'700',color: '#2563eb'}}>Tổng điểm</div>
+              <div style={{fontWeight:'700',color: '#2563eb'}}>Total score</div>
             </div>
             <div className="practice-item">
-              <div>{profileData.practice.easy.points} <span>điểm</span></div>
-              <div>{profileData.practice.easy.count} Bài dễ</div>
+              <div>{profileData.practice.easy.points} <span>point</span></div>
+              <div>{profileData.practice.easy.count} Easy lesson</div>
             </div>
             <div className="practice-item">
-              <div>{profileData.practice.medium.points} <span>điểm</span></div>
-              <div>{profileData.practice.medium.count} Bài trung bình</div>
+              <div>{profileData.practice.medium.points} <span>point</span></div>
+              <div>{profileData.practice.medium.count} Average post</div>
             </div>
             <div className="practice-item">
-              <div>{profileData.practice.hard.points} <span>điểm</span></div>
-              <div>{profileData.practice.hard.count} Bài khó</div>
+              <div>{profileData.practice.hard.points} <span>point</span></div>
+              <div>{profileData.practice.hard.count} Difficult lesson</div>
             </div>
           </div>
           <div className="practice-history">
-            <div className="practice-history-header">Đã tham gia ({profileData.practice.joined})</div>
+            <div className="practice-history-header">Participated ({profileData.practice.joined})</div>
             <div className="practice-history-body">
-              <div>Không tìm thấy kết quả nào</div>
+              <div>No results found</div>
             </div>
             <div className="flex justify-center hidden">
               {/* <div>{profileData.practice.joined}</div> */}
@@ -684,7 +684,7 @@ function Profile({}) {
         <div className="grid lg:grid-cols-2 gap-5">
           <div className="discussion-section">
             <div className="title-section">
-              <div className="title">Thảo luận</div>
+              <div className="title">Discuss</div>
             </div>
             <div className="discussion-grid">
               <div className="discussion-item">
@@ -695,7 +695,7 @@ function Profile({}) {
                     </div>
                   </figure>
                 </div>
-                <div>{profileData.discussions.topics} Chủ đề</div>
+                <div>{profileData.discussions.topics} Topic</div>
               </div>
               <div className="discussion-item">
                 <div className="image-root">
@@ -705,7 +705,7 @@ function Profile({}) {
                     </div>
                   </figure>
                 </div>
-                <div>{profileData.discussions.reviews} Đánh giá</div>
+                <div>{profileData.discussions.reviews} Evaluate</div>
               </div>
               <div className="discussion-item">
                 <div className="image-root">
@@ -715,7 +715,7 @@ function Profile({}) {
                     </div>
                   </figure>
                 </div>
-                <div>{profileData.discussions.likes} Lượt thích</div>
+                <div>{profileData.discussions.likes} Likes</div>
               </div>
               <div className="discussion-item">
                 <div className="image-root">
@@ -725,13 +725,13 @@ function Profile({}) {
                     </div>
                   </figure>
                 </div>
-                <div>{profileData.discussions.comments} Bình luận</div>
+                <div>{profileData.discussions.comments} Comment</div>
               </div>
             </div>
           </div>
           <div className="activity-section">
             <div className="title-section">
-              <div className="title">Hoạt động</div>
+              <div className="title">Activite</div>
             </div>
             <div className="activity-grid">
               <div>T2</div>
@@ -750,7 +750,7 @@ function Profile({}) {
               ))}
             </div>
             <div className="activity-footer">
-              Hoạt động
+              Activite
               <div />
               <div />
               <div />

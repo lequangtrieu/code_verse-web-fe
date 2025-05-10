@@ -282,17 +282,17 @@ const Blog = () => {
       <div className="Container_xl__FJY2Y mx-auto">
         <div className="mantine-xg7kom">
           <nav className="mantine-Breadcrumbs-root mantine-o3gyy4">
-            <a href="/" className="mantine-Breadcrumbs-breadcrumb">Trang chủ</a>
+            <a href="/" className="mantine-Breadcrumbs-breadcrumb">Home</a>
             <svg viewBox="0 0 24 24" className="icon icon-tabler icon-tabler-chevron-right mantine-i6hryh">
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M9 6l6 6l-6 6" />
             </svg>
-            <span className="mantine-Breadcrumbs-breadcrumb">Chia sẻ</span>
+            <span className="mantine-Breadcrumbs-breadcrumb">Blog</span>
           </nav>
         </div>
         <div className="mt-5">
           <div className="mantine-Input-wrapper SharingIndex_input__nV63D">
-            <input placeholder="Tìm kiếm bài viết" type="text" className="mantine-Input-input mantine-11z98i8" />
+            <input placeholder="Search posts" type="text" className="mantine-Input-input mantine-11z98i8" />
           </div>
         </div>
         <div className="mt-5">
