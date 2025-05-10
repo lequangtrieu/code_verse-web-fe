@@ -7,6 +7,42 @@ import scrollTop from "../../../config/scrollTop";
 import LoadingOverlay from "../../../common/LoadingOverlay";
 import { useSelector } from "react-redux";
 import commonApi from "../../../common/api";
+import SkillCard from "./Molecule/SkillCard";
+import ActivityGrid from "./Molecule/ActivityGrid";
+
+const SKILL_META = {
+  C: { iconSrc: '/icons/c.png', name: 'C' },
+  'C++': { iconSrc: '/icons/cpp.png', name: 'C++' },
+  JavaScript: { iconSrc: '/icons/javascript.png', name: 'JavaScript' },
+  Python2: { iconSrc: '/icons/python.jpg', name: 'Python2' },
+  Python3: { iconSrc: '/icons/python.jpg', name: 'Python3' },
+  Java: { iconSrc: '/icons/java.png', name: 'Java' },
+  Go: { iconSrc: '/icons/go.png', name: 'Go' },
+  MySql: { iconSrc: '/icons/mysql.jpg', name: 'MySql' },
+  'C#': { iconSrc: '/icons/csharp.png', name: 'C#' },
+  Html: { iconSrc: '/icons/html.png', name: 'Html' },
+  Postgresql: { iconSrc: '/icons/postgresql.jpg', name: 'Postgresql' },
+};
+
+const skillRatings = {
+  C: 5,
+  'C++': 1,
+  JavaScript: 1,
+  Python2: 1,
+  Python3: 1,
+  Java: 5,
+  Go: 1,
+  MySql: 1,
+  'C#': 0,
+  Html: 1,
+  Postgresql: 1,
+};
+
+const activityData = [
+  { date: '2025-05-01', level: 2 },
+  { date: '2025-05-02', level: 4 },
+  { date: '2025-05-08', level: 1 },
+];
 
 const userInfo = {
   email: "tientnmde170657@fpt.edu.vn",
@@ -36,7 +72,7 @@ const UserHome = () => {
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(8);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery] = useState("");
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [allCourses, setAllCourses] = useState({});  // Store data for all tabs here
   const [initialLoading, setInitialLoading] = useState(true);
@@ -135,6 +171,14 @@ const UserHome = () => {
   const handleTabChange = (key) => {
     setSelectedTab(key);
     setFilteredCourses(allCourses[key]);  // Set courses for selected tab directly
+  };
+
+  const formatDuration = (minutes) => {
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    const hrStr = hrs > 0 ? `${hrs} hr` : "";
+    const minStr = mins > 0 ? `${mins} min` : "";
+    return `${hrStr}${hrs && mins ? " " : ""}${minStr}`.trim();
   };
 
   return (
@@ -333,7 +377,7 @@ const UserHome = () => {
                                 <img
                                   onClick={() => handleCourseClick(course.id)}
                                   alt={course.title}
-                                  src={course.imageUrl}
+                                  src={course.thumbnailUrl}
                                   className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
                                 />
                               }
@@ -348,36 +392,37 @@ const UserHome = () => {
                                 <div className="flex items-center text-sm text-gray-600 mb-2">
                                   <span>{course.lessons} Lessons</span>
                                   <span className="mx-2">•</span>
-                                  <span>{course.duration}</span>
-                                </div>
-                                <div className="flex items-center justify-between mb-2">
-                                  <div>
-                                    <span className="text-lg font-bold text-indigo-600">
-                                      {course.price.toFixed(2)} đ
-                                    </span>
-                                    {course.discount > 0 && (
-                                      <span className="line-through text-gray-500 ml-2">
-                                        {course.discount.toFixed(2)} đ
-                                      </span>
-                                    )}
-                                    {course.discount === 0 && (
-                                      <span className="ml-2 text-green-500">Free</span>
-                                    )}
-                                  </div>
+                                  <span>{formatDuration(course.totalDurations)}</span>
                                 </div>
                                 <div className="flex items-center justify-between text-sm text-gray-500">
                                   <div className="flex items-center">
-                                    <div className="w-7 h-7 rounded-full bg-gray-300 mr-2 flex items-center justify-center text-white font-semibold">
-                                      {course.instructor ? course.instructor.charAt(0).toUpperCase() : "?"}
+                                    <div className="w-7 h-7 rounded-full bg-gray-300 mr-2 flex items-center justify-center text-white font-semibold transition-all duration-300 hover:bg-indigo-500">
+                                      {course.instructor?.charAt(0)?.toUpperCase() ||
+                                        "?"}
                                     </div>
-                                    <span>{course.instructor}</span>
+                                    <span className="hover:text-indigo-600 transition-colors duration-300">
+                                      {course.instructor || "Unknown"}
+                                    </span>
                                   </div>
+                                </div>
+
+                                <div className="flex items-center space-x-1 my-2 pl-1">
+                                  <span className="font-semibold text-gray-900">
+                                    {course.rating}
+                                  </span>
                                   <Rate
-                                    style={{ fontSize: "12px" }}
+                                    style={{
+                                      fontSize: "14px",
+                                      color: "#f4b400",
+                                      padding: "2px 4px",
+                                    }}
                                     disabled
                                     defaultValue={course.rating}
-                                    size="small"
+                                    allowHalf
                                   />
+                                  <span className="text-s text-gray-500">
+                                    ({course.ratingCount})
+                                  </span>
                                 </div>
                               </div>
                             </Card>
@@ -400,6 +445,18 @@ const UserHome = () => {
             </div>
           </>
         )}
+      </section>
+      <section className="p-8 max-w-7xl w-full flex flex-wrap gap-10">
+        <div className="bg-[#f3f4f6] p-4 rounded-xl flex-1">
+          <h2 className="text-xl font-bold text-[#2f2fce] mb-4">Your skills</h2>
+          <div className="flex flex-wrap gap-y-4 gap-x-8">
+            {Object.entries(skillRatings).map(([key, level]) => {
+              const { iconSrc, name } = SKILL_META[key];
+              return <SkillCard key={key} iconSrc={iconSrc} name={name} level={level} />;
+            })}
+          </div>
+        </div>
+        <ActivityGrid activityData={activityData} />
       </section>
     </div>
   );
