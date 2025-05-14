@@ -30,35 +30,60 @@ const LessonSidebar = ({ lessons, selectedLessonId, onSelect }) => {
         Lesson List
       </h2>
 
-      <div className="max-h-[500px] overflow-y-auto">
-        <Collapse accordion bordered={false} defaultActiveKey={[lessons[0]?.id]}>
-          {lessons.map((lesson) => (
-            <Panel
-              header={
-                <span className="font-medium text-base">{lesson.title}</span>
-              }
+      <div className="max-h-[500px] overflow-y-auto space-y-2">
+        {lessons.map((lesson) =>
+          lesson.type === "quiz" ? (
+            <div
               key={lesson.id}
+              className={`cursor-pointer rounded px-2 py-2 flex items-center gap-2 ${
+                selectedLessonId === lesson.id
+                  ? "bg-blue-100 text-blue-700 font-medium"
+                  : "hover:bg-gray-100"
+              }`}
+              onClick={() => onSelect(lesson)}
             >
-              <List
-                size="small"
-                bordered={false}
-                dataSource={lesson.subLessons}
-                renderItem={(sub) => (
-                  <List.Item
-                    className={`cursor-pointer rounded px-2 py-1 flex items-center gap-2 ${selectedLessonId === sub.id
-                        ? "bg-blue-100 text-blue-700 font-medium"
-                        : "hover:bg-gray-100"
+              📝 <span>{lesson.title}</span>
+            </div>
+          ) : (
+            <Collapse
+              accordion
+              bordered={false}
+              key={lesson.id}
+              defaultActiveKey={[lesson.id]}
+            >
+              <Panel
+                header={
+                  <span className="font-medium text-base">{lesson.title}</span>
+                }
+                key={lesson.id}
+              >
+                <List
+                  size="small"
+                  bordered={false}
+                  dataSource={lesson.subLessons}
+                  renderItem={(sub) => (
+                    <List.Item
+                      className={`cursor-pointer rounded px-2 py-1 flex items-center justify-between gap-2 ${
+                        selectedLessonId === sub.id
+                          ? "bg-blue-100 text-blue-700 font-medium"
+                          : "hover:bg-gray-100"
                       }`}
-                    onClick={() => onSelect(sub)}
-                  >
-                    <FileTextOutlined className="text-base mr-1" />
-                    {sub.title}
-                  </List.Item>
-                )}
-              />
-            </Panel>
-          ))}
-        </Collapse>
+                      onClick={() => onSelect(sub)}
+                    >
+                      <div className="flex items-center gap-2">
+                        <FileTextOutlined className="text-base mr-1" />
+                        {sub.title}
+                      </div>
+                      {sub.completed && (
+                        <span className="text-green-500">✓</span>
+                      )}
+                    </List.Item>
+                  )}
+                />
+              </Panel>
+            </Collapse>
+          )
+        )}
       </div>
 
       <div className="flex-auto mt-auto pt-3 border-t">
