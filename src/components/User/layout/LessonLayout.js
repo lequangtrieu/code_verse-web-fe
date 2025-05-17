@@ -56,8 +56,8 @@ export const lessons = [
     ],
   },
   {
-    id: "bien",
-    title: "Biến",
+    id: "bien2",
+    title: "Biến2",
     subLessons: [
       {
         id: "bien-khai-bao",
@@ -93,28 +93,52 @@ export const lessons = [
     ],
   },
   {
-    id: "quiz-java-01",
-    title: "Quiz: Biến và Toán tử",
-    type: "quiz",
-    questions: [
+    id: "java-co-ban",
+    title: "Java Cơ Bản",
+    subLessons: [
       {
-        id: "q1",
-        question:
-          "Which keyword is used to declare an integer variable in Java?",
-        options: ["let", "int", "var", "define"],
-        correct: "int",
+        id: "java-bien",
+        title: "Biến trong Java",
+        completed: true,
+        theory: {
+          title: "So sánh let và var",
+          content:
+            "Cả hai đều dùng để khai báo biến nhưng khác nhau về phạm vi.",
+          example: `if (true) { var x = 5; let y = 10; }`,
+        },
+        exercise: {
+          title: "Phân biệt let và var trong block",
+          tasks: ["Tạo biến bằng cả hai và in thử ngoài block"],
+          instruction: "Kiểm tra biến nào tồn tại sau block.",
+        },
+        testCases: [{ input: "", expected: "done" }],
       },
       {
-        id: "q2",
-        question: "Which symbol is used for addition in Java?",
-        options: ["+", "-", "*", "%"],
-        correct: "+",
-      },
-      {
-        id: "q3",
-        question: "Which of the following is a valid variable name in Java?",
-        options: ["1number", "number_1", "number-1", "@number"],
-        correct: "number_1",
+        id: "quiz-java-01",
+        title: "Quiz: Biến và Toán tử",
+        type: "quiz",
+        questions: [
+          {
+            id: "q1",
+            question:
+              "Which keyword is used to declare an integer variable in Java?",
+            options: ["let", "int", "var", "define"],
+            correct: "int",
+          },
+          {
+            id: "q2",
+            question: "Which symbol is used for addition in Java?",
+            options: ["+", "-", "*", "%"],
+            correct: "+",
+          },
+          {
+            id: "q3",
+            question:
+              "Which of the following is a valid variable name in Java?",
+            options: ["1number", "number_1", "number-1", "@number"],
+            correct: "number_1",
+          },
+        ],
       },
     ],
   },
