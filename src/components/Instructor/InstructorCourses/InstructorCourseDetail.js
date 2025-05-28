@@ -8,9 +8,8 @@ import { Form, Card, Descriptions, Tag, Collapse, Typography, Divider, message, 
 import CourseDescription from "./CourseCreate/CourseDescription";
 
 const { Title, Paragraph, Text } = Typography;
-const { Panel } = Collapse;
 
-const AdminCourseDetailView = () => {
+const InstructorCourseDetailView = () => {
     const { id } = useParams();
     const [isEditing, setIsEditing] = useState(false);
     const [form] = Form.useForm();
@@ -90,6 +89,7 @@ const AdminCourseDetailView = () => {
 
     useEffect(() => {
         if (id) loadInitialData();
+        // eslint-disable-next-line
     }, [id]);
 
     const updateFormDataField = (section, newData) => {
@@ -203,10 +203,14 @@ const AdminCourseDetailView = () => {
                                         {course.price > 0 ? `${formatCurrency(course.price)}` : <Tag color="green">Free</Tag>}
                                     </Descriptions.Item>
                                     <Descriptions.Item label="Status">
-                                        {course.published ? (
-                                            <Tag color="blue">Published</Tag>
-                                        ) : (
-                                            <Tag color="orange">Draft</Tag>
+                                        {course.status === "PUBLISHED" && (
+                                            <Tag color="green">Published</Tag>
+                                        )}
+                                        {course.status === "DRAFT" && (
+                                            <Tag color="blue">Draft</Tag>
+                                        )}
+                                        {course.status === "PENDING" && (
+                                            <Tag color="orange">Pending</Tag>
                                         )}
                                         {course.deleted && <Tag color="red">Deleted</Tag>}
                                     </Descriptions.Item>
@@ -292,4 +296,4 @@ const AdminCourseDetailView = () => {
     );
 };
 
-export default AdminCourseDetailView;
+export default InstructorCourseDetailView;

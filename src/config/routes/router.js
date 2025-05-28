@@ -3,12 +3,11 @@ import App from "../../App";
 
 import Courses from "../../components/User/Courses/Courses";
 import CourseDetail from "../../components/User/Courses/CourseDetail";
-import CourseForm from "../../components/Admin/AdminCourses/CourseCreate/CourseForm";
+import CourseForm from "../../components/Instructor/InstructorCourses/CourseCreate/CourseForm";
 import Home from "../../components/layout/Home";
 import DashboardPage from "../../components/Admin/AdminDashBoard/DashboardPage";
 import AdminPanel from "../../components/Admin/layout/AdminPanel";
 import AdminCoursesPage from "../../components/Admin/AdminCourses/AdminCoursesPage";
-import AdminCourseDetailView from "../../components/Admin/AdminCourses/AdminCourseDetail";
 import AdminReviewPage from "../../components/Admin/AdminReview/AdminReviewPage";
 import AdminMessagePage from "../../components/Admin/AdminMessage/AdminMessagePage";
 import AdminProfilePage from "../../components/Admin/AdminProfile/AdminProfilePage";
@@ -31,6 +30,10 @@ import HandlePaymentFailure from "../../components/User/Cart/HandlePaymentFailur
 import HandlePaymentSuccess from "../../components/User/Cart/HandlePaymentSuccess";
 import UserChangePassword from "../../components/User/UserChangePassword/UserChangePassword";
 import HomeRedirect from "../../components/layout/HomeRedirect";
+import InstructorPanel from "../../components/Instructor/layout/InstructorPanel";
+import InstructorDashboardPage from "../../components/Instructor/InstructorDashboard/InstructorDashboardPage";
+import InstructorCoursesPage from "../../components/Instructor/InstructorCourses/InstructorCoursePage";
+import InstructorCourseDetailView from "../../components/Instructor/InstructorCourses/InstructorCourseDetail";
 
 const router = createBrowserRouter([
   {
@@ -133,6 +136,28 @@ const router = createBrowserRouter([
           },
         ],
       },
+      {
+        path: "instructor-panel",
+        element: <InstructorPanel />,
+        children: [
+          {
+            path: "dashboard",
+            element: <InstructorDashboardPage />
+          },
+          {
+            path: "courses",
+            element: <InstructorCoursesPage />,
+          },
+          {
+            path: "courses/create",
+            element: <CourseForm />
+          },
+          {
+            path: "courses/:id",
+            element: <InstructorCourseDetailView />
+          }
+        ]
+      },
 
       // ADMIN
       {
@@ -174,16 +199,6 @@ const router = createBrowserRouter([
           {
             path: "",
             element: <Navigate to="dashboard" />,
-          },
-
-          // INSTRUCTOR
-          {
-            path: "courses/create",
-            element: <CourseForm />
-          },
-          {
-            path: "courses/:id",
-            element: <AdminCourseDetailView />
           }
         ],
       },

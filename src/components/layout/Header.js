@@ -247,6 +247,8 @@ const Header = () => {
           navigate("/admin-panel");
         } else if (user?.role === ROLE.LEARNER) {
           navigate("/user-panel");
+        } else if (user?.role === ROLE.INSTRUCTOR){
+          navigate("/instructor-panel")
         }
         break;
       case "my-profile":
@@ -352,7 +354,7 @@ const Header = () => {
       <Menu.Divider />
 
       <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
-        {user?.role === ROLE.ADMIN ? "Admin Dashboard" : "Student Dashboard"}
+        {user?.role === ROLE.ADMIN ? "Admin Dashboard" : user?.role === ROLE.LEARNER ? "Student Dashboard" : "Instructor Dashboard"}
       </Menu.Item>
 
       <Menu.Item key="my-profile" icon={<ProfileOutlined />}>
