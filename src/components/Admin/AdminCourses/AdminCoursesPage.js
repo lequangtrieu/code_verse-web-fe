@@ -34,6 +34,7 @@ const AdminCoursesPage = () => {
 
   useEffect(() => {
     fetchCourses();
+    // eslint-disable-next-line
   }, [user]);
 
   useEffect(() => {

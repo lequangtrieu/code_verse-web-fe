@@ -70,8 +70,8 @@ const commonApi = {
     },
 
     /** Admin api */
-    adminCourses: {
-        url: `${backendDomain}/course/admin`
+    instructorCourses: {
+        url: `${backendDomain}/course/instructor`
     },
     createCourse: {
         url: `${backendDomain}/course`
