@@ -1,19 +1,6 @@
-import { useContext, useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  Avatar,
-  Button,
-  Dropdown,
-  Form,
-  Input,
-  Menu,
-  Modal,
-  notification,
-  Tabs,
-  Badge,
-  Popover,
-} from "antd";
-import { message } from "antd";
+import {useContext, useEffect, useState} from "react";
+import {Link, useLocation, useNavigate} from "react-router-dom";
+import {Avatar, Badge, Button, Dropdown, Form, Input, Menu, message, Modal, notification, Popover, Tabs,} from "antd";
 import {
   DashboardOutlined,
   GithubOutlined,
@@ -21,19 +8,19 @@ import {
   MenuOutlined,
   ProfileOutlined,
   SettingOutlined,
-  UserOutlined,
   ShoppingCartOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import scrollTop from "../../config/scrollTop";
-import { GoogleLogin } from "@react-oauth/google";
+import {GoogleLogin} from "@react-oauth/google";
 import commonApi from "../../common/api";
 import axios from "axios";
 import Context from "../../config/context/context";
-import { useDispatch, useSelector } from "react-redux";
-import { logoutUser } from "../../config/store/userSlice";
+import {useDispatch, useSelector} from "react-redux";
+import {logoutUser} from "../../config/store/userSlice";
 import ROLE from "../../common/role";
 import setAuthInfo from "../../config/setAuthInfo";
-import { formatCurrency, getDiscountedPrice } from "../../common/helper";
+import {formatCurrency, getDiscountedPrice} from "../../common/helper";
 
 const { TabPane } = Tabs;
 
@@ -157,43 +144,6 @@ const Header = () => {
             "Unable to connect to the server. Please check your network.",
           placement: "topLeft",
           duration: 5,
-        });
-      }
-    }
-  };
-
-  const handleRegister = async (values) => {
-    dispatch(logoutUser());
-    try {
-      const response = await axios.post(commonApi.signUP.url, values);
-
-      if (response.status === 200) {
-        setTimeout(() => {
-          notification.success({
-            message: "Registration Successful",
-            description:
-              "Your account has been created successfully. Please check your email to verify your account before logging in.",
-            placement: "topLeft",
-          });
-        }, 1000);
-      }
-    } catch (error) {
-      if (error.response) {
-        const { data } = error.response;
-
-        const errorMessage =
-          data?.message || "Registration failed. Please try again.";
-
-        notification.error({
-          message: `Registration Failed.`,
-          description: errorMessage,
-          placement: "topLeft",
-        });
-      } else {
-        notification.error({
-          message: "Network Error",
-          description: "Cannot connect to the server. Please try again later.",
-          placement: "topLeft",
         });
       }
     }
@@ -489,13 +439,14 @@ const Header = () => {
               >
                 Login
               </Button>
-              <Button
-                type="primary"
-                className="bg-[#E8505B] text-white hover:bg-[#4d96ff] hover:text-white border-none"
-                onClick={() => openModal("register")}
-              >
-                Register
-              </Button>
+              <Link to="register">
+                <Button
+                    type="primary"
+                    className="bg-[#E8505B] text-white hover:bg-[#4d96ff] hover:text-white border-none"
+                >
+                  Register
+                </Button>
+              </Link>
             </div>
           )}
           <div className="lg:hidden">
@@ -578,77 +529,6 @@ const Header = () => {
                 </Button>
               </div>
             </div>
-          </TabPane>
-
-          <TabPane tab="Register" key="register">
-            <Form layout="vertical" onFinish={handleRegister}>
-              <Form.Item
-                name="name"
-                label="Name"
-                rules={[{ required: true, message: "Please input your name!" }]}
-              >
-                <Input />
-              </Form.Item>
-
-              <Form.Item
-                name="username"
-                label="User Name"
-                rules={[
-                  { required: true, message: "Please input your username!" },
-                  {
-                    type: "email",
-                    message: "The input is not a valid email!",
-                  },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-
-              <Form.Item
-                name="password"
-                label="Password"
-                rules={[
-                  { required: true, message: "Please input your password!" },
-                  {
-                    pattern:
-                      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/,
-                    message:
-                      "Password must be at least 6 characters and include uppercase, lowercase, and a number",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input.Password />
-              </Form.Item>
-
-              <Form.Item
-                name="confirmPassword"
-                label="Confirm Password"
-                dependencies={["password"]}
-                hasFeedback
-                rules={[
-                  { required: true, message: "Please confirm your password!" },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value || getFieldValue("password") === value) {
-                        return Promise.resolve();
-                      }
-                      return Promise.reject(
-                        new Error("Passwords do not match!")
-                      );
-                    },
-                  }),
-                ]}
-              >
-                <Input.Password />
-              </Form.Item>
-
-              <Form.Item>
-                <Button type="primary" htmlType="submit" block>
-                  Register
-                </Button>
-              </Form.Item>
-            </Form>
           </TabPane>
         </Tabs>
       </Modal>
