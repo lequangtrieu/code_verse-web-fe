@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Form, Input, InputNumber, Radio, Upload, Modal, Select, message, Space, Button } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import React, {useEffect, useRef, useState} from "react";
+import {Button, Form, Input, InputNumber, Radio, Select, Space} from "antd";
+import UploadImage from "../../../../common/UploadImage";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -18,9 +18,7 @@ export default function CourseDescription({
 }) {
     const [currentForm] = Form.useForm();
     const form = initialForm || currentForm;
-    const [previewVisible, setPreviewVisible] = useState(false);
     const [previewImage, setPreviewImage] = useState("");
-    const [previewTitle, setPreviewTitle] = useState("");
     const localSuppressed = true;
     const finalSuppressErrors = suppressErrors && localSuppressed;
     const categories = categoryList || [];
@@ -46,29 +44,7 @@ export default function CourseDescription({
 
     const values = Form.useWatch([], form);
     const isPaid = Form.useWatch("isPaid", form);
-
-    const handleBeforeUpload = (file) => {
-        const isImage = file.type.startsWith("image/");
-        if (!isImage) {
-            message.error("You can only upload image file!");
-            return Upload.LIST_IGNORE;
-        }
-        return false;
-    }
-
-    const handlePreview = async (file) => {
-        let previewUrl = file.url || (file.originFileObj && URL.createObjectURL(file.originFileObj));
-        if (!previewUrl) {
-            message.warning("Preview not available");
-            return;
-        }
-
-        setPreviewImage(previewUrl);
-        setPreviewTitle(file.name || "Image Preview");
-        setPreviewVisible(true);
-    };
-
-    const handleCancel = () => setPreviewVisible(false);
+    const coverFileList = Form.useWatch("cover", form) || [];
 
     useEffect(() => {
         if (!hasInitialized.current && categoryList.length > 0) {
@@ -184,52 +160,12 @@ export default function CourseDescription({
             {/* Cover Image */}
             <Form.Item
                 label="Course Cover Image"
-                htmlFor={null}
                 name="cover"
                 valuePropName="fileList"
                 getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
                 rules={[{ required: true, message: "Please upload a cover image" }]}
-                validateStatus={finalSuppressErrors ? "" : undefined}
-                help={finalSuppressErrors ? "" : undefined}
             >
-                <Upload name="cover"
-                    listType="picture-card"
-                    maxCount={1} accept="image/*"
-                    beforeUpload={handleBeforeUpload}
-                    onPreview={handlePreview}
-                    onChange={({ fileList }) => {
-                        form.setFieldsValue({ cover: fileList });
-
-                        const file = fileList[0]?.originFileObj;
-                        if (file) {
-                            const previewUrl = URL.createObjectURL(file);
-                            setPreviewImage(previewUrl);
-
-                            updateFormData("description", {
-                                ...form.getFieldsValue(),
-                                previewImage: previewUrl,
-                                cover: fileList,
-                            });
-                        }
-                    }}
-                    defaultFileList={formData?.description?.cover?.map(file => ({
-                        ...file,
-                        url: formData?.description?.previewImage || file.url,
-                    })) || []}>
-                    <div>
-                        <UploadOutlined />
-                        <div style={{ marginTop: 8 }}>Upload</div>
-                    </div>
-                </Upload>
-
-                <Modal
-                    open={previewVisible}
-                    title={previewTitle}
-                    footer={null}
-                    onCancel={handleCancel}
-                >
-                    <img alt="preview" style={{ width: "100%" }} src={formData.description.previewImage} />
-                </Modal>
+                <UploadImage label="Upload Cover" maxCount={1} value={coverFileList} />
             </Form.Item>
 
             <Form.Item
