@@ -21,6 +21,7 @@ import WhyCard from './Molecule/WhyCard';
 import CounterCard from '../layout/Molecule/CounterCard';
 import Marquee from "react-fast-marquee";
 import ScrollFadeIn from "../layout/Molecule/ScrollFadeIn";
+import {Link} from "react-router-dom";
 const { TabPane } = Tabs;
 
 const reviews = [
@@ -372,7 +373,9 @@ const Home = () => {
 
                 <div className="mt-4 text-sm text-center">
                   If you do not already have an account, please
-                  <div><a onClick={() => openModal("register")} className="text-blue-600 font-medium ml-1">Sign up</a></div>
+                  <Link to="/register">
+                    <div className="text-blue-600 font-medium ml-1">Sign up</div>
+                  </Link>
                 </div>
               </div>
             </div>
