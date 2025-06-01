@@ -34,7 +34,9 @@ import InstructorPanel from "../../components/Instructor/layout/InstructorPanel"
 import InstructorDashboardPage from "../../components/Instructor/InstructorDashboard/InstructorDashboardPage";
 import InstructorCoursesPage from "../../components/Instructor/InstructorCourses/InstructorCoursePage";
 import InstructorCourseDetailView from "../../components/Instructor/InstructorCourses/InstructorCourseDetail";
+import RegisterPage from "../../components/Auth/RegisterPage";
 import LearnerDetailPage from "../../components/Admin/AdminAccount/LearnerDetailPage"
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -67,6 +69,10 @@ const router = createBrowserRouter([
       {
         path: "challenges",
         element: <Home />,
+      },
+      {
+        path: "register",
+        element: <RegisterPage />,
       },
 
       // USER
