@@ -32,6 +32,9 @@ const commonApi = {
     changePassword: {
         url: `${backendDomain}/auth/changePassword`,
     },
+    viewProfile: {
+        url: `${backendDomain}/api/users/myInfo`,
+    },
 
     /** Course api */
     course: {

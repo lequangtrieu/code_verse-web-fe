@@ -1,200 +1,106 @@
-import { useState } from "react";
-import { Modal, Form, Input, Button, Upload, message, Avatar, Card } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import React, { useEffect, useState } from "react";
+import { Button, Avatar, Card, message } from "antd";
 import ProfileItem from "./ProfileItem";
-
-const userProfile = {
-  id: 1,
-  firstName: "Tien",
-  lastName: "Tu",
-  username: "tutien",
-  email: "tutien@example.com",
-  phoneNumber: "+5445625987",
-  registrationDate: "20, January 2024 9:00 PM",
-  role: "Leaner",
-  biography:
-    "Hello, it's really a pain to be followed. I am sorry for the elders, we accuse the chosen one, they do not know that the work repels the laborious...",
-  avatar:
-    "https://lumiere-a.akamaihd.net/v1/images/a_avatarpandorapedia_moat_16x9_1098_07_23778d78.jpeg?region=0%2C0%2C1920%2C1080",
-};
+import UpdateProfileModal from "./UpdateProfileModal";
+import axiosInstance from "../../../config/axiosInstance";
+import commonApi from "../../../common/api";
 
 const UserProfilePage = () => {
+  const [userData, setUserData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [form] = Form.useForm();
 
-  const [editableFields, setEditableFields] = useState({
-    avatar: userProfile.avatar,
-    firstName: userProfile.firstName,
-    lastName: userProfile.lastName,
-    email: userProfile.email,
-    phoneNumber: userProfile.phoneNumber,
-    biography: userProfile.biography,
-  });
+  const getUserProfile = async () => {
+    try {
+      const response = await axiosInstance.get(commonApi.viewProfile.url);
+      console.log(response);
+      if (response.data && response.data.code === 1000 && response.data.result) {
+        setUserData(response.data.result);
+      } else {
+        message.error("Failed to fetch user information");
+      }
+    } catch (e) {
+      console.log(e);
+      message.error("Error occurred while fetching user information");
+    }
+  };
 
-  const [avatarFileUrl, setAvatarFileUrl] = useState(null);
-  const [uploadKey, setUploadKey] = useState(0);
+  useEffect(() => {
+    getUserProfile();
+  }, []);
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
-    form.setFieldsValue({ ...editableFields });
-    setAvatarFileUrl(null);
   };
 
   const handleCancelModal = () => {
     setIsModalOpen(false);
   };
 
-  const handleUpdateUser = (values) => {
-    console.log("Updated values:", values);
-    setEditableFields((prev) => ({
-      ...prev,
-      ...values,
-      avatar: avatarFileUrl ? avatarFileUrl : prev.avatar,
-    }));
-    setIsModalOpen(false);
-    setAvatarFileUrl(null);
-  };
+  const handleUpdateUser = async (updatedValues) => {
+    try {
+      const response = await axiosInstance.put(commonApi.updateProfile.url, updatedValues);
 
-  const handleAvatarUpload = (info) => {
-    const fileObj = info.file.originFileObj || info.fileList?.[0]?.originFileObj;
-
-    if (!fileObj) {
-      message.error("Không thể đọc file ảnh");
-      return;
+      if (response.data && response.data.code === 1000 && response.data.result) {
+        setUserData(response.data.result);
+        message.success("Profile updated successfully");
+      } else {
+        message.error("Failed to update profile");
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      message.error("An error occurred while updating profile");
+    } finally {
+      setIsModalOpen(false);
     }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setAvatarFileUrl(e.target.result);
-      setUploadKey((prev) => prev + 1);
-    };
-    reader.onerror = () => {
-      message.error("Lỗi khi đọc file");
-    };
-    reader.readAsDataURL(fileObj);
   };
+
+  if (!userData) {
+    return <div>Loading...</div>;
+  }
+
+  const formattedDate = userData.createdAt
+      ? new Date(userData.createdAt).toLocaleString()
+      : "";
 
   return (
-    <div className="w-full h-full pt-2">
-      <Card title="Profile" className="w-full shadow-lg">
-        <div className="max-w-xl">
-          {/* Avatar + Name */}
-          <div className="flex items-center mb-6">
-            <Avatar
-              src={editableFields.avatar}
-              size={96}
-              className="mr-4 border-2 border-pink-500"
-            />
-            <div>
-              <h3 className="text-xl font-bold">
-                {editableFields.firstName} {editableFields.lastName}
-              </h3>
-              <p className="text-gray-500">@{userProfile.username}</p>
-            </div>
-          </div>
-
-          <Button type="primary" className="mb-6" onClick={handleOpenModal}>
-            Update Profile
-          </Button>
-
-          <div className="space-y-2">
-            <ProfileItem label="First Name" value={editableFields.firstName} />
-            <ProfileItem label="Last Name" value={editableFields.lastName} />
-            <ProfileItem label="Username" value={userProfile.username} />
-            <ProfileItem label="Email" value={editableFields.email} />
-            <ProfileItem label="Phone Number" value={editableFields.phoneNumber} />
-            <ProfileItem label="Registration Date" value={userProfile.registrationDate} />
-            <ProfileItem label="Role" value={userProfile.role} />
-            <ProfileItem label="Biography" value={editableFields.biography} />
-          </div>
-        </div>
-      </Card>
-
-      {/* Modal Update */}
-      <Modal
-        title="Update Profile"
-        open={isModalOpen}
-        onCancel={handleCancelModal}
-        getContainer={false}
-        onOk={() => {
-          form
-            .validateFields()
-            .then(handleUpdateUser)
-            .catch((info) => {
-              console.log("Validate Failed:", info);
-            });
-        }}
-        okText="Update"
-        cancelText="Cancel"
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item label="" name="avatar">
-            <div className="flex flex-col items-start gap-4">
+      <div className="w-full h-full pt-2">
+        <Card title="Profile" className="w-full shadow-lg">
+          <div className="max-w-xl">
+            <div className="flex items-center mb-6">
               <Avatar
-                src={avatarFileUrl || editableFields.avatar}
-                size={96}
-                className="border-2 border-pink-500"
+                  src={userData.avatar}
+                  size={96}
+                  className="mr-4 border-2 border-pink-500"
               />
-              <Upload
-                key={uploadKey}
-                showUploadList={false}
-                beforeUpload={() => false}
-                onChange={handleAvatarUpload}
-                accept="image/*"
-              >
-                <Button icon={<UploadOutlined />}>Upload Avatar</Button>
-              </Upload>
+              <div>
+                <h3 className="text-xl font-bold">{userData.name}</h3>
+                <p className="text-gray-500">@{userData.username}</p>
+              </div>
             </div>
-          </Form.Item>
 
-          <Form.Item
-            label="First Name"
-            name="firstName"
-            rules={[{ required: true, message: "Please input first name!" }]}
-          >
-            <Input />
-          </Form.Item>
+            <Button type="primary" className="mb-6" onClick={handleOpenModal}>
+              Update Profile
+            </Button>
 
-          <Form.Item
-            label="Last Name"
-            name="lastName"
-            rules={[{ required: true, message: "Please input last name!" }]}
-          >
-            <Input />
-          </Form.Item>
+            <div className="space-y-2">
+              <ProfileItem label="Email" value={userData.username} />
+              <ProfileItem label="Full Name" value={userData.name} />
+              <ProfileItem label="Phone Number" value={userData.phoneNumber} />
+              <ProfileItem label="Biography" value={userData.bio} />
+              <ProfileItem label="Registration Date" value={formattedDate} />
+              <ProfileItem label="Teaching Credentials" value={userData.teachingCredentials} />
+              <ProfileItem label="Education Background" value={userData.educationalBackground} />
+            </div>
+          </div>
+        </Card>
 
-          <Form.Item
-            label="Email"
-            name="email"
-            rules={[
-              { required: true, message: "Please input email!" },
-              { type: "email", message: "The input is not valid E-mail!" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            label="Phone Number"
-            name="phoneNumber"
-            rules={[
-              { required: true, message: "Please input phone number!" },
-              { pattern: /^\+?[0-9]{8,15}$/, message: "Phone number is not valid!" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            label="Biography"
-            name="biography"
-            rules={[{ required: true, message: "Please input biography!" }]}
-          >
-            <Input.TextArea rows={4} />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </div>
+        <UpdateProfileModal
+            visible={isModalOpen}
+            initialValues={userData}
+            onCancel={handleCancelModal}
+            onSubmit={handleUpdateUser}
+        />
+      </div>
   );
 };
 
