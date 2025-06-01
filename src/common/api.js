@@ -88,10 +88,22 @@ const commonApi = {
     },
     updateCourse: {
         url: (id) => `${backendDomain}/course/${id}`
-    }
-    
-
+    },
+    getAllUsers: {
+        url: `${backendDomain}/api/users`
+    },
+    lockUser: {
+        url: (id) => `${backendDomain}/api/users/${id}/lock`
+    },
+    createLearnerByExcel: {
+        url: `${backendDomain}/api/users/import`
+    },
+    getUserDetailInfoByUserID: {
+        url: (id) => `${backendDomain}/api/users/admin/detailUser/${id}`
+    },
+    getAllCourseByLearnerID: {
+        url: (id) => `${backendDomain}/course/user/${id}/all-courses`
+    },
 }
-
 
 export default commonApi
