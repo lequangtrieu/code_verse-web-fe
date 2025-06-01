@@ -20,7 +20,7 @@ const RegisterPage = () => {
     };
 
     const onFinish = async (values) => {
-        console.log('Received values:', values);
+        setLoading(true);
 
         dispatch(logoutUser());
         try {
