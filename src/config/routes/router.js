@@ -35,6 +35,7 @@ import InstructorDashboardPage from "../../components/Instructor/InstructorDashb
 import InstructorCoursesPage from "../../components/Instructor/InstructorCourses/InstructorCoursePage";
 import InstructorCourseDetailView from "../../components/Instructor/InstructorCourses/InstructorCourseDetail";
 import RegisterPage from "../../components/Auth/RegisterPage";
+import LearnerDetailPage from "../../components/Admin/AdminAccount/LearnerDetailPage"
 
 const router = createBrowserRouter([
   {
@@ -180,6 +181,10 @@ const router = createBrowserRouter([
           {
             path: "accounts",
             element: <AdminAccountsPage />,
+          },
+          {
+            path: "learner/:id",
+            element: <LearnerDetailPage />
           },
           {
             path: "messages",
