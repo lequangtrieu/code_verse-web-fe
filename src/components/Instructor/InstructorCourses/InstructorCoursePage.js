@@ -80,8 +80,10 @@ const InstructorCoursesPage = () => {
         if (selectedStatus === "pending") {
             filtered = filtered.filter((course) => course.status === "PENDING");
         }
-
-        setFilteredCourses(filtered);
+        
+        setTimeout(() => {
+            setFilteredCourses(filtered);
+        }, 500);
         setCurrentPage(1);
     };
 
@@ -92,19 +94,7 @@ const InstructorCoursesPage = () => {
 
     const uniqueCategories = [...new Set(courses.map((c) => c.category))];
 
-    // const toggleActive = (id) => {
-    //   setCourses((prev) =>
-    //     prev.map((course) =>
-    //       course.id === id ? { ...course, isActive: !course.isActive } : course
-    //     )
-    //   );
-    //   message.success("Course status updated successfully");
-    // };
-
     const handleViewDetail = (courseId) => {
-        // setSelectedCourse(course);
-        // setIsModalOpen(true);
-        // form.setFieldsValue(course);
         navigate(`/instructor-panel/courses/${courseId}`);
     };
 
@@ -157,6 +147,7 @@ const InstructorCoursesPage = () => {
                     <Option value="all">All Status</Option>
                     <Option value="published">Published</Option>
                     <Option value="draft">Draft</Option>
+                    <Option value="pending">Pending</Option>
                 </Select>
             </div>
             {initialLoading && <LoadingOverlay />}
@@ -197,29 +188,6 @@ const InstructorCoursesPage = () => {
                                         )}
                                     </td>
                                     <td className="border p-2 space-x-2">
-                                        {/* <Popconfirm
-                    title={course.published ? "Deactivate this course?" : "Activate this course?"}
-                    description="Are you sure?"
-                    onConfirm={() => toggleActive(course.id)}
-                    okText="Yes"
-                    cancelText="No"
-                  >
-                    <button
-                      className={`w-24 px-3 py-1 rounded text-white ${course.published
-                        ? "bg-red-500 hover:bg-red-600"
-                        : "bg-green-500 hover:bg-green-600"
-                        }`}
-                    >
-                      {course.published ? "Deactivate" : "Activate"}
-                    </button>
-                  </Popconfirm> */}
-
-                                        {/* <button
-                    className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded"
-                    onClick={() => handleViewDetail(course)}
-                  >
-                    View Detail
-                  </button> */}
                                         <button
                                             className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded"
                                             onClick={() => handleViewDetail(course.id)}
