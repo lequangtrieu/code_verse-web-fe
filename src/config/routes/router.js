@@ -3,7 +3,8 @@ import App from "../../App";
 
 import Courses from "../../components/User/Courses/Courses";
 import CourseDetail from "../../components/User/Courses/CourseDetail";
-import CourseForm from "../../components/Instructor/InstructorCourses/CourseCreate/CourseForm";
+// import CourseForm from "../../components/Instructor/InstructorCourses/CourseCreate/CourseForm";
+import CourseForm from "../../components/Instructor/InstructorCourses/CourseCreate/CourseCreation";
 import Home from "../../components/layout/Home";
 import DashboardPage from "../../components/Admin/AdminDashBoard/DashboardPage";
 import AdminPanel from "../../components/Admin/layout/AdminPanel";

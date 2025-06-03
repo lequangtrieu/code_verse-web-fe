@@ -69,12 +69,21 @@ const commonApi = {
         url: `${backendDomain}/cart/confirm-payment`,
     },
 
-    /** Admin api */
+    /** Instructor api */
     instructorCourses: {
         url: `${backendDomain}/course/instructor`
     },
     createCourse: {
         url: `${backendDomain}/course`
+    },
+    createModule: {
+        url: `${backendDomain}/module`
+    },
+    createLesson: {
+        url: `${backendDomain}/lesson`
+    },
+    createTheory: {
+        url: `${backendDomain}/theory`
     },
     getCoursesByUser: (userId) => `${backendDomain}/course/user/${userId}`,
     getInProgressCourses: (userId) => `${backendDomain}/course/user/${userId}/in-progress`,
