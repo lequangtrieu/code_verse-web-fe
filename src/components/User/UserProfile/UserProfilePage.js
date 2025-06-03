@@ -88,8 +88,6 @@ const UserProfilePage = () => {
               <ProfileItem label="Phone Number" value={userData.phoneNumber} />
               <ProfileItem label="Biography" value={userData.bio} />
               <ProfileItem label="Registration Date" value={formattedDate} />
-              <ProfileItem label="Teaching Credentials" value={userData.teachingCredentials} />
-              <ProfileItem label="Education Background" value={userData.educationalBackground} />
             </div>
           </div>
         </Card>
