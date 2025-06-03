@@ -53,7 +53,17 @@ const LearnerDetailPage = () => {
 
     return (
         <div style={{ padding: 24 }}>
-            <Card title="Learner's Information" style={{ marginBottom: 24 }}>
+            <Card
+                title="Learner's Information"
+                style={{ marginBottom: 24 }}
+            >
+                <Avatar
+                    size={100}
+                    src={userDetail.avatar ? userDetail.avatar : undefined}
+                    style={{ backgroundColor: userDetail.avatar ? 'transparent' : '#87d068' }}
+                >
+                    {!userDetail.avatar && userDetail.name ? userDetail.name.charAt(0).toUpperCase() : null}
+                </Avatar>
                 <p><b>Name:</b> {userDetail.name}</p>
                 <p><b>Email:</b> {userDetail.username}</p>
                 <p><b>Phone Number:</b> {userDetail.phoneNumber}</p>
@@ -61,6 +71,7 @@ const LearnerDetailPage = () => {
                 <p><b>Bio:</b> {userDetail.bio}</p>
                 <p><b>Verified:</b> {userDetail.isVerified ? "Yes" : "No"}</p>
             </Card>
+
 
             <Card title="Learner's Courses">
                 <List

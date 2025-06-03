@@ -5,20 +5,26 @@ import * as XLSX from 'xlsx';
 import commonApi from "../../../common/api";
 import getAuthInfo from "../../../config/getAuthInfo"
 import { useNavigate } from 'react-router-dom';
+import CustomModal from '../../../common/CustomModal'
 
 const AdminAccountsPage = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const [importUsers, setImportUsers] = useState([]); // User chuẩn bị import từ Excel
-  const [existingEmails, setExistingEmails] = useState(new Set()); // Email hiện tại
+  const [importUsers, setImportUsers] = useState([]);
+  const [existingEmails, setExistingEmails] = useState(new Set());
   const [form] = Form.useForm();
-  const [createForm] = Form.useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [editableFields, setEditableFields] = useState({});
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
+  const startIdx = (currentPage - 1) * pageSize;
+  const paginatedUsers = filteredUsers.slice(startIdx, startIdx + pageSize);
+  const [roleFilter, setRoleFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   useEffect(() => {
     fetchUsers();
@@ -37,6 +43,8 @@ const AdminAccountsPage = () => {
         id: user.id,
         fullName: user.name || '',
         email: user.username,
+        phoneNumber: user.phoneNumber,
+        bio: user.bio,
         role: user.role,
         isBanned: Boolean(user.isDeleted),
         avatar: user.avatar,
@@ -74,12 +82,6 @@ const AdminAccountsPage = () => {
       console.error("Failed to update user status:", error);
       message.error("Failed to update user status");
     }
-  };
-
-
-  const deleteUser = (id) => {
-    setUsers((prev) => prev.filter((user) => user.id !== id));
-    message.success("User deleted successfully");
   };
 
   const downloadTemplate = () => {
@@ -185,21 +187,59 @@ const AdminAccountsPage = () => {
   const handleViewDetail = (user) => {
     if (user.role === 'LEARNER') {
       navigate(`/admin-panel/learner/${user.id}`);
+    } else if (user.role === 'INSTRUCTOR') {
+      navigate(`/admin-panel/instructor/${user.id}`);
     } else {
-      // Mở modal chi tiết như cũ
       setSelectedUser(user);
-      setEditableFields(user);
       setIsModalOpen(true);
       form.setFieldsValue(user);
     }
   };
 
-  const handleCancelModal = () => {
-    setIsModalOpen(false);
-    setSelectedUser(null);
-    setEditableFields({});
-    form.resetFields();
+  useEffect(() => {
+    const filtered = users.filter((user) =>
+      user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.role.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredUsers(filtered);
+    setCurrentPage(1);
+  }, [searchTerm, users]);
+
+
+  const highlightText = (text, highlight) => {
+    if (!highlight) return text;
+
+    const regex = new RegExp(`(${highlight.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+    const parts = text.split(regex);
+
+    return parts.map((part, i) =>
+      regex.test(part) ? (
+        <mark key={i} style={{ backgroundColor: '#ffe58f', padding: 0 }}>{part}</mark>
+      ) : (
+        part
+      )
+    );
   };
+
+  useEffect(() => {
+    const filtered = users.filter(user => {
+      const matchesSearch =
+        user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.role.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesRole = roleFilter ? user.role === roleFilter : true;
+      const matchesStatus = statusFilter
+        ? (statusFilter === 'active' ? !user.isBanned : user.isBanned)
+        : true;
+
+      return matchesSearch && matchesRole && matchesStatus;
+    });
+
+    setFilteredUsers(filtered);
+    setCurrentPage(1);
+  }, [searchTerm, roleFilter, statusFilter, users]);
 
 
   return (
@@ -211,33 +251,43 @@ const AdminAccountsPage = () => {
         {/* Nút này mở modal import Excel */}
         <button
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          onClick={() => setIsImportModalOpen(true)}
+          onClick={() => {
+            setImportUsers([]);
+            setIsImportModalOpen(true);
+          }}
         >
           Create Learners from Excel
         </button>
       </div>
 
       {/* Modal import Excel */}
-      <Modal
+      <CustomModal
         title="Import Learners from Excel"
         open={isImportModalOpen}
-        onCancel={() => {
+        onClose={() => {
           setIsImportModalOpen(false);
           setImportUsers([]);
         }}
-        footer={[
-          <Button key="cancel" onClick={() => setIsImportModalOpen(false)}>
-            Cancel
-          </Button>,
-          <Button
-            key="import"
-            type="primary"
-            disabled={importUsers.filter(u => !u.isDuplicate).length === 0}
-            onClick={handleImport}
-          >
-            Import
-          </Button>,
-        ]}
+        footer={true}
+        footerContent={
+          <>
+            <button
+              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-sm"
+              onClick={() => setIsImportModalOpen(false)}
+            >
+              Cancel
+            </button>
+            <button
+              className={`px-4 py-2 text-sm rounded ${importUsers.filter(u => !u.isDuplicate).length === 0
+                ? 'bg-gray-200 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
+              disabled={importUsers.filter(u => !u.isDuplicate).length === 0}
+              onClick={handleImport}>
+              Import
+            </button>
+          </>
+        }
         width={700}
       >
         <div style={{ marginBottom: 16 }}>
@@ -263,18 +313,58 @@ const AdminAccountsPage = () => {
             rowClassName={(record) => (record.isDuplicate ? 'row-duplicate' : '')}
           />
         )}
-      </Modal>
+      </CustomModal>
+
+      <div className="flex flex-wrap gap-4 mb-4 items-center">
+        <Select
+          placeholder="Filter by Role"
+          allowClear
+          style={{ width: 150 }}
+          value={roleFilter}
+          onChange={value => setRoleFilter(value)}
+        >
+          <Select.Option value="LEARNER">Learner</Select.Option>
+          <Select.Option value="ADMIN">Admin</Select.Option>
+          <Select.Option value="INSTRUCTOR">Instructor</Select.Option>
+        </Select>
+
+        <Select
+          placeholder="Filter by Status"
+          allowClear
+          style={{ width: 150 }}
+          value={statusFilter}
+          onChange={value => setStatusFilter(value)}
+        >
+          <Select.Option value="active">Active</Select.Option>
+          <Select.Option value="banned">Banned</Select.Option>
+        </Select>
+
+        <Input
+          placeholder="Search by name, email or role"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full sm:w-64"
+        />
+        <span className="text-gray-500 text-sm">Found {filteredUsers.length} results</span>
+      </div>
 
       <div className="overflow-x-auto">
         <table className="w-full table-auto border-collapse">
+          <colgroup>
+            <col style={{ width: '8%' }} />
+            <col style={{ width: '28%' }} />
+            <col style={{ width: '28%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '10%' }} />
+          </colgroup>
           <thead>
             <tr className="bg-gray-100">
-              <th className="border p-2">ID</th>
-              <th className="border p-2">Full Name</th>
-              <th className="border p-2">Email</th>
-              <th className="border p-2">Role</th>
-              <th className="border p-2">Status</th>
-              <th className="border p-2">Actions</th>
+              <th className="border p-2 text-left">ID</th>
+              <th className="border p-2 text-left">Full Name</th>
+              <th className="border p-2 text-left">Email</th>
+              <th className="border p-2 text-left">Role</th>
+              <th className="border p-2 text-left">Status</th>
+              <th className="border p-2 justify-center ">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -287,20 +377,21 @@ const AdminAccountsPage = () => {
                 <td colSpan="6" className="text-center p-4 text-gray-500">No users found.</td>
               </tr>
             ) : (
-              users.map(user => (
+
+              paginatedUsers.map(user => (
                 <tr key={user.id} className="text-center">
-                  <td className="border p-2">{user.id}</td>
-                  <td className="border p-2">{user.fullName}</td>
-                  <td className="border p-2">{user.email}</td>
-                  <td className="border p-2">{user.role}</td>
-                  <td className="border p-2">
+                  <td className="border p-2 text-left">{user.id}</td>
+                  <td className="border p-2 text-left">{highlightText(user.fullName, searchTerm)}</td>
+                  <td className="border p-2 text-left">{highlightText(user.email, searchTerm)}</td>
+                  <td className="border p-2 text-left">{user.role}</td>
+                  <td className="border p-2 text-left">
                     {user.isBanned ? (
                       <span className="text-red-500 font-semibold">Banned</span>
                     ) : (
                       <span className="text-green-500 font-semibold">Active</span>
                     )}
                   </td>
-                  <td className="border p-2 space-x-2">
+                  <td className="border p-2 justify-center space-x-2 whitespace-nowrap">
                     <Popconfirm
                       title={user.isBanned ? "Unban this user?" : "Ban this user?"}
                       onConfirm={() => toggleBan(user.id, user.isBanned)}
@@ -308,16 +399,15 @@ const AdminAccountsPage = () => {
                       cancelText="No"
                     >
                       <button
-                        className={`w-16 px-3 py-1 rounded text-white ${user.isBanned ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600"
+                        className={`w-16 px-3 py-1 rounded text-white min-w-[70px] ${user.isBanned ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600"
                           }`}
                       >
                         {user.isBanned ? "Unban" : "Ban"}
                       </button>
                     </Popconfirm>
 
-
                     <button
-                      className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded"
+                      className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded whitespace-nowrap min-w-[70px]"
                       onClick={() => handleViewDetail(user)}
                     >
                       View Detail
@@ -325,52 +415,76 @@ const AdminAccountsPage = () => {
                   </td>
                 </tr>
               ))
+
             )}
           </tbody>
         </table>
+        <div className="flex justify-center mt-4">
+          <div className="flex items-center space-x-2">
+            <Button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Prev
+            </Button>
+            <span>
+              Page {currentPage} of {Math.max(1, Math.ceil(filteredUsers.length / pageSize))}
+            </span>
+            <Button
+              onClick={() =>
+                setCurrentPage(prev => Math.min(prev + 1, Math.max(1, Math.ceil(filteredUsers.length / pageSize))))
+              }
+              disabled={currentPage >= Math.max(1, Math.ceil(filteredUsers.length / pageSize))}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+
       </div>
 
-      <Modal
-        title="User Details"
+      <CustomModal
+        title="Admin's Information"
         open={isModalOpen}
-        onCancel={handleCancelModal}
-        getContainer={false}
-        footer={null}
+        onClose={() => setIsModalOpen(false)}
+        footer={false}
       >
         {selectedUser && (
-          <Form
-            layout="vertical"
-          >
-            <Form.Item label="ID">
-              <span>{selectedUser.id}</span>
-            </Form.Item>
-
-            <Form.Item label="Full Name">
-              <span>{selectedUser.fullName}</span>
-            </Form.Item>
-
-            <Form.Item label="Email">
-              <span>{selectedUser.email}</span>
-            </Form.Item>
-
-            <Form.Item label="Phone Number">
-              <span>{selectedUser.phoneNumber}</span>
-            </Form.Item>
-
-            <Form.Item label="Role">
-              <span>{selectedUser.role}</span>
-            </Form.Item>
-
-            <Form.Item label="Bio">
-              <span>{selectedUser.bio}</span>
-            </Form.Item>
-
-            <Form.Item label="Status">
-              <span>{selectedUser.isBanned ? "Banned" : "Active"}</span>
-            </Form.Item>
+          <Form layout="vertical" >
+            {[
+              { label: 'ID', value: selectedUser.id },
+              { label: 'Full Name', value: selectedUser.fullName },
+              { label: 'Email', value: selectedUser.email },
+              { label: 'Phone Number', value: selectedUser.phoneNumber },
+              { label: 'Role', value: selectedUser.role },
+              { label: 'Bio', value: selectedUser.bio },
+              {
+                label: 'Status',
+                value: selectedUser.isBanned ? (
+                  <span style={{ color: '#ff4d4f', fontWeight: 600 }}>Banned</span>
+                ) : (
+                  <span style={{ color: '#52c41a', fontWeight: 600 }}>Active</span>
+                ),
+              },
+            ].map(({ label, value }) => (
+              <Form.Item label={<strong style={{ color: '#595959' }}>{label}</strong>} key={label} className="mb-1">
+                <div
+                  style={{
+                    padding: '8px 12px',
+                    backgroundColor: '#f5f5f5',
+                    borderRadius: '8px',
+                    fontWeight: 500,
+                    color: '#262626',
+                  }}
+                >
+                  {value}
+                </div>
+              </Form.Item>
+            ))}
           </Form>
         )}
-      </Modal>
+      </CustomModal>
+
 
     </div>
   );
