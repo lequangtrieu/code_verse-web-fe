@@ -102,7 +102,7 @@ const commonApi = {
         url: (id) => `${backendDomain}/course/user/${id}/all-courses`
     },
     getAllCoursesByInstructorID: {
-        url: (id) => `${backendDomain}/course/instructor/${id}`
+        url: (id) => `${backendDomain}/course/admin/instructor/${id}`
     },
     getAllCoursesByAdmin: {
         url: `${backendDomain}/course/admin`

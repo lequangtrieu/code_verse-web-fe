@@ -44,10 +44,10 @@ const AdminCoursesPage = () => {
 
   const fetchCourses = async () => {
     try {
-      const result = await axiosInstance.get(commonApi.adminCourses.url, {
+      const result = await axiosInstance.get(commonApi.getAllCoursesByAdmin.url, {
         params: { username: user.username },
       });
-      setCourses(result.data.result);
+      setCourses(result.data || []);
     } catch (error) {
       message.error("Error when fetching course data.");
       setCourses([]);
@@ -63,7 +63,7 @@ const AdminCoursesPage = () => {
 
     if (searchQuery.trim() !== "") {
       filtered = filtered.filter((course) =>
-        (course.title + course.description).toLowerCase().includes(searchQuery.toLowerCase())
+        ((course.title || "") + (course.description || "")).toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -72,8 +72,10 @@ const AdminCoursesPage = () => {
     }
 
     if (selectedStatus !== "all") {
-      const isPublished = selectedStatus === "published";
-      filtered = filtered.filter((course) => course.published === isPublished);
+      // So sánh với trường status là chuỗi "PUBLISHED" hoặc "DRAFT"
+      filtered = filtered.filter((course) =>
+        selectedStatus === "published" ? course.status === "PUBLISHED" : course.status !== "PUBLISHED"
+      );
     }
 
     setFilteredCourses(filtered);
@@ -85,21 +87,9 @@ const AdminCoursesPage = () => {
     currentPage * pageSize
   );
 
-  const uniqueCategories = [...new Set(courses.map((c) => c.category))];
-
-  // const toggleActive = (id) => {
-  //   setCourses((prev) =>
-  //     prev.map((course) =>
-  //       course.id === id ? { ...course, isActive: !course.isActive } : course
-  //     )
-  //   );
-  //   message.success("Course status updated successfully");
-  // };
+  const uniqueCategories = [...new Set(courses.map((c) => c.category).filter(Boolean))];
 
   const handleViewDetail = (courseId) => {
-    // setSelectedCourse(course);
-    // setIsModalOpen(true);
-    // form.setFieldsValue(course);
     navigate(`/admin-panel/courses/${courseId}`);
   };
 
@@ -124,6 +114,7 @@ const AdminCoursesPage = () => {
           </button>
         </div>
       )}
+
       {/* Search and Filters */}
       <div className="flex flex-wrap gap-4 mb-4">
         <Input
@@ -154,7 +145,9 @@ const AdminCoursesPage = () => {
           <Option value="draft">Draft</Option>
         </Select>
       </div>
+
       {initialLoading && <LoadingOverlay />}
+
       <div className="overflow-x-auto">
         <table className="w-full table-auto border-collapse">
           <thead>
@@ -173,47 +166,27 @@ const AdminCoursesPage = () => {
               paginatedCourses.map((course) => (
                 <tr key={course.id} className="text-center">
                   <td className="border p-2">
-                    <img src={course.thumbnailUrl || "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"}
-                      alt={course.title} className="w-20 h-20 object-cover mx-auto rounded" />
+                    <img
+                      src={course.thumbnailUrl || "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"}
+                      alt={course.title}
+                      className="w-20 h-20 object-cover mx-auto rounded"
+                    />
                   </td>
                   <td className="border p-2">{course.title}</td>
                   <td className="border p-2">{course.description}</td>
                   <td className="border p-2">{course.category}</td>
                   <td className="border p-2">{formatCurrency(course.price)}</td>
                   <td className="border p-2">
-                    {course.published ? (
+                    {course.status === "PUBLISHED" ? (
                       <span className="text-green-500 font-semibold">Published</span>
                     ) : (
                       <span className="text-red-500 font-semibold">Draft</span>
                     )}
                   </td>
                   <td className="border p-2 space-x-2">
-                    {/* <Popconfirm
-                    title={course.published ? "Deactivate this course?" : "Activate this course?"}
-                    description="Are you sure?"
-                    onConfirm={() => toggleActive(course.id)}
-                    okText="Yes"
-                    cancelText="No"
-                  >
-                    <button
-                      className={`w-24 px-3 py-1 rounded text-white ${course.published
-                        ? "bg-red-500 hover:bg-red-600"
-                        : "bg-green-500 hover:bg-green-600"
-                        }`}
-                    >
-                      {course.published ? "Deactivate" : "Activate"}
-                    </button>
-                  </Popconfirm> */}
-
-                    {/* <button
-                    className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded"
-                    onClick={() => handleViewDetail(course)}
-                  >
-                    View Detail
-                  </button> */}
                     <button
                       className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded"
-                    onClick={() => handleViewDetail(course.id)}
+                      onClick={() => handleViewDetail(course.id)}
                     >
                       View Detail
                     </button>
@@ -226,8 +199,7 @@ const AdminCoursesPage = () => {
                   No courses found.
                 </td>
               </tr>
-            )
-            }
+            )}
           </tbody>
         </table>
       </div>
@@ -237,77 +209,10 @@ const AdminCoursesPage = () => {
           current={currentPage}
           total={filteredCourses.length}
           pageSize={pageSize}
-          onChange={(page) => setCurrentPage(page)}
+          onChange={setCurrentPage}
           showSizeChanger={false}
         />
       </div>
-
-      {/* Modal Course Detail */}
-      <Modal
-        title="Course Details"
-        open={isModalOpen}
-        onCancel={handleCancelModal}
-        footer={[
-          <button
-            key="cancel"
-            className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
-            onClick={handleCancelModal}
-          >
-            Cancel
-          </button>,
-          <button
-            key="update"
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Update
-          </button>,
-        ]}
-        getContainer={false}
-      >
-        {selectedCourse && (
-          <Form
-            form={form}
-            initialValues={selectedCourse}
-            layout="vertical"
-          >
-            <Form.Item label="Image">
-              <img src={selectedCourse.description.image} alt={selectedCourse.description.title} className="w-full h-auto rounded" />
-            </Form.Item>
-
-            <Form.Item label="Name">
-              <span>{selectedCourse.description.title}</span>
-            </Form.Item>
-
-            <Form.Item label="Description">
-              <span>{selectedCourse.description.description}</span>
-            </Form.Item>
-
-            <Form.Item label="Category">
-              <span>{selectedCourse.description.category}</span>
-            </Form.Item>
-
-            <Form.Item label="Price">
-              <span>${selectedCourse.bonus.price}</span>
-            </Form.Item>
-
-            <Form.Item label="Bonus">
-              {selectedCourse.bonus && (
-                <div>
-                  <p>Price: ${selectedCourse.bonus.price}</p>
-                  <p>Level ID: {selectedCourse.bonus.levelId}</p>
-                  <p>Notes: {selectedCourse.bonus.notes}</p>
-                </div>
-              )}
-            </Form.Item>
-
-            <Form.Item label="Status">
-              <span>{selectedCourse.isActive ? "Active" : "Inactive"}</span>
-            </Form.Item>
-          </Form>
-        )}
-      </Modal>
-
-
     </div>
   );
 };
