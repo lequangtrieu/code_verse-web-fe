@@ -5,7 +5,7 @@ import commonApi from "../../../common/api";
 import { formatCurrency } from "../../../common/helper";
 import LoadingOverlay from "../../../common/LoadingOverlay";
 import { Form, Card, Descriptions, Tag, Collapse, Typography, Divider, message, Button } from "antd";
-import CourseDescription from "./CourseCreate/CourseDescription";
+import CourseDescription from "./CourseCreate/CourseInfo";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -68,14 +68,16 @@ const InstructorCourseDetailView = () => {
         try {
             const [categoryRes, courseRes] = await Promise.all([
                 axiosInstance.get(commonApi.category.url),
-                axiosInstance.get(commonApi.adminGetCourse.url(id)),
+                axiosInstance.get(commonApi.instructorGetCourse.url(id)),
             ]);
             setCategories(categoryRes.data.result);
             sortCourseData(courseRes.data.result);
         } catch (err) {
             message.error("Error loading course or categories");
         } finally {
-            setInitialLoading(false);
+            setTimeout(() => {
+                setInitialLoading(false);
+            }, 400);
         }
     };
 
