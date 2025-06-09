@@ -520,13 +520,6 @@ const Header = () => {
                     }}
                   />
                 </div>
-
-                <Button
-                  icon={<GithubOutlined />}
-                  className="flex items-center justify-center gap-2 border hover:border-[#4d96ff] min-w-[150px]"
-                >
-                  GitHub
-                </Button>
               </div>
             </div>
           </TabPane>
