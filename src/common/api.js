@@ -82,6 +82,9 @@ const commonApi = {
     instructorCourses: {
         url: `${backendDomain}/course/instructor`
     },
+    getExerciseByLessonId: {
+        url: (lessonId) => `${backendDomain}/exercise/lesson/${lessonId}`
+    },
     createCourse: {
         url: `${backendDomain}/course`
     },
@@ -94,12 +97,36 @@ const commonApi = {
     createTheory: {
         url: `${backendDomain}/theory`
     },
+    createExercise: {
+        url: `${backendDomain}/exercise`
+    },
+    createExerciseTask: {
+        url: `${backendDomain}/exercise-task`
+    },
+    createTestCase: {
+        url: `${backendDomain}/test-case`
+    },
+    createQuizBank: {
+        url: (lessonId) => `${backendDomain}/quiz/lesson/${lessonId}`
+    },
+    validateCourse: {
+        url: (courseId) => `${backendDomain}/course/${courseId}/validate`
+    },
+    updateCourseModule: {
+        url: (moduleId) => `${backendDomain}/module/${moduleId}`
+    },
+    updateLesson: {
+        url: (lessonId) => `${backendDomain}/lesson/${lessonId}`
+    },
+    updateCourseStatus: {
+        url: (courseId) => `${backendDomain}/course/${courseId}/status`
+    },
     getCoursesByUser: (userId) => `${backendDomain}/course/user/${userId}`,
     getInProgressCourses: (userId) => `${backendDomain}/course/user/${userId}/in-progress`,
     getCompletedCourses: (userId) => `${backendDomain}/course/user/${userId}/completed`,
     getSuggestedCourses: (userId) => `${backendDomain}/course/user/${userId}/suggested`,
-    adminGetCourse: {
-        url: (id) => `${backendDomain}/course/admin/${id}`
+    instructorGetCourse: {
+        url: (id) => `${backendDomain}/course/${id}/for-instructor`
     },
     updateCourse: {
         url: (id) => `${backendDomain}/course/${id}`

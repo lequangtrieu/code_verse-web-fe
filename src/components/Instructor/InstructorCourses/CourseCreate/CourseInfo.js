@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Button, Form, Input, InputNumber, Radio, Select, Space, message } from "antd";
 import UploadImage from "../../../../common/UploadImage";
 import commonApi from "../../../../common/api";
@@ -54,19 +54,22 @@ export default function CourseDescription({
         }
     };
 
+    const hasInitialized = useRef(false);
+
     useEffect(() => {
-        if (formData) {
+        if (!hasInitialized.current && formData && categories.length > 0) {
             const initialValues = {
                 ...formData.description,
                 ...formData.bonus,
-                categoryId: formData.description?.categoryId || categories[0]?.id,
-                levelId: formData.bonus?.levelId || levels[0]?.levelId,
-                language: formData.bonus?.language || languages[0]?.language
+                categoryId: formData.description?.categoryId ?? categories[0]?.id,
+                levelId: formData.bonus?.levelId ?? levels[0]?.levelId,
+                language: formData.bonus?.language ?? languages[0]?.language
             };
             activeForm.setFieldsValue(initialValues);
+            hasInitialized.current = true;
         }
         // eslint-disable-next-line
-    }, [formData, categories, activeForm]);
+    }, [formData, categories.length, activeForm]);
 
     const isPaid = Form.useWatch("isPaid", activeForm);
     const coverFileList = Form.useWatch("cover", activeForm) || [];
@@ -171,7 +174,10 @@ export default function CourseDescription({
             <Form.Item>
                 <Space className="flex justify-end">
                     <Button type="default" onClick={onCancel}>Cancel</Button>
-                    <Button type="primary" onClick={() => onSave?.(activeForm)}>Save</Button>
+                    <Button type="primary" onClick={() => {
+                        console.log(activeForm.getFieldsValue());
+                        onSave?.(activeForm);
+                    }}>Save</Button>
                 </Space>
             </Form.Item>
         </Form>
