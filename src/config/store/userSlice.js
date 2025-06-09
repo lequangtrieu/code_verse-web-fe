@@ -27,9 +27,15 @@ export const userSlice = createSlice({
       state.token = null;
       state.refreshToken = null;
     },
+
+    setAvatar: (state, action) => {
+      if (state.user) {
+        state.user.avatar = action.payload;
+      }
+    }
   },
 });
 
-export const { setUserDetails, logoutUser } = userSlice.actions;
+export const { setUserDetails, logoutUser, setAvatar } = userSlice.actions;
 
 export default userSlice.reducer;

@@ -35,6 +35,12 @@ const commonApi = {
     viewProfile: {
         url: `${backendDomain}/api/users/myInfo`,
     },
+    updateProfile: {
+        url: `${backendDomain}/api/users/updateMyInfo`,
+    },
+    updateAvatar: {
+        url: `${backendDomain}/api/users/updateAvatar`,
+    },
 
     /** Course api */
     course: {
