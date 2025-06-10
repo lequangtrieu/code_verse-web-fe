@@ -46,6 +46,9 @@ const commonApi = {
     course: {
         url: `${backendDomain}/course`,
     },
+    courseDetail: {
+        url: (courseId) => `${backendDomain}/course/${courseId}`,
+    },
 
     /** Category api */
     category: {

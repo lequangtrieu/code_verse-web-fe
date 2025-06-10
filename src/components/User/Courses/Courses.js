@@ -297,10 +297,6 @@ const Courses = () => {
     },
   ];
 
-  const onChange = (currentSlide) => {
-    // console.log(currentSlide);
-  };
-
   const renderCoursePopover = (course) => {
     const isFree = getDiscountedPrice(course.price, course.discount) === 0;
 
@@ -387,7 +383,6 @@ const Courses = () => {
                 arrows={true}
                 prevArrow={<LeftOutlined />}
                 nextArrow={<RightOutlined />}
-                afterChange={onChange}
                 className="custom-carousel"
               >
                 {carouselItems.map((item, index) => (

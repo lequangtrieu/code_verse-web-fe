@@ -1,17 +1,13 @@
-import {
-  FaLock,
-  FaPlay,
-  FaPlayCircle,
-  FaStar,
-  FaBookOpen,
-} from "react-icons/fa";
-import { BsFileEarmarkText } from "react-icons/bs";
-import { Collapse, Tabs, Carousel, Rate } from "antd";
-import { HiOutlineLightBulb } from "react-icons/hi";
-import { RiSendPlaneLine } from "react-icons/ri";
-import { GiPlanetCore } from "react-icons/gi";
-import { useEffect, useState } from "react";
-import LoadingOverlay from "../../../common/LoadingOverlay";
+import {FaBookOpen, FaLock, FaPlay, FaPlayCircle, FaStar,} from "react-icons/fa";
+import {BsFileEarmarkText} from "react-icons/bs";
+import {Carousel, Collapse, message, Rate, Skeleton, Tabs} from "antd";
+import {HiOutlineLightBulb} from "react-icons/hi";
+import {RiSendPlaneLine} from "react-icons/ri";
+import {GiPlanetCore} from "react-icons/gi";
+import {useEffect, useState} from "react";
+import axios from "axios";
+import commonApi from "../../../common/api";
+import {useParams} from "react-router-dom";
 
 const { Panel } = Collapse;
 
@@ -19,6 +15,9 @@ const { TabPane } = Tabs;
 
 const CourseDetail = () => {
   const [initialLoading, setInitialLoading] = useState(true);
+  const { courseId } = useParams();
+  const [courseDetail, setCourseDetail] = useState(null);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setInitialLoading(false);
@@ -26,6 +25,21 @@ const CourseDetail = () => {
 
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(commonApi.courseDetail.url(courseId));
+        setCourseDetail(response.data.result);
+      } catch (error) {
+        message.error("Failed to fetch course detail");
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [courseId]);
 
   const curriculumData = [
     {
@@ -73,26 +87,26 @@ const CourseDetail = () => {
   const reviewsData = [
     {
       username: "John Doe",
-      userAvatar: "https://via.placeholder.com/150",
+      userAvatar: "https://pethelpful.com/.image/c_fill,g_faces:center/MTk2NzY3MjA5ODc0MjY5ODI2/top-10-cutest-cat-photos-of-all-time.jpg",
       rating: 5,
       comment:
         "This course is amazing! Learned a lot about software development.",
     },
     {
       username: "Jane Smith",
-      userAvatar: "https://via.placeholder.com/150",
+      userAvatar: "https://pethelpful.com/.image/c_fill,g_faces:center/MTk2NzY3MjA5ODc0MjY5ODI2/top-10-cutest-cat-photos-of-all-time.jpg",
       rating: 4,
       comment: "Great course, but I wish there were more examples.",
     },
     {
       username: "Alice Brown",
-      userAvatar: "https://via.placeholder.com/150",
+      userAvatar: "https://pethelpful.com/.image/c_fill,g_faces:center/MTk2NzY3MjA5ODc0MjY5ODI2/top-10-cutest-cat-photos-of-all-time.jpg",
       rating: 4,
       comment: "Good content but the course could be a bit faster.",
     },
     {
       username: "Bob White",
-      userAvatar: "https://via.placeholder.com/150",
+      userAvatar: "https://pethelpful.com/.image/c_fill,g_faces:center/MTk2NzY3MjA5ODc0MjY5ODI2/top-10-cutest-cat-photos-of-all-time.jpg",
       rating: 3,
       comment: "The course was helpful, but the explanations were too brief.",
     },
@@ -123,7 +137,7 @@ const CourseDetail = () => {
   return (
     <>
       {initialLoading ? (
-        <LoadingOverlay />
+          <Skeleton active paragraph={{ rows: 10 }} />
       ) : (
         <>
           <section className="relative bg-gradient-to-br from-[#eef2f7] to-[#fefefe] py-40 overflow-hidden shadow-inner">
@@ -162,7 +176,7 @@ const CourseDetail = () => {
                 </div>
 
                 <h2 className="mt-4 text-2xl font-bold">
-                  Foundation course to understand about software
+                  {courseDetail?.title || "Untitled Course"}
                 </h2>
 
                 <div className="flex items-center gap-4 mt-2">
@@ -351,7 +365,7 @@ const CourseDetail = () => {
                           <img
                             src={
                               review.userAvatar ||
-                              "https://via.placeholder.com/150"
+                              "https://pethelpful.com/.image/c_fill,g_faces:center/MTk2NzY3MjA5ODc0MjY5ODI2/top-10-cutest-cat-photos-of-all-time.jpg"
                             }
                             alt={review.username}
                             className="w-full h-full rounded-full object-cover"
