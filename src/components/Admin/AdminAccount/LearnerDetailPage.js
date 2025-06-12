@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
-import { Card, List, Avatar, message, Progress, Rate } from "antd";
-import getAuthInfo from "../../../config/getAuthInfo";
+import axiosInstance from "../../../config/axiosInstance";
+import { Card, List, Avatar, message, Progress, Rate, Pagination } from "antd";
 import commonApi from "../../../common/api";
+import LoadingOverlay from "../../../common/LoadingOverlay";
 
 const LearnerDetailPage = () => {
     const { id } = useParams();
@@ -11,6 +11,8 @@ const LearnerDetailPage = () => {
     const [courses, setCourses] = useState([]);
     const [loadingUser, setLoadingUser] = useState(false);
     const [loadingCourses, setLoadingCourses] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 5;
 
     useEffect(() => {
         fetchUserDetail();
@@ -20,10 +22,7 @@ const LearnerDetailPage = () => {
     const fetchUserDetail = async () => {
         setLoadingUser(true);
         try {
-            const { token } = getAuthInfo();
-            const res = await axios.get(commonApi.getUserDetailInfoByUserID.url(id), {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await axiosInstance.get(commonApi.getUserDetailInfoByUserID.url(id));
             setUserDetail(res.data);
         } catch (error) {
             message.error("Failed to load user details");
@@ -35,11 +34,7 @@ const LearnerDetailPage = () => {
     const fetchUserCourses = async () => {
         setLoadingCourses(true);
         try {
-            const { token } = getAuthInfo();
-            const res = await axios.get(commonApi.getAllCourseByLearnerID.url(id), {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
+            const res = await axiosInstance.get(commonApi.getAllCourseByLearnerID.url(id));
             setCourses(res.data);
         } catch (error) {
             message.error("Failed to load user courses");
@@ -48,15 +43,23 @@ const LearnerDetailPage = () => {
         }
     };
 
-    if (loadingUser) return <div>Loading user info...</div>;
+    // Slice the courses for the current page
+    const paginatedCourses = courses.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+    );
+
+    if (loadingUser) return <LoadingOverlay />;
     if (!userDetail) return <div>User not found</div>;
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+        window.scrollTo(0, 0);
+    };
 
     return (
         <div style={{ padding: 24 }}>
-            <Card
-                title="Learner's Information"
-                style={{ marginBottom: 24 }}
-            >
+            <Card title="Learner's Information" style={{ marginBottom: 24 }}>
                 <Avatar
                     size={100}
                     src={userDetail.avatar ? userDetail.avatar : undefined}
@@ -72,12 +75,12 @@ const LearnerDetailPage = () => {
                 <p><b>Verified:</b> {userDetail.isVerified ? "Yes" : "No"}</p>
             </Card>
 
-
             <Card title="Learner's Courses">
+                {loadingCourses && <LoadingOverlay />}
                 <List
                     loading={loadingCourses}
                     itemLayout="vertical"
-                    dataSource={courses}
+                    dataSource={paginatedCourses}
                     renderItem={course => (
                         <List.Item
                             style={{
@@ -123,6 +126,14 @@ const LearnerDetailPage = () => {
                     locale={{ emptyText: "No courses found" }}
                 />
 
+                <Pagination
+                    current={currentPage}
+                    total={courses.length}
+                    pageSize={pageSize}
+                    onChange={handlePageChange}
+                    showSizeChanger={false}
+                    style={{ marginTop: 16, textAlign: 'center' }}
+                />
             </Card>
         </div>
     );
