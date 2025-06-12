@@ -1,9 +1,12 @@
 import React, { useState, useRef } from "react";
 import { Button, Collapse, Modal, Input, InputNumber, Form, Tabs, Typography, Select, message } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import RichTextEditor from "./RichTextEditor";
 import axiosInstance from "../../../../../config/axiosInstance";
 import commonApi from "../../../../../common/api";
+import ExerciseForm from "./ExerciseForm";
+import QuizForm from "./QuizForm";
+import { duration } from "moment/moment";
 
 const { Panel } = Collapse;
 const { Title } = Typography;
@@ -41,8 +44,9 @@ const CourseModule = ({ courseId }) => {
 
             if (editingModule) {
                 // Update module
-                const res = await axiosInstance.put(`/api/modules/${editingModule.id}`, {
+                const res = await axiosInstance.put(commonApi.updateCourseModule.url(editingModule.id), {
                     title: values.title,
+                    orderIndex: orderIndex
                 });
 
                 setModules((prev) =>
@@ -67,7 +71,7 @@ const CourseModule = ({ courseId }) => {
         } catch (error) {
             console.log("Failed to save module:", error);
             message.error("Error saving module.");
-        } finally{
+        } finally {
             setLoadingModule(false);
         }
     };
@@ -81,9 +85,12 @@ const CourseModule = ({ courseId }) => {
 
             if (editingLesson) {
                 // Update lesson
-                const res = await axiosInstance.put(`/api/lessons/${editingLesson.id}`, {
+                const res = await axiosInstance.put(commonApi.updateLesson.url(editingLesson.id), {
                     title: values.title,
-                    type: values.lessonType,
+                    lessonType: values.lessonType,
+                    duration: values.duration,
+                    expReward: values.expReward,
+                    orderIndex: orderIndex
                 });
 
                 const updatedModules = modules.map((mod) =>
@@ -99,8 +106,6 @@ const CourseModule = ({ courseId }) => {
                 setModules(updatedModules);
                 message.success("Lesson updated successfully!");
             } else {
-                // Create lesson
-
                 const res = await axiosInstance.post(commonApi.createLesson.url, {
                     courseModuleId: activeModuleId,
                     title: values.title,
@@ -128,7 +133,7 @@ const CourseModule = ({ courseId }) => {
         } catch (error) {
             console.log("Failed to save lesson:", error);
             message.error("Error saving lesson.");
-        } finally{
+        } finally {
             setLoadingLesson(false);
         }
     };
@@ -145,7 +150,7 @@ const CourseModule = ({ courseId }) => {
             message.success("Theory saved successfully!");
         } catch (err) {
             message.error("Error saving theory.");
-        } finally{
+        } finally {
             setLoadingTheory(false);
         }
     };
@@ -186,7 +191,7 @@ const CourseModule = ({ courseId }) => {
                 <Button
                     size="small"
                     type="text"
-                    icon={<span className="text-sm">✏️</span>}
+                    icon={<span className="text-sm"><EditOutlined /></span>}
                     onClick={(e) => {
                         e.stopPropagation();
                         setEditingModule(mod);
@@ -234,7 +239,7 @@ const CourseModule = ({ courseId }) => {
                                         <Button
                                             size="small"
                                             type="text"
-                                            icon={<span className="text-base">✏️</span>}
+                                            icon={<span className="text-base"><EditOutlined /></span>}
                                             onClick={() => {
                                                 setActiveModuleId(mod.id);
                                                 setEditingLesson({ ...lesson });
@@ -294,12 +299,11 @@ const CourseModule = ({ courseId }) => {
                                     </Form>
                                 </Tabs.TabPane>
                                 <Tabs.TabPane tab="Exercise" key="exercise">
-                                    {/* Exercise form will go here */}
-                                    <p>TODO: Exercise Form</p>
+                                    <ExerciseForm lessonId={selectedLesson.id} />
                                 </Tabs.TabPane>
                             </Tabs>
                         ) : (
-                            <p>TODO: Quiz (EXAM) Form</p>
+                            <QuizForm lessonId={selectedLesson.id} />
                         )}
                     </>
                 ) : (
@@ -310,11 +314,9 @@ const CourseModule = ({ courseId }) => {
             {/* Module Modal */}
             <Modal
                 title="Module"
-                visible={showModuleModal}
+                open={showModuleModal}
                 onCancel={() => setShowModuleModal(false)}
-                onOk={handleSaveModule}
-                loading={loadingModule}
-                okText="Save"
+                footer={null}
             >
                 <Form form={moduleForm} layout="vertical">
                     <Form.Item
@@ -322,19 +324,28 @@ const CourseModule = ({ courseId }) => {
                         label="Module Title"
                         rules={[{ required: true, message: "Please input module title" }]}
                     >
-                        <Input />
+                        <Input placeholder="e.g., Learn React from Scratch" />
                     </Form.Item>
+
+                    <div className="flex justify-end gap-2">
+                        <Button onClick={() => setShowModuleModal(false)}>Cancel</Button>
+                        <Button type="primary" onClick={handleSaveModule} loading={loadingModule}>
+                            Save
+                        </Button>
+                    </div>
                 </Form>
             </Modal>
 
             {/* Lesson Modal */}
             <Modal
                 title="Lesson"
-                visible={showLessonModal}
-                onCancel={() => setShowLessonModal(false)}
-                onOk={handleSaveLesson}
-                loading={loadingLesson}
-                okText="Save"
+                open={showLessonModal}
+                onCancel={() => {
+                    setShowLessonModal(false);
+                    setEditingLesson(null);
+                    lessonForm.resetFields();
+                }}
+                footer={null}
             >
                 <Form form={lessonForm} layout="vertical">
                     <Form.Item
@@ -342,7 +353,7 @@ const CourseModule = ({ courseId }) => {
                         label="Lesson Title"
                         rules={[{ required: true, message: "Please input lesson title" }]}
                     >
-                        <Input />
+                        <Input placeholder="e.g., Learn React from Scratch" />
                     </Form.Item>
                     <Form.Item
                         name="lessonType"
@@ -368,6 +379,12 @@ const CourseModule = ({ courseId }) => {
                     >
                         <InputNumber min={0} placeholder="Exp Reward" className="w-full" />
                     </Form.Item>
+                    <div className="flex justify-end gap-2">
+                        <Button onClick={() => setShowLessonModal(false)}>Cancel</Button>
+                        <Button type="primary" onClick={handleSaveLesson} loading={loadingLesson}>
+                            Save
+                        </Button>
+                    </div>
                 </Form>
             </Modal>
         </div>
