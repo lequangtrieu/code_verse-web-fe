@@ -112,6 +112,17 @@ function App() {
     }
   }, [user]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      axios
+        .get(commonApi.healthAPI.url)
+        .then(() => console.log("Ping backend success"))
+        .catch(() => console.warn("Ping backend failed"));
+    }, 8 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <Context.Provider
       value={{
