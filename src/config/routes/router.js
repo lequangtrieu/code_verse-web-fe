@@ -83,6 +83,10 @@ const router = createBrowserRouter([
         element: <LessonLayout />,
       },
       {
+        path: "/course/:courseId/learn",
+        element: <LessonLayout />,
+      },
+      {
         path: "cart",
         element: <CartPage />,
       },
