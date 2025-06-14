@@ -7,7 +7,7 @@ const commonApi = {
     },
     
     healthAPI: {
-        url: `${backendDomain}/code/health`,
+        url: `${backendDomain}/health`,
     },
     /** Code api */
     executionCode: {
