@@ -351,15 +351,6 @@ const Header = () => {
               Courses
             </Link>
             <Link
-              to="/test"
-              onClick={scrollTop}
-              className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(
-                "/test"
-              )} hover:text-[#2c31cf] hover:border-b-[#2c31cf]`}
-            >
-              DEMO LEARN
-            </Link>
-            <Link
               to="/fights"
               onClick={scrollTop}
               className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(

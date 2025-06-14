@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { Select, Button, notification } from "antd";
+import { Select, Button, notification, Tooltip } from "antd";
 import Editor from "@monaco-editor/react";
 import commonApi from "../../../common/api";
 import axiosInstance from "../../../config/axiosInstance";
@@ -35,76 +35,101 @@ const CodeEditor = ({
     defaultCode || (fixedLanguage ? defaultCodeMap[fixedLanguage] : "")
   );
   const [testResults, setTestResults] = useState([]);
+  const [lastPassedCode, setLastPassedCode] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const runTests = async () => {
-  setIsRunning(true);
-  const userCode = editorRef.current.getValue();
-  const results = [];
+  const runTests = async () => {
+    setIsRunning(true);
+    const userCode = editorRef.current.getValue();
+    const results = [];
 
-  for (let i = 0; i < testCases.length; i++) {
-    const test = testCases[i];
-    const startTime = performance.now();
+    for (let i = 0; i < testCases.length; i++) {
+      const test = testCases[i];
+      const startTime = performance.now();
 
-    try {
-      const response = await axiosInstance.post(commonApi.executionCode.url, {
-        language,
-        code: userCode,
-        input: test.input,
+      try {
+        const response = await axiosInstance.post(commonApi.executionCode.url, {
+          language,
+          code: userCode,
+          input: test.input,
+        });
+
+        const endTime = performance.now();
+        const actualOutput = response.data.output
+          ?.toString()
+          .trim()
+          .replace(/\s+/g, " ");
+        const expectedOutput = test.expected
+          ?.toString()
+          .trim()
+          .replace(/\s+/g, " ");
+        const passed = actualOutput === expectedOutput;
+
+        results.push({
+          ...test,
+          actual: actualOutput,
+          executionTime: Math.floor(endTime - startTime),
+          description: passed ? "Pass" : "Fail",
+        });
+      } catch (err) {
+        const endTime = performance.now();
+        results.push({
+          ...test,
+          actual: err.response?.data?.error || "Execution failed",
+          executionTime: Math.floor(endTime - startTime),
+          description: "Error",
+        });
+      }
+      if (i !== testCases.length - 1) await delay(300);
+    }
+
+    setTestResults(results);
+    setIsRunning(false);
+    setSelectedIndex(0);
+
+    const hasError = results.some(
+      (r) => r.description === "Error" || r.description === "Fail"
+    );
+
+    if (hasError) {
+      notification.error({
+        message: "Some test cases failed",
+        description: "Please check the result details.",
+        placement: "topLeft",
       });
-
-      const endTime = performance.now();
-      const actualOutput = response.data.output?.toString().trim().replace(/\s+/g, " ");
-      const expectedOutput = test.expected?.toString().trim().replace(/\s+/g, " ");
-      const passed = actualOutput === expectedOutput;
-
-      results.push({
-        ...test,
-        actual: actualOutput,
-        executionTime: Math.floor(endTime - startTime),
-        description: passed ? "Pass" : "Fail",
-      });
-    } catch (err) {
-      const endTime = performance.now();
-      results.push({
-        ...test,
-        actual: err.response?.data?.error || "Execution failed",
-        executionTime: Math.floor(endTime - startTime),
-        description: "Error",
+    } else {
+      setLastPassedCode(userCode);
+      notification.success({
+        message: "All test cases passed!",
+        description: "Great job, everything works perfectly!",
+        placement: "topLeft",
       });
     }
-    if (i !== testCases.length - 1) await delay(300);
-  }
-
-  setTestResults(results);
-  setIsRunning(false);
-  setSelectedIndex(0);
-
-  const hasError = results.some(
-    (r) => r.description === "Error" || r.description === "Fail"
-  );
-
-  if (hasError) {
-    notification.error({
-      message: "Some test cases failed",
-      description: "Please check the result details.",
-      placement: "bottomLeft",
-    });
-  } else {
-    notification.success({
-      message: "All test cases passed!",
-      description: "Great job, everything works perfectly!",
-      placement: "bottomLeft",
-    });
-  }
-};
+  };
 
   const handleSubmit = async () => {
+    const currentCode = editorRef.current.getValue();
+
+    if (currentCode !== lastPassedCode) {
+      return notification.warning({
+        message: "Code has changed since last successful test",
+        description: "Please re-run the tests before submitting.",
+        placement: "topLeft",
+      });
+    }
     if (userId && lessonId) {
-      // runTests();
+      const hasFailed = testResults.some((r) => r.description !== "Pass");
+      if (hasFailed) {
+        return notification.warning({
+          message: "Cannot Submit",
+          description: "Please pass all test cases before submitting.",
+          placement: "topLeft",
+        });
+      }
+
       const userCode = editorRef.current.getValue();
       const response = await axiosInstance.post(commonApi.submitCode.url(), {
         lessonId,
@@ -117,7 +142,7 @@ const runTests = async () => {
       notification.success({
         message: "Code Submitted",
         description: "Your code has been submitted successfully!",
-        placement: "bottomLeft",
+        placement: "topLeft",
       });
     }
   };
@@ -127,6 +152,10 @@ const runTests = async () => {
       setCode(defaultCodeMap[selectedLanguage] || "");
     }
   }, [selectedLanguage, fixedLanguage, defaultCodeMap]);
+
+  const isSubmitDisabled =
+    testResults.some((r) => r.description !== "Pass") ||
+    testResults.length === 0;
 
   return (
     <div className="w-full p-4 bg-gray-900 rounded-lg shadow max-h-[850px] overflow-y-auto">
@@ -174,9 +203,25 @@ const runTests = async () => {
           >
             Run Test
           </Button>
-          <Button onClick={handleSubmit} className="bg-green-500 text-white">
-            Submit
-          </Button>
+          {isSubmitDisabled ? (
+            <Tooltip title="Please pass all test cases before submitting">
+              <Button
+                type="primary"
+                disabled
+                className="bg-green-500 text-white opacity-60 border-none pointer-events-none"
+              >
+                Submit
+              </Button>
+            </Tooltip>
+          ) : (
+            <Button
+              onClick={handleSubmit}
+              type="primary"
+              className="bg-green-500 text-white hover:bg-green-600 border-none"
+            >
+              Submit
+            </Button>
+          )}
         </div>
       </div>
 
