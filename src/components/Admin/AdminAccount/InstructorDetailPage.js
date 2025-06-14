@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
-import { Card, List, Avatar, message } from "antd";
-import getAuthInfo from "../../../config/getAuthInfo";
+import axiosInstance from "../../../config/axiosInstance";
+import { Card, List, Avatar, message, Pagination } from "antd";
 import commonApi from "../../../common/api";
+import LoadingOverlay from "../../../common/LoadingOverlay";
 
 const InstructorDetailPage = () => {
     const { id } = useParams();
@@ -11,6 +11,8 @@ const InstructorDetailPage = () => {
     const [courses, setCourses] = useState([]);
     const [loadingInstructor, setLoadingInstructor] = useState(false);
     const [loadingCourses, setLoadingCourses] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 5;
 
     useEffect(() => {
         fetchInstructorDetail();
@@ -20,10 +22,7 @@ const InstructorDetailPage = () => {
     const fetchInstructorDetail = async () => {
         setLoadingInstructor(true);
         try {
-            const { token } = getAuthInfo();
-            const res = await axios.get(commonApi.getUserDetailInfoByUserID.url(id), {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const res = await axiosInstance.get(commonApi.getUserDetailInfoByUserID.url(id));
             setInstructor(res.data);
         } catch (error) {
             message.error("Failed to load instructor details");
@@ -35,10 +34,7 @@ const InstructorDetailPage = () => {
     const fetchInstructorCourses = async () => {
         setLoadingCourses(true);
         try {
-            const { token } = getAuthInfo();
-            const res = await axios.get(commonApi.getAllCoursesByInstructorID.url(id), {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const res = await axiosInstance.get(commonApi.getAllCoursesByInstructorID.url(id));
             setCourses(Array.isArray(res.data.result) ? res.data.result : []);
         } catch (error) {
             message.error("Failed to load instructor courses");
@@ -48,17 +44,23 @@ const InstructorDetailPage = () => {
         }
     };
 
+    // Slice the courses for the current page
+    const paginatedCourses = courses.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+    );
 
-
-    if (loadingInstructor) return <div>Loading instructor info...</div>;
+    if (loadingInstructor) return <LoadingOverlay />;
     if (!instructor) return <div>Instructor not found</div>;
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+        window.scrollTo(0, 0);
+    };
 
     return (
         <div style={{ padding: 24 }}>
-            <Card
-                title="Instructor's Information"
-                style={{ marginBottom: 24 }}
-            >
+            <Card title="Instructor's Information" style={{ marginBottom: 24 }}>
                 <Avatar
                     size={100}
                     src={instructor.avatar ? instructor.avatar : undefined}
@@ -84,10 +86,11 @@ const InstructorDetailPage = () => {
             </Card>
 
             <Card title="Courses Taught by Instructor">
+                {loadingCourses && <LoadingOverlay />}
                 <List
                     loading={loadingCourses}
                     itemLayout="vertical"
-                    dataSource={courses}
+                    dataSource={paginatedCourses}
                     renderItem={(course) => (
                         <List.Item
                             key={course.id}
@@ -130,6 +133,15 @@ const InstructorDetailPage = () => {
                         </List.Item>
                     )}
                     locale={{ emptyText: "No courses found" }}
+                />
+
+                <Pagination
+                    current={currentPage}
+                    total={courses.length}
+                    pageSize={pageSize}
+                    onChange={handlePageChange}
+                    showSizeChanger={false}
+                    style={{ marginTop: 16, textAlign: 'center' }}
                 />
             </Card>
         </div>

@@ -10,7 +10,6 @@ import DashboardPage from "../../components/Admin/AdminDashBoard/DashboardPage";
 import AdminPanel from "../../components/Admin/layout/AdminPanel";
 import AdminCoursesPage from "../../components/Admin/AdminCourses/AdminCoursesPage";
 import AdminReviewPage from "../../components/Admin/AdminReview/AdminReviewPage";
-import AdminMessagePage from "../../components/Admin/AdminMessage/AdminMessagePage";
 import AdminProfilePage from "../../components/Admin/AdminProfile/AdminProfilePage";
 import AdminQuizPage from "../../components/Admin/AdminQuiz/AdminQuizPage";
 import AdminAccountsPage from "../../components/Admin/AdminAccount/AdminAccountsPage";
@@ -38,7 +37,7 @@ import InstructorCourseDetailView from "../../components/Instructor/InstructorCo
 import RegisterPage from "../../components/Auth/RegisterPage";
 import LearnerDetailPage from "../../components/Admin/AdminAccount/LearnerDetailPage";
 import InstructorDetailPage from "../../components/Admin/AdminAccount/InstructorDetailPage";
-
+import AdminApproveInstructorPage from "../../components/Admin/AdminApproveInstructor/AdminApproveInstructorPage";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -193,8 +192,8 @@ const router = createBrowserRouter([
             element: <InstructorDetailPage />
           },
           {
-            path: "messages",
-            element: <AdminMessagePage />,
+            path: "approveInstructor",
+            element: <AdminApproveInstructorPage />,
           },
           {
             path: "courses",

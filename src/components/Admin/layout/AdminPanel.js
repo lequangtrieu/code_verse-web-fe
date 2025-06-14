@@ -1,19 +1,18 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useNavigate } from "react-router-dom";
-import { Layout, Menu, Badge, message } from "antd";
+import { Layout, Menu, message } from "antd";
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   DashboardOutlined,
   UserOutlined,
-  MessageOutlined,
   BookOutlined,
   StarOutlined,
-  QuestionCircleOutlined,
   SettingOutlined,
   LogoutOutlined,
   TeamOutlined,
+  NotificationOutlined
 } from "@ant-design/icons";
 import ROLE from "../../../common/role";
 import { logoutUser } from "../../../config/store/userSlice";
@@ -71,30 +70,29 @@ const AdminPanel = () => {
             My Profile
           </Menu.Item>
           <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
-            Management Dashboard
+            System Statistics
           </Menu.Item>
           <Menu.Item key="accounts" icon={<TeamOutlined />}>
-            Management Accounts
+            User Management
           </Menu.Item>
-          <Menu.Item key="messages" icon={<MessageOutlined />}>
-            Management Messages <Badge count={12} offset={[10, 0]} />
+          <Menu.Item key="approveInstructor" icon={<UserOutlined />}>
+            Approve Instructor Requests
           </Menu.Item>
           <Menu.Item key="courses" icon={<BookOutlined />}>
-            Management Courses
+            Course Management
           </Menu.Item>
-          <Menu.Item key="reviews" icon={<StarOutlined />}>
-            Management Reviews
+          <Menu.Item key="financial" icon={<StarOutlined />}>
+            Financial Management
           </Menu.Item>
-          <Menu.Item key="quiz" icon={<QuestionCircleOutlined />}>
-            Management Quiz Attempts
+          <Menu.Item key="sendNotifications" icon={<NotificationOutlined />}>
+            Send Notifications
           </Menu.Item>
 
           {!collapsed && (
             <div className="px-4 pt-4 pb-1 text-xs text-gray-500 font-semibold">
-              USER
+              SETTINGS
             </div>
           )}
-
           <Menu.Item key="settings" icon={<SettingOutlined />}>
             Settings
           </Menu.Item>
@@ -120,4 +118,5 @@ const AdminPanel = () => {
     </Layout>
   );
 };
+
 export default AdminPanel;

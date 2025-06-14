@@ -156,11 +156,20 @@ const commonApi = {
         url: (id) => `${backendDomain}/course/user/${id}/all-courses`
     },
     getAllCoursesByInstructorID: {
-        url: (id) => `${backendDomain}/course/instructor/${id}`
+        url: (id) => `${backendDomain}/course/admin/instructor/${id}`
     },
     getAllCoursesByAdmin: {
         url: `${backendDomain}/course/admin`
     },
+    getInactiveInstructors: {
+        url: `${backendDomain}/api/users/inactive-instructors`
+    },
+    activateInstructor: {
+        url: (instructorId) => `${backendDomain}/api/users/${instructorId}/activate`
+    },
+    deactivateInstructor: {
+        url: (instructorId) => `${backendDomain}/api/users/${instructorId}/deactivate`
+    }
 }
 
 export default commonApi

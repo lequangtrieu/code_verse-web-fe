@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import axios from "axios";
-import { Form, Popconfirm, message, Modal, Upload, Input, Select, Button, Tag, Table } from "antd";
+import { Form, Popconfirm, message, Pagination, Upload, Input, Select, Button, Tag, Table } from "antd";
 import * as XLSX from 'xlsx';
 import commonApi from "../../../common/api";
 import getAuthInfo from "../../../config/getAuthInfo"
 import { useNavigate } from 'react-router-dom';
-import CustomModal from '../../../common/CustomModal'
+import CustomModal from '../../../common/CustomModal';
+import LoadingOverlay from "../../../common/LoadingOverlay";
+import axiosInstance from "../../../config/axiosInstance";
 
 const AdminAccountsPage = () => {
   const [users, setUsers] = useState([]);
@@ -23,8 +26,8 @@ const AdminAccountsPage = () => {
   const [pageSize] = useState(10);
   const startIdx = (currentPage - 1) * pageSize;
   const paginatedUsers = filteredUsers.slice(startIdx, startIdx + pageSize);
-  const [roleFilter, setRoleFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [roleFilter, setRoleFilter] = useState(null);
+  const [statusFilter, setStatusFilter] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -33,12 +36,7 @@ const AdminAccountsPage = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const { token } = getAuthInfo();
-      const res = await axios.get(commonApi.getAllUsers.url, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      const res = await axiosInstance.get(commonApi.getAllUsers.url);
       const usersFromApi = res.data.map(user => ({
         id: user.id,
         fullName: user.name || '',
@@ -62,18 +60,11 @@ const AdminAccountsPage = () => {
     }
   };
 
-
   const toggleBan = async (id, isBanned) => {
     try {
-      const { token } = getAuthInfo();
       const lockBody = { lock: !isBanned }; // true nếu cần khóa, false nếu mở khóa
 
-      await axios.put(commonApi.lockUser.url(id), lockBody, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      });
+      await axiosInstance.put(commonApi.lockUser.url(id), lockBody);
 
       message.success(isBanned ? "User unlocked successfully" : "User locked successfully");
 
@@ -132,26 +123,19 @@ const AdminAccountsPage = () => {
     };
 
     reader.readAsArrayBuffer(file);
-    return false; // Ngăn Upload tự động gửi file
+    return false;
   };
 
   const handleImport = async () => {
     const toImportUsers = importUsers.filter(u => !u.isDuplicate);
 
     if (toImportUsers.length === 0) {
-      message.warning("Không có user mới để import.");
+      message.warning("No new users to import.");
       return;
     }
 
-    const { token } = getAuthInfo();
-
     try {
-      await axios.post(commonApi.createLearnerByExcel.url, toImportUsers, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      });
+      await axiosInstance.post(commonApi.createLearnerByExcel.url, toImportUsers);
 
       message.success(`Imported ${toImportUsers.length} user(s) successfully.`);
       fetchUsers();
@@ -196,16 +180,42 @@ const AdminAccountsPage = () => {
     }
   };
 
-  useEffect(() => {
-    const filtered = users.filter((user) =>
+  // Filter users based on search term
+  const filterBySearch = (users, searchTerm) => {
+    if (!searchTerm.trim()) return users;
+
+    return users.filter((user) =>
       user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.role.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    setFilteredUsers(filtered);
-    setCurrentPage(1);
-  }, [searchTerm, users]);
+  };
 
+  const filterByRole = (users, roleFilter) => {
+    if (!roleFilter) return users;
+    return users.filter((user) => user.role === roleFilter);
+  };
+
+  const filterByStatus = (users, statusFilter) => {
+    if (!statusFilter) return users;
+    return users.filter((user) =>
+      statusFilter === "active" ? !user.isBanned : user.isBanned
+    );
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      let filtered = [...users];
+
+      filtered = filterBySearch(filtered, searchTerm);
+      filtered = filterByRole(filtered, roleFilter);
+      filtered = filterByStatus(filtered, statusFilter);
+
+      setFilteredUsers(filtered);
+      setCurrentPage(1);
+    }, 300)
+    return () => clearTimeout(timer);
+  }, [searchTerm, roleFilter, statusFilter, users]);
 
   const highlightText = (text, highlight) => {
     if (!highlight) return text;
@@ -222,33 +232,18 @@ const AdminAccountsPage = () => {
     );
   };
 
-  useEffect(() => {
-    const filtered = users.filter(user => {
-      const matchesSearch =
-        user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.role.toLowerCase().includes(searchTerm.toLowerCase());
-
-      const matchesRole = roleFilter ? user.role === roleFilter : true;
-      const matchesStatus = statusFilter
-        ? (statusFilter === 'active' ? !user.isBanned : user.isBanned)
-        : true;
-
-      return matchesSearch && matchesRole && matchesStatus;
-    });
-
-    setFilteredUsers(filtered);
-    setCurrentPage(1);
-  }, [searchTerm, roleFilter, statusFilter, users]);
-
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo(0, 0);
+  };
 
   return (
     <div>
       <h2 className="text-2xl font-semibold mb-2">Accounts</h2>
       <div className="w-16 h-[2px] bg-pink-500 mb-6 rounded"></div>
 
+      {/* Import Button */}
       <div className="flex gap-4 mb-6">
-        {/* Nút này mở modal import Excel */}
         <button
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           onClick={() => {
@@ -260,7 +255,9 @@ const AdminAccountsPage = () => {
         </button>
       </div>
 
-      {/* Modal import Excel */}
+      {/* Loading Overlay */}
+      {loading && <LoadingOverlay />}
+
       <CustomModal
         title="Import Learners from Excel"
         open={isImportModalOpen}
@@ -316,6 +313,13 @@ const AdminAccountsPage = () => {
       </CustomModal>
 
       <div className="flex flex-wrap gap-4 mb-4 items-center">
+        <Input
+          placeholder="Search by name, email or role"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full sm:w-64"
+        />
+
         <Select
           placeholder="Filter by Role"
           allowClear
@@ -339,12 +343,7 @@ const AdminAccountsPage = () => {
           <Select.Option value="banned">Banned</Select.Option>
         </Select>
 
-        <Input
-          placeholder="Search by name, email or role"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full sm:w-64"
-        />
+
         <span className="text-gray-500 text-sm">Found {filteredUsers.length} results</span>
       </div>
 
@@ -368,17 +367,8 @@ const AdminAccountsPage = () => {
             </tr>
           </thead>
           <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan="6" className="text-center p-4">Loading...</td>
-              </tr>
-            ) : users.length === 0 ? (
-              <tr>
-                <td colSpan="6" className="text-center p-4 text-gray-500">No users found.</td>
-              </tr>
-            ) : (
-
-              paginatedUsers.map(user => (
+            {paginatedUsers.length > 0 ? (
+              paginatedUsers.map((user) => (
                 <tr key={user.id} className="text-center">
                   <td className="border p-2 text-left">{user.id}</td>
                   <td className="border p-2 text-left">{highlightText(user.fullName, searchTerm)}</td>
@@ -415,32 +405,25 @@ const AdminAccountsPage = () => {
                   </td>
                 </tr>
               ))
-
+            ) : (
+              <tr>
+                <td colSpan="6" className="text-center p-4 text-gray-500">
+                  No users found.
+                </td>
+              </tr>
             )}
           </tbody>
         </table>
-        <div className="flex justify-center mt-4">
-          <div className="flex items-center space-x-2">
-            <Button
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              Prev
-            </Button>
-            <span>
-              Page {currentPage} of {Math.max(1, Math.ceil(filteredUsers.length / pageSize))}
-            </span>
-            <Button
-              onClick={() =>
-                setCurrentPage(prev => Math.min(prev + 1, Math.max(1, Math.ceil(filteredUsers.length / pageSize))))
-              }
-              disabled={currentPage >= Math.max(1, Math.ceil(filteredUsers.length / pageSize))}
-            >
-              Next
-            </Button>
-          </div>
-        </div>
+      </div>
 
+      <div className="flex justify-center mt-4">
+        <Pagination
+          current={currentPage}
+          total={filteredUsers.length}
+          pageSize={pageSize}
+          onChange={handlePageChange}
+          showSizeChanger={false}
+        />
       </div>
 
       <CustomModal
@@ -484,8 +467,6 @@ const AdminAccountsPage = () => {
           </Form>
         )}
       </CustomModal>
-
-
     </div>
   );
 };
