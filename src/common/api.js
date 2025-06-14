@@ -1,4 +1,5 @@
-const backendDomain = "http://localhost:8080/codeVerse";
+// const backendDomain = "http://localhost:8080/codeVerse";
+const backendDomain = "https://code-verse-web-be.onrender.com/codeVerse";
 
 const commonApi = {
     default: {
