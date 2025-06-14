@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import LessonSidebar from "../Courses/lesson/LessonSidebar";
 import LessonContent from "../Courses/lesson/LessonContent";
 import CodeEditor from "./CodeEditor";
@@ -17,37 +17,37 @@ export default function LessonLayout() {
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [language, setLanguage] = useState(null);
 
+  const fetchCourseData = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get(
+        commonApi.getCourseDetails.url(courseId, user?.id)
+      );
+      setLanguage(response.data.result?.language.toLowerCase());
+
+      const allLessons = response.data.result.data.flatMap(
+        (module) => module.subLessons || []
+      );
+
+      const firstUnfinished = allLessons.find(
+        (lesson) => lesson.status !== "PASSED"
+      );
+
+      const fallbackLesson =
+        allLessons.find((l) => l.lessonType !== "EXAM") || allLessons[0];
+
+      setLessonData(response.data.result.data);
+      setSelectedLesson(firstUnfinished || fallbackLesson || null);
+    } catch (error) {
+      console.error("Error fetching course details:", error);
+    }
+  }, [courseId, user?.id]);
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axiosInstance.get(
-          commonApi.getCourseDetails.url(courseId, user?.id)
-        );
-        setLanguage(response.data.result?.language.toLowerCase());
-        const flatFirstLesson = (() => {
-          const firstCourse = response.data.result.data.find(
-            (l) => l.subLessons?.length
-          );
-          return (
-            firstCourse?.subLessons?.[0] ||
-            response.data.result.data.find((l) => l.lessonType === "EXAM")
-          );
-        })();
-
-        setLessonData(response.data.result.data);
-        console.log(response.data.result.data);
-
-        setSelectedLesson(flatFirstLesson || null);
-      } catch (error) {
-        console.error("Error fetching course details:", error);
-      }
-    };
-
-    fetchData();
+    fetchCourseData();
   }, [courseId, user?.id]);
 
   if (!lessonData) {
-    return <LoadingOverlay/>;
+    return <LoadingOverlay />;
   }
 
   return (
@@ -70,7 +70,8 @@ export default function LessonLayout() {
                 userId={user?.id}
                 defaultCode={selectedLesson.code || selectedLesson.defaultCode}
                 testCases={selectedLesson.testCases || []}
-                language={language}
+                language={language === "all" ? null : language}
+                onRefreshLessonData={fetchCourseData}
               />
             </>
           )}

@@ -12,6 +12,7 @@ const CodeEditor = ({
   defaultCode = "",
   testCases = [],
   language: fixedLanguage,
+  onRefreshLessonData,
 }) => {
   const defaultCodeMap = useMemo(
     () => ({
@@ -144,6 +145,10 @@ const CodeEditor = ({
         description: "Your code has been submitted successfully!",
         placement: "topLeft",
       });
+
+      if (typeof onRefreshLessonData === "function") {
+        onRefreshLessonData();
+      }
     }
   };
 
