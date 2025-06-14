@@ -5,8 +5,6 @@ import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
 } from "@ant-design/icons";
-import scrollTop from "../../../../config/scrollTop";
-
 const { Panel } = Collapse;
 
 const LessonSidebar = ({ lessons, selectedLessonId, onSelect }) => {
