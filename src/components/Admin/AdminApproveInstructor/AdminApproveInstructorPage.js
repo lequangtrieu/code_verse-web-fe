@@ -105,7 +105,6 @@ const AdminApproveInstructorPage = () => {
     setInstructorDetails(null);
   };
 
-  // Function to activate the instructor when admin accepts
   const handleAcceptInstructor = async (instructorId) => {
     try {
       await axiosInstance.patch(commonApi.activateInstructor.url(instructorId), null);
@@ -114,6 +113,17 @@ const AdminApproveInstructorPage = () => {
       handleCloseModal();
     } catch (error) {
       message.error("Failed to activate instructor");
+    }
+  };
+
+  const handleRejectInstructor = async (instructorId) => {
+    try {
+      await axiosInstance.patch(commonApi.deactivateInstructor.url(instructorId), null);
+      message.success("Instructor rejected and deactivated successfully");
+      fetchInactiveInstructors();
+      handleCloseModal();
+    } catch (error) {
+      message.error("Failed to deactivate instructor");
     }
   };
 
@@ -152,28 +162,41 @@ const AdminApproveInstructorPage = () => {
                   <th className="border p-2 justify-center ">Actions</th>
                 </tr>
               </thead>
-              <tbody>
-                {filteredInstructors
-                  .slice((currentPage - 1) * pageSize, currentPage * pageSize)
-                  .map((instructor) => (
-                    <tr key={instructor.id} className="text-center">
-                      <td className="border p-2 text-left">{highlightText(instructor.name, searchTerm)}</td>
-                      <td className="border p-2 text-left">{highlightText(instructor.username, searchTerm)}</td>
-                      <td className="border p-2 text-left">{highlightText(instructor.educationalBackground, searchTerm)}</td>
-                      <td className="border p-2 text-left">
-                        {renderTeachingCredentials(instructor.teachingCredentials)}
-                      </td>
-                      <td className="border p-2 justify-center">
-                        <button
-                          onClick={() => fetchInstructorDetail(instructor.id)}
-                          className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded whitespace-nowrap min-w-[70px]"
-                        >
-                          View Detail
-                        </button>
+              {
+                filteredInstructors.length > 0 ?
+                  (
+                    <tbody>
+                      {filteredInstructors
+                        .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                        .map((instructor) => (
+                          <tr key={instructor.id} className="text-center">
+                            <td className="border p-2 text-left">{highlightText(instructor.name, searchTerm)}</td>
+                            <td className="border p-2 text-left">{highlightText(instructor.username, searchTerm)}</td>
+                            <td className="border p-2 text-left">{highlightText(instructor.educationalBackground, searchTerm)}</td>
+                            <td className="border p-2 text-left">
+                              {renderTeachingCredentials(instructor.teachingCredentials)}
+                            </td>
+                            <td className="border p-2 justify-center">
+                              <button
+                                onClick={() => fetchInstructorDetail(instructor.id)}
+                                className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded whitespace-nowrap min-w-[70px]"
+                              >
+                                View Detail
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  ) :
+                  (
+                    <tr>
+                      <td colSpan="7" className="text-center p-4 text-gray-500">
+                        No request found.
                       </td>
                     </tr>
-                  ))}
-              </tbody>
+                  )
+              }
+
             </table>
           </div>
         )}
@@ -199,13 +222,13 @@ const AdminApproveInstructorPage = () => {
         footerContent={
           <>
             <button
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-sm"
-              onClick={handleCloseModal}
+              className="px-3 py-1 bg-red-500 text-white rounded"
+              onClick={() => handleRejectInstructor(instructorDetails.id)}
             >
-              Cancel
+              Reject
             </button>
             <button
-              className="px-4 py-2 bg-green-500 text-white rounded"
+              className="px-3 py-1 bg-green-500 text-white rounded"
               onClick={() => handleAcceptInstructor(instructorDetails.id)}
             >
               Accept

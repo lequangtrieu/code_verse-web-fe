@@ -162,6 +162,9 @@ const commonApi = {
     },
     activateInstructor: {
         url: (instructorId) => `${backendDomain}/api/users/${instructorId}/activate`
+    },
+    deactivateInstructor: {
+        url: (instructorId) => `${backendDomain}/api/users/${instructorId}/deactivate`
     }
 }
 
