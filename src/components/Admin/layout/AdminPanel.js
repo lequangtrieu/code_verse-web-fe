@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useNavigate } from "react-router-dom";
-
-import { Layout, Menu, Badge, message, Button } from "antd";
+import { Layout, Menu, Badge, message } from "antd";
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
@@ -17,9 +16,9 @@ import {
   TeamOutlined,
 } from "@ant-design/icons";
 import ROLE from "../../../common/role";
-import { setUserDetails } from "../../../config/store/userSlice";
+import { logoutUser } from "../../../config/store/userSlice";
 
-const { Sider, Content, Header } = Layout;
+const { Sider, Content } = Layout;
 
 const AdminPanel = () => {
   const user = useSelector((state) => state?.user?.user);
@@ -37,8 +36,7 @@ const AdminPanel = () => {
 
   const handleLogout = () => {
     message.success("You have been logged out successfully.");
-    localStorage.clear();
-    dispatch(setUserDetails(null));
+    dispatch(logoutUser());
     navigate("/");
   };
 
@@ -58,7 +56,6 @@ const AdminPanel = () => {
         collapsed={collapsed}
         onCollapse={setCollapsed}
         trigger={null}
-        style={{ marginTop: "20px" }}
         className="bg-white shadow-md flex flex-col justify-between"
       >
         <div className="p-4 font-semibold uppercase text-gray-600 border-b">

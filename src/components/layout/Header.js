@@ -1,17 +1,6 @@
-import { useContext, useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  Avatar,
-  Button,
-  Dropdown,
-  Form,
-  Input,
-  Menu,
-  Modal,
-  notification,
-  Tabs,
-} from "antd";
-import { message } from "antd";
+import {useContext, useEffect, useState} from "react";
+import {Link, useLocation, useNavigate} from "react-router-dom";
+import {Avatar, Badge, Button, Dropdown, Form, Input, Menu, message, Modal, notification, Popover, Tabs,} from "antd";
 import {
   DashboardOutlined,
   GithubOutlined,
@@ -19,16 +8,19 @@ import {
   MenuOutlined,
   ProfileOutlined,
   SettingOutlined,
+  ShoppingCartOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import scrollTop from "../../config/scrollTop";
-import { GoogleLogin } from "@react-oauth/google";
+import {GoogleLogin} from "@react-oauth/google";
 import commonApi from "../../common/api";
 import axios from "axios";
 import Context from "../../config/context/context";
-import { useDispatch, useSelector } from "react-redux";
-import { setUserDetails } from "../../config/store/userSlice";
+import {useDispatch, useSelector} from "react-redux";
+import {logoutUser} from "../../config/store/userSlice";
 import ROLE from "../../common/role";
+import setAuthInfo from "../../config/setAuthInfo";
+import {formatCurrency, getDiscountedPrice} from "../../common/helper";
 
 const { TabPane } = Tabs;
 
@@ -40,112 +32,156 @@ const Header = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
   const location = useLocation();
-  const { fetchUserDetails } = useContext(Context);
+  const { fetchUserDetails, cartDetailCount, cartItems } = useContext(Context);
 
   const openModal = (tab) => {
     setActiveTab(tab);
     setIsModalOpen(true);
   };
-
-  const fetchApiLogin = () => {
-    return {
-      data: {
-        "code": 1000,
-        "result": {
-          "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJzY29wZSI6IkFETUlOIiwiaXNzIjoiY29kZVZlcnNlLmNvbSIsImV4cCI6MTc0NDkwNDAxNCwiaWF0IjoxNzQ0OTAzMTE0LCJ1c2VySWQiOjEsImp0aSI6IjA2YzllY2NiLWJiNjgtNGJjOC04YTIyLTI1NDgyOWVmNzRiNSJ9.6LcwYkPN4FNYrfj3YUM0dWq8qZwf8ElXFMDcK69ZGT_qPcAy8AECaUC46vGCfA8hnHgZ1Vqrm0P2wDeHdQ7NUA",
-          "authenticated": true
-        },
-      },
-    };
+  const handleCartClick = () => {
+    scrollTop();
+    navigate("/cart");
   };
 
   const handleLogin = async (values) => {
+    dispatch(logoutUser());
+
     try {
-      // const response = await axios.post(commonApi.signIn.url, values);
-      const response = fetchApiLogin();
+      const response = await axios.post(commonApi.signIn.url, values);
 
       if (response.data?.result?.authenticated) {
-        localStorage.setItem("username", values.username);
-        localStorage.setItem("password", values.password);
-        localStorage.setItem("token", response.data?.result?.token);
-        message.success("Login successful!");
-        setIsModalOpen(false);
-        fetchUserDetails();
-      } else {
-        message.error("Login failed, please try again.");
-      }
-    } catch (error) {
-      if (error.response) {
-        const { status, data } = error.response;
+        setAuthInfo({
+          username: values.username,
+          token: response.data.result.token,
+          refreshToken: response.data.result.refreshToken,
+        });
 
-        message.error(`Error ${status}: ${data.message || "Login failed."}`);
-      } else {
-        message.error("Unable to connect to the server.");
-      }
-    }
-  };
-
-  const handleRegister = async (values) => {
-    try {
-      const response = await axios.post(commonApi.signUP.url, values);
-
-      if (response.status === 200) {
         notification.success({
-          message: "Registration Successful",
-          description:
-            "Your account has been created successfully. Please check your email to verify your account before logging in.",
-          placement: "topRight",
+          message: "Login Successful",
+          description: `Welcome back, ${values.username}!`,
+          placement: "topLeft",
+          duration: 4,
+        });
+
+        setIsModalOpen(false);
+        await fetchUserDetails();
+      } else {
+        notification.error({
+          message: "Login Failed",
+          description: "Authentication unsuccessful. Please try again.",
+          placement: "topLeft",
+          duration: 4,
         });
       }
     } catch (error) {
       if (error.response) {
-        const { status, data } = error.response;
-
-        const errorMessage =
-          data?.message || "Registration failed. Please try again.";
+        const { data } = error.response;
 
         notification.error({
-          message: `Registration Failed (Status ${status})`,
-          description: errorMessage,
-          placement: "topRight",
+          message: `Login Error.`,
+          description: data.message || "Login failed. Please try again.",
+          placement: "topLeft",
+          duration: 5,
         });
       } else {
         notification.error({
           message: "Network Error",
-          description: "Cannot connect to the server. Please try again later.",
-          placement: "topRight",
+          description:
+            "Unable to connect to the server. Please check your connection.",
+          placement: "topLeft",
+          duration: 5,
+        });
+      }
+    }
+  };
+
+  const handleGoogleSuccess = async (response) => {
+    dispatch(logoutUser());
+    const token = response.credential;
+
+    try {
+      const res = await axios.post(commonApi.googleLogin.url, {
+        username: token,
+      });
+
+      if (res.data?.result?.authenticated) {
+        setAuthInfo({
+          username: res.data.result.username,
+          token: res.data.result.token,
+          refreshToken: res.data.result.refreshToken,
+        });
+
+        notification.success({
+          message: "Login Successful",
+          description: `Welcome back, ${res.data.result.username}!`,
+          placement: "topLeft",
+          duration: 4,
+        });
+
+        setIsModalOpen(false);
+        await fetchUserDetails();
+      } else {
+        notification.error({
+          message: "Google Login Failed",
+          description: "Authentication unsuccessful. Please try again.",
+          placement: "topLeft",
+          duration: 4,
+        });
+      }
+    } catch (error) {
+      if (error.response) {
+        const { data } = error.response;
+        notification.error({
+          message: `Login Failed`,
+          description: data.message || "Google login failed. Please try again.",
+          placement: "topLeft",
+          duration: 5,
+        });
+      } else {
+        notification.error({
+          message: "Network Error",
+          description:
+            "Unable to connect to the server. Please check your network.",
+          placement: "topLeft",
+          duration: 5,
         });
       }
     }
   };
 
   const handleForgotPassword = async (values) => {
-    setIsModalOpen(false);
     try {
       await axios.post(commonApi.resetPassword.url, {
         username: values.username,
       });
 
-      notification.success({
-        message: "Email Sent",
-        description: "Check your inbox for password reset instructions.",
-      });
-
-      setIsForgotModalOpen(false);
+      setTimeout(() => {
+        notification.success({
+          message: "Email Sent",
+          description: "Check your inbox for password reset instructions.",
+          placement: "topLeft",
+        });
+        setIsForgotModalOpen(false);
+        setIsModalOpen(false);
+      }, 1000);
     } catch (error) {
       notification.error({
         message: "Error",
         description:
           error?.response?.data?.message ||
           "Failed to send reset link. Please try again.",
+        placement: "topLeft",
       });
     }
   };
 
   const handleLogout = () => {
-    message.success("You have been logged out successfully.");
-    localStorage.clear();
-    dispatch(setUserDetails(null));
+    notification.success({
+      message: "Logout system",
+      description: "You have been logged out successfully.",
+      placement: "topLeft",
+    });
+    dispatch(logoutUser());
     navigate("/");
   };
 
@@ -154,20 +190,96 @@ const Header = () => {
       case "logout":
         handleLogout();
         break;
-      case "admin-dashboard":
+      case "dashboard":
         scrollTop();
-        navigate("/admin-panel");
+
+        if (user?.role === ROLE.ADMIN) {
+          navigate("/admin-panel");
+        } else if (user?.role === ROLE.LEARNER) {
+          navigate("/user-panel");
+        } else if (user?.role === ROLE.INSTRUCTOR){
+          navigate("/instructor-panel")
+        }
         break;
       case "my-profile":
-        navigate("/user-panel");
+        if (user?.role === ROLE.ADMIN) {
+          navigate("/admin-panel/profile");
+        } else if (user?.role === ROLE.LEARNER) {
+          navigate("/user-panel/profile");
+        }
         break;
       case "settings":
-        navigate("/settings");
+        if (user?.role === ROLE.ADMIN) {
+          navigate("/admin-panel");
+        } else if (user?.role === ROLE.LEARNER) {
+          navigate("/user-panel/settings");
+        }
         break;
       default:
         break;
     }
   };
+
+  const handleCourseClick = (id) => {
+    scrollTop();
+    navigate(`/course/${id}`);
+  };
+
+  const cartContent = (
+    <div style={{ width: 300 }}>
+      {cartItems.length > 0 ? (
+        <>
+          {cartItems.map((item) => {
+            const finalPrice = getDiscountedPrice(item.price, item.discount);
+            return (
+              <div key={item.key} className="flex gap-3 py-2 border-b">
+                <img
+                  onClick={() => handleCourseClick(item.idCourse)}
+                  src={item.image}
+                  alt={item.product}
+                  className="w-12 h-12 rounded cursor-pointer transition-transform duration-300 hover:scale-110 hover:shadow-md"
+                />
+                <div className="flex-1">
+                  <div className="font-semibold">{item.product}</div>
+                  <div className="text-sm text-gray-500">
+                    <span className="text-indigo-600 font-medium">
+                      {formatCurrency(finalPrice)}
+                    </span>
+                    {item.discount > 0 && (
+                      <span className="line-through text-gray-400 ml-2">
+                        {formatCurrency(item.price)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          <div className="flex justify-between mt-2 font-semibold">
+            <span>Total:</span>
+            <span>
+              {formatCurrency(
+                cartItems.reduce(
+                  (acc, item) =>
+                    acc + getDiscountedPrice(item.price, item.discount),
+                  0
+                )
+              )}
+            </span>
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-20">
+          <img
+            src="../../logoCodeVerse.png"
+            alt="Empty Cart"
+            className="w-32 h-32 mb-6"
+          />
+          <h2 className="text-gray-500 text-lg">Your cart is empty</h2>
+        </div>
+      )}
+    </div>
+  );
 
   const userMenu = (
     <Menu onClick={handleMenuClick}>
@@ -178,7 +290,8 @@ const Header = () => {
       >
         <div className="flex items-center gap-2 px-2 py-1">
           <Avatar
-            icon={user?.avatar ? user?.avatar : <UserOutlined />}
+            src={user?.avatar}
+            icon={!user?.avatar && <UserOutlined />}
             size="small"
           />
           <div>
@@ -190,11 +303,9 @@ const Header = () => {
 
       <Menu.Divider />
 
-      {user?.role === ROLE.ADMIN && (
-        <Menu.Item key="admin-dashboard" icon={<DashboardOutlined />}>
-          Admin Dashboard
-        </Menu.Item>
-      )}
+      <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
+        {user?.role === ROLE.ADMIN ? "Admin Dashboard" : user?.role === ROLE.LEARNER ? "Student Dashboard" : "Instructor Dashboard"}
+      </Menu.Item>
 
       <Menu.Item key="my-profile" icon={<ProfileOutlined />}>
         My Profile
@@ -217,25 +328,10 @@ const Header = () => {
       ? "border-b-[#2c31cf] text-[#2c31cf]"
       : "border-transparent text-[#3b3c54]";
 
-  const handleGoogleSuccess = async (response) => {
-    try {
-      // const res = await fetch(commonApi.googleLogin.url, {
-      //   method: commonApi.googleLogin.method,
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   credentials: "include",
-      //   body: JSON.stringify({ token: response.credential }),
-      // });
-    } catch (error) {
-      console.log("error: ", error);
-    }
-  };
-
   useEffect(() => {}, [user]);
   return (
     <>
-      <div className="header-content transition-all duration-300 justify-between flex items-center h-[82px] px-4 bg-white fixed top-0 left-0 right-0 shadow z-50">
+      <div style={{zIndex: 1031}} className="header-content transition-all duration-300 justify-between flex items-center h-[82px] px-4 bg-white fixed top-0 left-0 right-0 shadow">
         <div className="flex items-center gap-x-[34px] h-full">
           <Link to="/">
             <img
@@ -255,15 +351,6 @@ const Header = () => {
               Courses
             </Link>
             <Link
-              to="/test"
-              onClick={scrollTop}
-              className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(
-                "/test"
-              )} hover:text-[#2c31cf] hover:border-b-[#2c31cf]`}
-            >
-              DEMO LEARN
-            </Link>
-            <Link
               to="/fights"
               onClick={scrollTop}
               className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(
@@ -281,10 +368,47 @@ const Header = () => {
             >
               Challenges
             </Link>
+
+            <Link
+              to="/ranking"
+              onClick={scrollTop}
+              className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(
+                "/ranking"
+              )} hover:text-[#2c31cf] hover:border-b-[#2c31cf]`}
+            >
+              Ranking
+            </Link>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
+          {user?.role ? (
+            <Popover
+              content={cartContent}
+              trigger="hover"
+              placement="bottomRight"
+            >
+              <Button
+                className="text-gray-700 border-full hover:bg-[#4d96ff] hover:text-white relative"
+                style={{ fontSize: "18px", verticalAlign: "middle" }}
+                onClick={handleCartClick}
+              >
+                <ShoppingCartOutlined />
+                <Badge
+                  count={cartDetailCount || 0}
+                  style={{
+                    position: "absolute",
+                    top: -25,
+                    right: -16,
+                    backgroundColor: "#E8505B",
+                  }}
+                />
+              </Button>
+            </Popover>
+          ) : (
+            ""
+          )}
+
           {user?.role ? (
             <Dropdown
               overlay={userMenu}
@@ -292,7 +416,8 @@ const Header = () => {
               trigger={["click"]}
             >
               <Avatar
-                icon={<UserOutlined />}
+                src={user?.avatar}
+                icon={!user?.avatar && <UserOutlined />}
                 className="cursor-pointer hover:shadow-md transition"
               />
             </Dropdown>
@@ -305,13 +430,14 @@ const Header = () => {
               >
                 Login
               </Button>
-              <Button
-                type="primary"
-                className="bg-[#E8505B] text-white hover:bg-[#4d96ff] hover:text-white border-none"
-                onClick={() => openModal("register")}
-              >
-                Register
-              </Button>
+              <Link to="register">
+                <Button
+                    type="primary"
+                    className="bg-[#E8505B] text-white hover:bg-[#4d96ff] hover:text-white border-none"
+                >
+                  Register
+                </Button>
+              </Link>
             </div>
           )}
           <div className="lg:hidden">
@@ -378,88 +504,15 @@ const Header = () => {
 
               <div className="flex justify-center gap-4 flex-wrap">
                 <div className="w-fit flex justify-center">
-                  <GoogleLogin onSuccess={handleGoogleSuccess} />
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => {
+                      message.error("Google Login Failed");
+                    }}
+                  />
                 </div>
-
-                <Button
-                  icon={<GithubOutlined />}
-                  className="flex items-center justify-center gap-2 border hover:border-[#4d96ff] min-w-[150px]"
-                >
-                  GitHub
-                </Button>
               </div>
             </div>
-          </TabPane>
-
-          <TabPane tab="Register" key="register">
-            <Form layout="vertical" onFinish={handleRegister}>
-              <Form.Item
-                name="name"
-                label="Name"
-                rules={[{ required: true, message: "Please input your name!" }]}
-              >
-                <Input />
-              </Form.Item>
-
-              <Form.Item
-                name="username"
-                label="User Name"
-                rules={[
-                  { required: true, message: "Please input your username!" },
-                  {
-                    type: "email",
-                    message: "The input is not a valid email!",
-                  },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-
-              <Form.Item
-                name="password"
-                label="Password"
-                rules={[
-                  { required: true, message: "Please input your password!" },
-                  {
-                    pattern:
-                      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/,
-                    message:
-                      "Password must be at least 6 characters and include uppercase, lowercase, and a number",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input.Password />
-              </Form.Item>
-
-              <Form.Item
-                name="confirmPassword"
-                label="Confirm Password"
-                dependencies={["password"]}
-                hasFeedback
-                rules={[
-                  { required: true, message: "Please confirm your password!" },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value || getFieldValue("password") === value) {
-                        return Promise.resolve();
-                      }
-                      return Promise.reject(
-                        new Error("Passwords do not match!")
-                      );
-                    },
-                  }),
-                ]}
-              >
-                <Input.Password />
-              </Form.Item>
-
-              <Form.Item>
-                <Button type="primary" htmlType="submit" block>
-                  Register
-                </Button>
-              </Form.Item>
-            </Form>
           </TabPane>
         </Tabs>
       </Modal>
