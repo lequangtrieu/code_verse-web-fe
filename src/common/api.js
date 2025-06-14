@@ -5,7 +5,10 @@ const commonApi = {
     default: {
         url: backendDomain,
     },
-
+    
+    healthAPI: {
+        url: `${backendDomain}/code/health`,
+    },
     /** Code api */
     executionCode: {
         url: `${backendDomain}/code/execute`,
