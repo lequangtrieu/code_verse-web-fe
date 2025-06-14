@@ -4,7 +4,7 @@ import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
 import { formatCurrency } from "../../../common/helper";
 import LoadingOverlay from "../../../common/LoadingOverlay";
-import { Form, Modal, message, Pagination, Input, Select } from "antd";
+import { Form, message, Pagination, Input, Select } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const { Option } = Select;
@@ -38,16 +38,19 @@ const AdminCoursesPage = () => {
   }, [user]);
 
   useEffect(() => {
-    applyFilters();
-    // eslint-disable-next-line
+    const timer = setTimeout(() => {
+      applyFilters();
+    }, 300);
+
+    return () => clearTimeout(timer);
   }, [searchQuery, selectedCategory, selectedStatus, courses]);
 
   const fetchCourses = async () => {
     try {
-      const result = await axiosInstance.get(commonApi.adminCourses.url, {
+      const result = await axiosInstance.get(commonApi.getAllCoursesByAdmin.url, {
         params: { username: user.username },
       });
-      setCourses(result.data.result);
+      setCourses(result.data || []);
     } catch (error) {
       message.error("Error when fetching course data.");
       setCourses([]);
@@ -61,19 +64,22 @@ const AdminCoursesPage = () => {
   const applyFilters = () => {
     let filtered = [...courses];
 
+    // Search by title or description
     if (searchQuery.trim() !== "") {
       filtered = filtered.filter((course) =>
-        (course.title + course.description).toLowerCase().includes(searchQuery.toLowerCase())
+        ((course.title || "") + (course.description || "")).toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
-    if (selectedCategory !== "all") {
-      filtered = filtered.filter((course) => course.category === selectedCategory);
-    }
-
-    if (selectedStatus !== "all") {
-      const isPublished = selectedStatus === "published";
-      filtered = filtered.filter((course) => course.published === isPublished);
+    // Filter by selected status (only PENDING and PUBLISHED when "all" is selected)
+    if (selectedStatus === "all") {
+      filtered = filtered.filter((course) =>
+        course.status === "PENDING" || course.status === "PUBLISHED"
+      );
+    } else if (selectedStatus !== "all") {
+      filtered = filtered.filter((course) =>
+        selectedStatus === "published" ? course.status === "PUBLISHED" : course.status === "PENDING"
+      );
     }
 
     setFilteredCourses(filtered);
@@ -85,21 +91,9 @@ const AdminCoursesPage = () => {
     currentPage * pageSize
   );
 
-  const uniqueCategories = [...new Set(courses.map((c) => c.category))];
-
-  // const toggleActive = (id) => {
-  //   setCourses((prev) =>
-  //     prev.map((course) =>
-  //       course.id === id ? { ...course, isActive: !course.isActive } : course
-  //     )
-  //   );
-  //   message.success("Course status updated successfully");
-  // };
+  const uniqueCategories = [...new Set(courses.map((c) => c.category).filter(Boolean))];
 
   const handleViewDetail = (courseId) => {
-    // setSelectedCourse(course);
-    // setIsModalOpen(true);
-    // form.setFieldsValue(course);
     navigate(`/admin-panel/courses/${courseId}`);
   };
 
@@ -107,6 +101,47 @@ const AdminCoursesPage = () => {
     setIsModalOpen(false);
     setSelectedCourse(null);
     form.resetFields();
+  };
+
+  const handleAccept = async (courseId) => {
+    try {
+      await axiosInstance.patch(commonApi.updateCourseStatus.url(courseId), { status: 'PUBLISHED' });
+      message.success("Course has been accepted and published!");
+      fetchCourses();
+    } catch (error) {
+      message.error("Error while updating course status.");
+    }
+  };
+
+  const handleReject = async (courseId) => {
+    try {
+      await axiosInstance.patch(commonApi.updateCourseStatus.url(courseId), { status: 'DRAFT' });
+      message.success("Course has been rejected and moved to draft.");
+      fetchCourses();
+    } catch (error) {
+      message.error("Error while updating course status.");
+    }
+  };
+
+  // Method for highlighting search term
+  const highlightText = (text, highlight) => {
+    if (!highlight) return text;
+
+    const regex = new RegExp(`(${highlight.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+    const parts = text.split(regex);
+
+    return parts.map((part, i) =>
+      regex.test(part) ? (
+        <mark key={i} style={{ backgroundColor: '#ffe58f', padding: 0 }}>{part}</mark>
+      ) : (
+        part
+      )
+    );
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo(0, 0);
   };
 
   return (
@@ -124,6 +159,7 @@ const AdminCoursesPage = () => {
           </button>
         </div>
       )}
+
       {/* Search and Filters */}
       <div className="flex flex-wrap gap-4 mb-4">
         <Input
@@ -151,12 +187,23 @@ const AdminCoursesPage = () => {
         >
           <Option value="all">All Status</Option>
           <Option value="published">Published</Option>
-          <Option value="draft">Draft</Option>
+          <Option value="pending">Pending</Option>
         </Select>
       </div>
+
       {initialLoading && <LoadingOverlay />}
+
       <div className="overflow-x-auto">
         <table className="w-full table-auto border-collapse">
+          <colgroup>
+            <col style={{ width: '8%' }} />
+            <col style={{ width: '25%' }} />
+            <col style={{ width: '25%' }} />
+            <col style={{ width: '12%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '10%' }} />
+          </colgroup>
           <thead>
             <tr className="bg-gray-100">
               <th className="border p-2">Image</th>
@@ -173,47 +220,45 @@ const AdminCoursesPage = () => {
               paginatedCourses.map((course) => (
                 <tr key={course.id} className="text-center">
                   <td className="border p-2">
-                    <img src={course.thumbnailUrl || "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"}
-                      alt={course.title} className="w-20 h-20 object-cover mx-auto rounded" />
+                    <img
+                      src={course.thumbnailUrl || "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"}
+                      alt={course.title}
+                      className="w-20 h-20 object-cover mx-auto rounded"
+                    />
                   </td>
-                  <td className="border p-2">{course.title}</td>
-                  <td className="border p-2">{course.description}</td>
+                  <td className="border p-2">{highlightText(course.title, searchQuery)}</td>
+                  <td className="border p-2">{highlightText(course.description, searchQuery)}</td>
                   <td className="border p-2">{course.category}</td>
                   <td className="border p-2">{formatCurrency(course.price)}</td>
                   <td className="border p-2">
-                    {course.published ? (
+                    {course.status === "PENDING" ? (
+                      <span className="text-yellow-500 font-semibold">Pending</span>
+                    ) : course.status === "PUBLISHED" ? (
                       <span className="text-green-500 font-semibold">Published</span>
                     ) : (
                       <span className="text-red-500 font-semibold">Draft</span>
                     )}
                   </td>
                   <td className="border p-2 space-x-2">
-                    {/* <Popconfirm
-                    title={course.published ? "Deactivate this course?" : "Activate this course?"}
-                    description="Are you sure?"
-                    onConfirm={() => toggleActive(course.id)}
-                    okText="Yes"
-                    cancelText="No"
-                  >
+                    {course.status === "PENDING" && (
+                      <>
+                        <button
+                          className="px-3 py-1 bg-green-500 text-white rounded"
+                          onClick={() => handleAccept(course.id)}
+                        >
+                          Accept
+                        </button>
+                        <button
+                          className="px-3 py-1 bg-red-500 text-white rounded"
+                          onClick={() => handleReject(course.id)}
+                        >
+                          Reject
+                        </button>
+                      </>
+                    )}
                     <button
-                      className={`w-24 px-3 py-1 rounded text-white ${course.published
-                        ? "bg-red-500 hover:bg-red-600"
-                        : "bg-green-500 hover:bg-green-600"
-                        }`}
-                    >
-                      {course.published ? "Deactivate" : "Activate"}
-                    </button>
-                  </Popconfirm> */}
-
-                    {/* <button
-                    className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded"
-                    onClick={() => handleViewDetail(course)}
-                  >
-                    View Detail
-                  </button> */}
-                    <button
-                      className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded"
-                    onClick={() => handleViewDetail(course.id)}
+                      className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded whitespace-nowrap min-w-[70px]"
+                      onClick={() => handleViewDetail(course.id)}
                     >
                       View Detail
                     </button>
@@ -226,88 +271,20 @@ const AdminCoursesPage = () => {
                   No courses found.
                 </td>
               </tr>
-            )
-            }
+            )}
           </tbody>
         </table>
       </div>
 
-      <div className="flex justify-end mt-4">
+      <div className="flex justify-center mt-4">
         <Pagination
           current={currentPage}
           total={filteredCourses.length}
           pageSize={pageSize}
-          onChange={(page) => setCurrentPage(page)}
+          onChange={handlePageChange}
           showSizeChanger={false}
         />
       </div>
-
-      {/* Modal Course Detail */}
-      <Modal
-        title="Course Details"
-        open={isModalOpen}
-        onCancel={handleCancelModal}
-        footer={[
-          <button
-            key="cancel"
-            className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
-            onClick={handleCancelModal}
-          >
-            Cancel
-          </button>,
-          <button
-            key="update"
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Update
-          </button>,
-        ]}
-        getContainer={false}
-      >
-        {selectedCourse && (
-          <Form
-            form={form}
-            initialValues={selectedCourse}
-            layout="vertical"
-          >
-            <Form.Item label="Image">
-              <img src={selectedCourse.description.image} alt={selectedCourse.description.title} className="w-full h-auto rounded" />
-            </Form.Item>
-
-            <Form.Item label="Name">
-              <span>{selectedCourse.description.title}</span>
-            </Form.Item>
-
-            <Form.Item label="Description">
-              <span>{selectedCourse.description.description}</span>
-            </Form.Item>
-
-            <Form.Item label="Category">
-              <span>{selectedCourse.description.category}</span>
-            </Form.Item>
-
-            <Form.Item label="Price">
-              <span>${selectedCourse.bonus.price}</span>
-            </Form.Item>
-
-            <Form.Item label="Bonus">
-              {selectedCourse.bonus && (
-                <div>
-                  <p>Price: ${selectedCourse.bonus.price}</p>
-                  <p>Level ID: {selectedCourse.bonus.levelId}</p>
-                  <p>Notes: {selectedCourse.bonus.notes}</p>
-                </div>
-              )}
-            </Form.Item>
-
-            <Form.Item label="Status">
-              <span>{selectedCourse.isActive ? "Active" : "Inactive"}</span>
-            </Form.Item>
-          </Form>
-        )}
-      </Modal>
-
-
     </div>
   );
 };
