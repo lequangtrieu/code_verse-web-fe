@@ -78,7 +78,7 @@ const router = createBrowserRouter([
 
       // USER
       {
-        path: "test",
+        path: "/course/:courseId/learn",
         element: <LessonLayout />,
       },
       {

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, Radio, Button, notification } from "antd";
+import { Card, Radio, Checkbox, Button, notification } from "antd";
 
 const QuizComponent = ({ quiz }) => {
   const [answers, setAnswers] = useState({});
@@ -9,10 +9,23 @@ const QuizComponent = ({ quiz }) => {
   const totalQuestions = quiz.questions.length;
   const currentQuestion = quiz.questions[currentIndex];
 
+  // Hàm xử lý khi người dùng chọn đáp án
   const handleSelect = (questionId, value) => {
-    setAnswers({ ...answers, [questionId]: value });
+    if (currentQuestion.quizType === "SINGLE") {
+      // Với câu hỏi kiểu SINGLE, chỉ cho phép chọn 1 câu trả lời
+      setAnswers({ ...answers, [questionId]: value });
+    } else {
+      // Với câu hỏi kiểu MULTIPLE, cho phép chọn nhiều câu trả lời
+      setAnswers((prevAnswers) => {
+        return {
+          ...prevAnswers,
+          [questionId]: value,
+        };
+      });
+    }
   };
 
+  // Hàm xử lý khi nộp bài
   const handleSubmit = () => {
     if (Object.keys(answers).length < totalQuestions) {
       notification.warning({
@@ -25,9 +38,18 @@ const QuizComponent = ({ quiz }) => {
 
     setSubmitted(true);
 
-    const correctCount = quiz.questions.filter(
-      (q) => answers[q.id] === q.correct
-    ).length;
+    const correctCount = quiz.questions.filter((q) => {
+      const userAnswers = answers[q.id];
+      if (q.quizType === "SINGLE") {
+        // Kiểm tra cho câu hỏi loại SINGLE
+        return userAnswers === q.answers.find((answer) => answer.isCorrect)?.id;
+      } else {
+        // Kiểm tra cho câu hỏi loại MULTIPLE
+        return userAnswers.every((answerId) =>
+          q.answers.some((answer) => answer.id === answerId && answer.isCorrect)
+        );
+      }
+    }).length;
 
     notification.success({
       message: "Quiz Submitted Successfully",
@@ -36,6 +58,7 @@ const QuizComponent = ({ quiz }) => {
     });
   };
 
+  // Hàm xác định kiểu hiển thị nút câu hỏi
   const getButtonStyle = (index) => {
     const questionId = quiz.questions[index].id;
     const userAnswer = answers[questionId];
@@ -78,17 +101,32 @@ const QuizComponent = ({ quiz }) => {
         <p className="font-semibold">
           {currentIndex + 1}. {currentQuestion.question}
         </p>
-        <Radio.Group
-          onChange={(e) => handleSelect(currentQuestion.id, e.target.value)}
-          value={answers[currentQuestion.id]}
-          disabled={submitted}
-        >
-          {currentQuestion.options.map((opt, i) => (
-            <Radio key={i} value={opt}>
-              {opt}
-            </Radio>
-          ))}
-        </Radio.Group>
+
+        {currentQuestion.quizType === "SINGLE" ? (
+          <Radio.Group
+            onChange={(e) => handleSelect(currentQuestion.id, e.target.value)}
+            value={answers[currentQuestion.id]}
+            disabled={submitted}
+          >
+            {currentQuestion.answers.map((opt) => (
+              <Radio key={opt.id} value={opt.id}>
+                {opt.answer}
+              </Radio>
+            ))}
+          </Radio.Group>
+        ) : (
+          <Checkbox.Group
+            onChange={(checkedValues) => handleSelect(currentQuestion.id, checkedValues)}
+            value={answers[currentQuestion.id] || []}  // Đảm bảo giá trị là mảng
+            disabled={submitted}
+          >
+            {currentQuestion.answers.map((opt) => (
+              <Checkbox key={opt.id} value={opt.id}>
+                {opt.answer}
+              </Checkbox>
+            ))}
+          </Checkbox.Group>
+        )}
 
         {submitted && (
           <p

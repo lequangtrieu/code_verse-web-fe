@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { Select, Button, notification } from "antd";
+import { Select, Button, notification, Tooltip } from "antd";
 import Editor from "@monaco-editor/react";
 import commonApi from "../../../common/api";
 import axiosInstance from "../../../config/axiosInstance";
@@ -7,9 +7,12 @@ import axiosInstance from "../../../config/axiosInstance";
 const { Option } = Select;
 
 const CodeEditor = ({
+  lessonId = null,
+  userId = null,
   defaultCode = "",
   testCases = [],
   language: fixedLanguage,
+  onRefreshLessonData,
 }) => {
   const defaultCodeMap = useMemo(
     () => ({
@@ -33,54 +36,56 @@ const CodeEditor = ({
     defaultCode || (fixedLanguage ? defaultCodeMap[fixedLanguage] : "")
   );
   const [testResults, setTestResults] = useState([]);
+  const [lastPassedCode, setLastPassedCode] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const runTests = async () => {
     setIsRunning(true);
     const userCode = editorRef.current.getValue();
+    const results = [];
 
-    const results = await Promise.all(
-      testCases.map(async (test) => {
-        const startTime = performance.now();
-        try {
-          const response = await axiosInstance.post(
-            commonApi.executionCode.url,
-            {
-              language,
-              code: userCode,
-              input: test.input,
-            }
-          );
+    for (let i = 0; i < testCases.length; i++) {
+      const test = testCases[i];
+      const startTime = performance.now();
 
-          const endTime = performance.now();
-          const actualOutput = response.data.output
-            ?.toString()
-            .trim()
-            .replace(/\s+/g, " ");
-          const expectedOutput = test.expected
-            ?.toString()
-            .trim()
-            .replace(/\s+/g, " ");
-          const passed = actualOutput === expectedOutput;
+      try {
+        const response = await axiosInstance.post(commonApi.executionCode.url, {
+          language,
+          code: userCode,
+          input: test.input,
+        });
 
-          return {
-            ...test,
-            actual: actualOutput,
-            executionTime: Math.floor(endTime - startTime),
-            description: passed ? "Pass" : "Fail",
-          };
-        } catch (err) {
-          const endTime = performance.now();
-          return {
-            ...test,
-            actual: err.response?.data?.error || "Execution failed",
-            executionTime: Math.floor(endTime - startTime),
-            description: "Error",
-          };
-        }
-      })
-    );
+        const endTime = performance.now();
+        const actualOutput = response.data.output
+          ?.toString()
+          .trim()
+          .replace(/\s+/g, " ");
+        const expectedOutput = test.expected
+          ?.toString()
+          .trim()
+          .replace(/\s+/g, " ");
+        const passed = actualOutput === expectedOutput;
+
+        results.push({
+          ...test,
+          actual: actualOutput,
+          executionTime: Math.floor(endTime - startTime),
+          description: passed ? "Pass" : "Fail",
+        });
+      } catch (err) {
+        const endTime = performance.now();
+        results.push({
+          ...test,
+          actual: err.response?.data?.error || "Execution failed",
+          executionTime: Math.floor(endTime - startTime),
+          description: "Error",
+        });
+      }
+      if (i !== testCases.length - 1) await delay(300);
+    }
 
     setTestResults(results);
     setIsRunning(false);
@@ -94,23 +99,57 @@ const CodeEditor = ({
       notification.error({
         message: "Some test cases failed",
         description: "Please check the result details.",
-        placement: "bottomLeft",
+        placement: "topLeft",
       });
     } else {
+      setLastPassedCode(userCode);
       notification.success({
         message: "All test cases passed!",
         description: "Great job, everything works perfectly!",
-        placement: "bottomLeft",
+        placement: "topLeft",
       });
     }
   };
 
-  const handleSubmit = () => {
-    notification.success({
-      message: "Code Submitted",
-      description: "Your code has been submitted successfully!",
-      placement: "bottomLeft",
-    });
+  const handleSubmit = async () => {
+    const currentCode = editorRef.current.getValue();
+
+    if (currentCode !== lastPassedCode) {
+      return notification.warning({
+        message: "Code has changed since last successful test",
+        description: "Please re-run the tests before submitting.",
+        placement: "topLeft",
+      });
+    }
+    if (userId && lessonId) {
+      const hasFailed = testResults.some((r) => r.description !== "Pass");
+      if (hasFailed) {
+        return notification.warning({
+          message: "Cannot Submit",
+          description: "Please pass all test cases before submitting.",
+          placement: "topLeft",
+        });
+      }
+
+      const userCode = editorRef.current.getValue();
+      const response = await axiosInstance.post(commonApi.submitCode.url(), {
+        lessonId,
+        userId,
+        code: userCode,
+      });
+
+      console.log(response);
+
+      notification.success({
+        message: "Code Submitted",
+        description: "Your code has been submitted successfully!",
+        placement: "topLeft",
+      });
+
+      if (typeof onRefreshLessonData === "function") {
+        onRefreshLessonData();
+      }
+    }
   };
 
   useEffect(() => {
@@ -119,22 +158,32 @@ const CodeEditor = ({
     }
   }, [selectedLanguage, fixedLanguage, defaultCodeMap]);
 
+  const isSubmitDisabled =
+    testResults.some((r) => r.description !== "Pass") ||
+    testResults.length === 0;
+
   return (
     <div className="w-full p-4 bg-gray-900 rounded-lg shadow max-h-[850px] overflow-y-auto">
       <div className="flex items-center justify-between mb-4 space-x-4">
         <div className="flex gap-2">
-          <Select
-            value={fixedLanguage || selectedLanguage}
-            onChange={setSelectedLanguage}
-            style={{ width: 180 }}
-            className="bg-white"
-          >
-            {languageList.map((lang) => (
-              <Option key={lang} value={lang}>
-                {lang}
-              </Option>
-            ))}
-          </Select>
+          {fixedLanguage ? (
+            <div className="px-3 py-1 bg-white text-gray-800 rounded border border-gray-300">
+              {fixedLanguage}
+            </div>
+          ) : (
+            <Select
+              value={selectedLanguage}
+              onChange={setSelectedLanguage}
+              style={{ width: 180 }}
+              className="bg-white"
+            >
+              {languageList.map((lang) => (
+                <Option key={lang} value={lang}>
+                  {lang}
+                </Option>
+              ))}
+            </Select>
+          )}
 
           <Select
             value={theme}
@@ -159,9 +208,25 @@ const CodeEditor = ({
           >
             Run Test
           </Button>
-          <Button onClick={handleSubmit} className="bg-green-500 text-white">
-            Submit
-          </Button>
+          {isSubmitDisabled ? (
+            <Tooltip title="Please pass all test cases before submitting">
+              <Button
+                type="primary"
+                disabled
+                className="bg-green-500 text-white opacity-60 border-none pointer-events-none"
+              >
+                Submit
+              </Button>
+            </Tooltip>
+          ) : (
+            <Button
+              onClick={handleSubmit}
+              type="primary"
+              className="bg-green-500 text-white hover:bg-green-600 border-none"
+            >
+              Submit
+            </Button>
+          )}
         </div>
       </div>
 
