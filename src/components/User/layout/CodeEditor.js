@@ -7,6 +7,8 @@ import axiosInstance from "../../../config/axiosInstance";
 const { Option } = Select;
 
 const CodeEditor = ({
+  lessonId = null,
+  userId = null,
   defaultCode = "",
   testCases = [],
   language: fixedLanguage,
@@ -36,81 +38,88 @@ const CodeEditor = ({
   const [isRunning, setIsRunning] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const runTests = async () => {
-    setIsRunning(true);
-    const userCode = editorRef.current.getValue();
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    const results = await Promise.all(
-      testCases.map(async (test) => {
-        const startTime = performance.now();
-        try {
-          const response = await axiosInstance.post(
-            commonApi.executionCode.url,
-            {
-              language,
-              code: userCode,
-              input: test.input,
-            }
-          );
+const runTests = async () => {
+  setIsRunning(true);
+  const userCode = editorRef.current.getValue();
+  const results = [];
 
-          const endTime = performance.now();
-          const actualOutput = response.data.output
-            ?.toString()
-            .trim()
-            .replace(/\s+/g, " ");
-          const expectedOutput = test.expected
-            ?.toString()
-            .trim()
-            .replace(/\s+/g, " ");
-          const passed = actualOutput === expectedOutput;
+  for (let i = 0; i < testCases.length; i++) {
+    const test = testCases[i];
+    const startTime = performance.now();
 
-          return {
-            ...test,
-            actual: actualOutput,
-            executionTime: Math.floor(endTime - startTime),
-            description: passed ? "Pass" : "Fail",
-          };
-        } catch (err) {
-          const endTime = performance.now();
-          return {
-            ...test,
-            actual: err.response?.data?.error || "Execution failed",
-            executionTime: Math.floor(endTime - startTime),
-            description: "Error",
-          };
-        }
-      })
-    );
-
-    setTestResults(results);
-    setIsRunning(false);
-    setSelectedIndex(0);
-
-    const hasError = results.some(
-      (r) => r.description === "Error" || r.description === "Fail"
-    );
-
-    if (hasError) {
-      notification.error({
-        message: "Some test cases failed",
-        description: "Please check the result details.",
-        placement: "bottomLeft",
+    try {
+      const response = await axiosInstance.post(commonApi.executionCode.url, {
+        language,
+        code: userCode,
+        input: test.input,
       });
-    } else {
+
+      const endTime = performance.now();
+      const actualOutput = response.data.output?.toString().trim().replace(/\s+/g, " ");
+      const expectedOutput = test.expected?.toString().trim().replace(/\s+/g, " ");
+      const passed = actualOutput === expectedOutput;
+
+      results.push({
+        ...test,
+        actual: actualOutput,
+        executionTime: Math.floor(endTime - startTime),
+        description: passed ? "Pass" : "Fail",
+      });
+    } catch (err) {
+      const endTime = performance.now();
+      results.push({
+        ...test,
+        actual: err.response?.data?.error || "Execution failed",
+        executionTime: Math.floor(endTime - startTime),
+        description: "Error",
+      });
+    }
+    if (i !== testCases.length - 1) await delay(300);
+  }
+
+  setTestResults(results);
+  setIsRunning(false);
+  setSelectedIndex(0);
+
+  const hasError = results.some(
+    (r) => r.description === "Error" || r.description === "Fail"
+  );
+
+  if (hasError) {
+    notification.error({
+      message: "Some test cases failed",
+      description: "Please check the result details.",
+      placement: "bottomLeft",
+    });
+  } else {
+    notification.success({
+      message: "All test cases passed!",
+      description: "Great job, everything works perfectly!",
+      placement: "bottomLeft",
+    });
+  }
+};
+
+  const handleSubmit = async () => {
+    if (userId && lessonId) {
+      // runTests();
+      const userCode = editorRef.current.getValue();
+      const response = await axiosInstance.post(commonApi.submitCode.url(), {
+        lessonId,
+        userId,
+        code: userCode,
+      });
+
+      console.log(response);
+
       notification.success({
-        message: "All test cases passed!",
-        description: "Great job, everything works perfectly!",
+        message: "Code Submitted",
+        description: "Your code has been submitted successfully!",
         placement: "bottomLeft",
       });
     }
-  };
-
-  const handleSubmit = () => {
-    notification.success({
-      message: "Code Submitted",
-      description: "Your code has been submitted successfully!",
-      placement: "bottomLeft",
-    });
   };
 
   useEffect(() => {
@@ -123,18 +132,24 @@ const CodeEditor = ({
     <div className="w-full p-4 bg-gray-900 rounded-lg shadow max-h-[850px] overflow-y-auto">
       <div className="flex items-center justify-between mb-4 space-x-4">
         <div className="flex gap-2">
-          <Select
-            value={fixedLanguage || selectedLanguage}
-            onChange={setSelectedLanguage}
-            style={{ width: 180 }}
-            className="bg-white"
-          >
-            {languageList.map((lang) => (
-              <Option key={lang} value={lang}>
-                {lang}
-              </Option>
-            ))}
-          </Select>
+          {fixedLanguage ? (
+            <div className="px-3 py-1 bg-white text-gray-800 rounded border border-gray-300">
+              {fixedLanguage}
+            </div>
+          ) : (
+            <Select
+              value={selectedLanguage}
+              onChange={setSelectedLanguage}
+              style={{ width: 180 }}
+              className="bg-white"
+            >
+              {languageList.map((lang) => (
+                <Option key={lang} value={lang}>
+                  {lang}
+                </Option>
+              ))}
+            </Select>
+          )}
 
           <Select
             value={theme}

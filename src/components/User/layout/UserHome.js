@@ -1,47 +1,51 @@
-import { Carousel, Avatar, Tabs } from "antd";
-import ReusableProgress from "../layout/ReusableProgress"
-import React, { useEffect, useState } from "react";
+import { Carousel, Avatar, Tabs, Button, Popover, notification } from "antd";
+import ReusableProgress from "../layout/ReusableProgress";
+import React, { useContext, useEffect, useState } from "react";
 import { Card, Pagination, Rate, Tag } from "antd";
 import { useNavigate } from "react-router-dom";
 import scrollTop from "../../../config/scrollTop";
 import LoadingOverlay from "../../../common/LoadingOverlay";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import commonApi from "../../../common/api";
 import SkillCard from "./Molecule/SkillCard";
 import ActivityGrid from "./Molecule/ActivityGrid";
+import { formatCurrency, getDiscountedPrice } from "../../../common/helper";
+import Context from "../../../config/context/context";
+import axiosInstance from "../../../config/axiosInstance";
+import { logoutUser } from "../../../config/store/userSlice";
 
 const SKILL_META = {
-  C: { iconSrc: '/icons/c.png', name: 'C' },
-  'C++': { iconSrc: '/icons/cpp.png', name: 'C++' },
-  JavaScript: { iconSrc: '/icons/javascript.png', name: 'JavaScript' },
-  Python2: { iconSrc: '/icons/python.jpg', name: 'Python2' },
-  Python3: { iconSrc: '/icons/python.jpg', name: 'Python3' },
-  Java: { iconSrc: '/icons/java.png', name: 'Java' },
-  Go: { iconSrc: '/icons/go.png', name: 'Go' },
-  MySql: { iconSrc: '/icons/mysql.jpg', name: 'MySql' },
-  'C#': { iconSrc: '/icons/csharp.png', name: 'C#' },
-  Html: { iconSrc: '/icons/html.png', name: 'Html' },
-  Postgresql: { iconSrc: '/icons/postgresql.jpg', name: 'Postgresql' },
+  C: { iconSrc: "/icons/c.png", name: "C" },
+  "C++": { iconSrc: "/icons/cpp.png", name: "C++" },
+  JavaScript: { iconSrc: "/icons/javascript.png", name: "JavaScript" },
+  Python2: { iconSrc: "/icons/python.jpg", name: "Python2" },
+  Python3: { iconSrc: "/icons/python.jpg", name: "Python3" },
+  Java: { iconSrc: "/icons/java.png", name: "Java" },
+  Go: { iconSrc: "/icons/go.png", name: "Go" },
+  MySql: { iconSrc: "/icons/mysql.jpg", name: "MySql" },
+  "C#": { iconSrc: "/icons/csharp.png", name: "C#" },
+  Html: { iconSrc: "/icons/html.png", name: "Html" },
+  Postgresql: { iconSrc: "/icons/postgresql.jpg", name: "Postgresql" },
 };
 
 const skillRatings = {
   C: 5,
-  'C++': 1,
+  "C++": 1,
   JavaScript: 1,
   Python2: 1,
   Python3: 1,
   Java: 5,
   Go: 1,
   MySql: 1,
-  'C#': 0,
+  "C#": 0,
   Html: 1,
   Postgresql: 1,
 };
 
 const activityData = [
-  { date: '2025-05-01', level: 2 },
-  { date: '2025-05-02', level: 4 },
-  { date: '2025-05-08', level: 1 },
+  { date: "2025-05-01", level: 2 },
+  { date: "2025-05-02", level: 4 },
+  { date: "2025-05-08", level: 1 },
 ];
 
 const userInfo = {
@@ -57,29 +61,32 @@ const userInfo = {
     "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
     "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
     "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
-    "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg"
+    "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
   ],
 };
 const banners = [
-  { id: 1, image: 'banerDemo.png', link: 'https://example.com/page1' },
-  { id: 2, image: 'banerDemo.png', link: 'https://example.com/page2' },
-  { id: 3, image: 'banerDemo.png', link: 'https://example.com/page3' },
+  { id: 1, image: "banerDemo.png", link: "https://example.com/page1" },
+  { id: 2, image: "banerDemo.png", link: "https://example.com/page2" },
+  { id: 3, image: "banerDemo.png", link: "https://example.com/page3" },
 ];
 const completedLessons = 562;
 const totalLessons = 801;
 
 const UserHome = () => {
+  const [cartCourseIds, setCartCourseIds] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(8);
   const [searchQuery] = useState("");
   const [filteredCourses, setFilteredCourses] = useState([]);
-  const [allCourses, setAllCourses] = useState({});  // Store data for all tabs here
+  const [allCourses, setAllCourses] = useState({}); // Store data for all tabs here
   const [initialLoading, setInitialLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState("learning");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const user = useSelector((state) => state?.user?.user);
+  const { fetchCartDetail, fetchCartItems } = useContext(Context);
   const userId = user?.id;
 
   // Fetch data for all tabs at once
@@ -113,7 +120,7 @@ const UserHome = () => {
   };
 
   useEffect(() => {
-    fetchCourses();  // Fetch all data on initial load
+    fetchCourses(); // Fetch all data on initial load
   }, [userId]);
 
   useEffect(() => {
@@ -170,7 +177,7 @@ const UserHome = () => {
 
   const handleTabChange = (key) => {
     setSelectedTab(key);
-    setFilteredCourses(allCourses[key]);  // Set courses for selected tab directly
+    setFilteredCourses(allCourses[key]); // Set courses for selected tab directly
   };
 
   const formatDuration = (minutes) => {
@@ -179,6 +186,273 @@ const UserHome = () => {
     const hrStr = hrs > 0 ? `${hrs} hr` : "";
     const minStr = mins > 0 ? `${mins} min` : "";
     return `${hrStr}${hrs && mins ? " " : ""}${minStr}`.trim();
+  };
+
+  const handleAddToCart = async (course) => {
+    if (!user) {
+      return notification.warning({
+        message: "Login Required",
+        description: "Please log in to view this page.",
+        placement: "topLeft",
+      });
+    }
+
+    const finalPrice = getDiscountedPrice(course.price, course.discount);
+    if (finalPrice === 0) {
+      return notification.info({
+        message: "Free Course",
+        description: `"${course.title}" is free and does not need to be added to the cart.`,
+        placement: "bottomLeft",
+      });
+    }
+
+    if (cartCourseIds.includes(course.id)) {
+      return notification.info({
+        message: "Course Already in Cart",
+        description: `"${course.title}" is already in your cart.`,
+        placement: "bottomLeft",
+      });
+    }
+
+    try {
+      const response = await axiosInstance.post(commonApi.addToCart.url, {
+        username: user.username,
+        courseId: course.id,
+      });
+
+      const result = response.data?.result;
+
+      if (result === "Course already in cart") {
+        notification.info({
+          message: "Course Already in Cart",
+          description: `"${course.title}" is already in your cart.`,
+          placement: "bottomLeft",
+        });
+        setCartCourseIds((prev) => [...prev, course.id]);
+      } else if (result === "You already own this course") {
+        notification.warning({
+          message: "Already Purchased",
+          description: `You have already purchased "${course.title}".`,
+          placement: "bottomLeft",
+        });
+      } else if (result === "Added to cart successfully") {
+        notification.success({
+          message: "Course Added Successfully",
+          description: `"${course.title}" has been added to your cart.`,
+          placement: "bottomLeft",
+        });
+        fetchCartDetail();
+        fetchCartItems();
+        setCartCourseIds((prev) => [...prev, course.id]);
+      } else if (
+        result === "This course is free and doesn't need to be added to cart"
+      ) {
+        notification.info({
+          message: "Free Course",
+          description: `"${course.title}" is free and doesn't need to be added to the cart.`,
+          placement: "bottomLeft",
+        });
+      } else {
+        notification.error({
+          message: "Failed to Add Course",
+          description:
+            response.data?.message ||
+            "Unable to add course to cart. Please try again.",
+          placement: "bottomLeft",
+        });
+      }
+    } catch (error) {
+      notification.error({
+        message: "Error Adding Course",
+        description: error?.response?.data?.message,
+        placement: "bottomLeft",
+      });
+
+      if (error?.response?.data?.code === 1010) {
+        dispatch(logoutUser());
+        navigate("/");
+      }
+    }
+  };
+
+  const handleAddToCartFree = async (course) => {
+    if (!user) {
+      return notification.warning({
+        message: "Login Required",
+        description: "Please log in to add courses to your cart.",
+        placement: "topLeft",
+      });
+    }
+
+    try {
+      await axiosInstance.post(commonApi.addToCartFree.url, {
+        username: user.username,
+        courseId: course.id,
+      });
+
+      notification.success({
+        message: "Enrollment Successful",
+        description: `You have successfully enrolled in "${course.title}". Enjoy learning!`,
+        placement: "bottomLeft",
+      });
+
+            const responses = await Promise.all([
+        fetch(`${commonApi.course.url}/user/${userId}/in-progress`),
+        fetch(`${commonApi.course.url}/user/${userId}/completed`),
+        fetch(`${commonApi.course.url}/user/${userId}/suggested`),
+      ]);
+
+      const data = await Promise.all(responses.map((res) => res.json()));
+
+      setAllCourses({
+        learning: data[0],
+        completed: data[1],
+        suggested: data[2],
+      });
+
+      setFilteredCourses(data[0]);
+
+    } catch (error) {
+      notification.error({
+        message: "Enrollment Failed",
+        description: error?.response?.data?.message,
+        placement: "bottomLeft",
+      });
+
+      if (error?.response?.data?.code === 1010) {
+        dispatch(logoutUser());
+        navigate("/");
+      }
+    }
+  };
+
+  const renderCoursePopover = (course, selectedTab) => {
+    const isFree = getDiscountedPrice(course.price, course.discount) === 0;
+
+    if (selectedTab === "learning") {
+      return (
+        <div className="w-80">
+          <Tag color="processing" className="mb-1">
+            {course.category}
+          </Tag>
+
+          <h3 className="text-base font-bold text-gray-800 mb-2">
+            {course.title}
+          </h3>
+
+          <p className="text-sm text-gray-600 mb-3 line-clamp-4">
+            {course.description}
+          </p>
+
+          <div className="flex items-center justify-evenly text-sm text-gray-600 mb-4">
+            <div className="flex items-center gap-1">
+              <span className="font-medium">{course.totalLessons}</span>
+              <span className="text-gray-500">Lessons</span>
+            </div>
+            <div className="w-px h-4 bg-gray-300 mx-2"></div>
+            <div className="flex items-center gap-1">
+              <span className="font-medium">
+                {formatDuration(course.totalDurations)}
+              </span>
+            </div>
+            <div className="w-px h-4 bg-gray-300 mx-2"></div>
+            <div className="flex items-center gap-1">
+              <span className="font-medium">{course.totalStudents || 0}</span>
+              <span className="text-gray-500">Students</span>
+            </div>
+          </div>
+
+          <ul className="text-sm text-gray-700 list-inside list-disc mb-4 space-y-1">
+            <li>Get familiar with Scratch</li>
+            <li>Master basic programming thinking</li>
+            <li>Create simple and fun projects</li>
+            <li>Develop logical thinking and confidence</li>
+          </ul>
+
+          <Button
+            type="primary"
+            size="small"
+            block
+            onClick={() => handleStartLearning(course.id)}
+          >
+            Start Learning Now
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="w-80">
+        <Tag color="processing" className="mb-1">
+          {course.category}
+        </Tag>
+
+        <h3 className="text-base font-bold text-gray-800 mb-2">
+          {course.title}
+        </h3>
+
+        <p className="text-sm text-gray-600 mb-3 line-clamp-4">
+          {course.description}
+        </p>
+
+        <div className="flex items-center justify-evenly text-sm text-gray-600 mb-4">
+          <div className="flex items-center gap-1">
+            <span className="font-medium">{course.totalLessons}</span>
+            <span className="text-gray-500">Lessons</span>
+          </div>
+          <div className="w-px h-4 bg-gray-300 mx-2"></div>
+          <div className="flex items-center gap-1">
+            <span className="font-medium">
+              {formatDuration(course.totalDurations)}
+            </span>
+          </div>
+          <div className="w-px h-4 bg-gray-300 mx-2"></div>
+          <div className="flex items-center gap-1">
+            <span className="font-medium">{course.totalStudents || 0}</span>
+            <span className="text-gray-500">Students</span>
+          </div>
+        </div>
+
+        <ul className="text-sm text-gray-700 list-inside list-disc mb-4 space-y-1">
+          <li>Get familiar with Scratch</li>
+          <li>Master basic programming thinking</li>
+          <li>Create simple and fun projects</li>
+          <li>Develop logical thinking and confidence</li>
+        </ul>
+
+        {isFree ? (
+          <Button
+            type="primary"
+            size="small"
+            block
+            onClick={() => handleAddToCartFree(course)}
+          >
+            Free Enrollment
+          </Button>
+        ) : (
+          <Button
+            size="small"
+            type="primary"
+            className="text-white hover:bg-gray-800"
+            onClick={() => handleAddToCart(course)}
+          >
+            Add to Cart
+          </Button>
+        )}
+      </div>
+    );
+  };
+
+  const handleStartLearning = async (courseId) => {
+    if (!user) {
+      return notification.warning({
+        message: "Login Required",
+        description: "Please log in to add courses to your cart.",
+        placement: "topLeft",
+      });
+    }
+    scrollTop();
+    navigate(`/course/${courseId}/learn`);
   };
 
   return (
@@ -190,7 +464,9 @@ const UserHome = () => {
           <div className="mb-4 text-lg">
             <span>Hello </span>
             <span className="text-red-500">{userInfo.email}</span>
-            <span>. Welcome you to CodeVerse. Let's start to explore more!</span>
+            <span>
+              . Welcome you to CodeVerse. Let's start to explore more!
+            </span>
           </div>
 
           {/*User Infor */}
@@ -198,7 +474,7 @@ const UserHome = () => {
             {/* UserName Infor */}
             <div className="bg-[#2c3667] p-6 rounded-lg w-full lg:w-2/5 text-center  lg:h-[220px]">
               {/* avatar + username */}
-              <div className="flex items-center gap-6 pb-6" >
+              <div className="flex items-center gap-6 pb-6">
                 <div>
                   <Avatar
                     size={80}
@@ -222,10 +498,16 @@ const UserHome = () => {
               <div className="grid lg:gap-5 gap-3 grid-cols-3 max-w-full overflow-hidden">
                 {/* Khóa học */}
                 <div>
-                  <h4 className="my-0 font-semibold text-[13px] lg:text-base">Course</h4>
+                  <h4 className="my-0 font-semibold text-[13px] lg:text-base">
+                    Course
+                  </h4>
                   <div className="flex gap-5 justify-between items-baseline">
-                    <div className="lg:text-[32px] font-semibold text-yellow-300">4/39</div>
-                    <div className="text-sm mt-1">{userInfo.certificates} certificates</div>
+                    <div className="lg:text-[32px] font-semibold text-yellow-300">
+                      4/39
+                    </div>
+                    <div className="text-sm mt-1">
+                      {userInfo.certificates} certificates
+                    </div>
                   </div>
 
                   <ReusableProgress
@@ -237,8 +519,12 @@ const UserHome = () => {
 
                 {/* Luyện tập */}
                 <div>
-                  <h4 className="my-0 font-semibold text-[13px] lg:text-base">Training</h4>
-                  <div className="lg:text-[32px] font-semibold text-yellow-300">0/1445</div>
+                  <h4 className="my-0 font-semibold text-[13px] lg:text-base">
+                    Training
+                  </h4>
+                  <div className="lg:text-[32px] font-semibold text-yellow-300">
+                    0/1445
+                  </div>
                   <ReusableProgress
                     completed={completedLessons}
                     total={totalLessons}
@@ -248,9 +534,13 @@ const UserHome = () => {
 
                 {/* Thứ hạng */}
                 <div>
-                  <h4 className="my-0 font-semibold text-[13px] lg:text-base">Your best position</h4>
+                  <h4 className="my-0 font-semibold text-[13px] lg:text-base">
+                    Your best position
+                  </h4>
                   <div className="flex gap-3 items-baseline">
-                    <div className="lg:text-[32px] font-semibold text-yellow-300">0/0</div>
+                    <div className="lg:text-[32px] font-semibold text-yellow-300">
+                      0/0
+                    </div>
                     <div class="lg:text-base text-[10px]">fights</div>
                   </div>
 
@@ -318,7 +608,9 @@ const UserHome = () => {
                     <Tabs.TabPane tab="In progress" key="learning" />
                     <Tabs.TabPane tab="Completed" key="completed" />
                   </Tabs>
-                  <a className="leading-[46px]" href="/course">See all</a>
+                  <a className="leading-[46px]" href="/course">
+                    See all
+                  </a>
                 </div>
 
                 <div>
@@ -349,14 +641,18 @@ const UserHome = () => {
 
                         if (isLastPage) {
                           const remainder = filledCourses.length % columns;
-                          const placeholdersNeeded = remainder === 0 ? 0 : columns - remainder;
+                          const placeholdersNeeded =
+                            remainder === 0 ? 0 : columns - remainder;
 
                           for (let i = 0; i < placeholdersNeeded; i++) {
-                            filledCourses.push({ placeholder: true, id: `placeholder-${i}` });
+                            filledCourses.push({
+                              placeholder: true,
+                              id: `placeholder-${i}`,
+                            });
                           }
                         }
 
-                        return filledCourses.map((course) => (
+                        return filledCourses.map((course) =>
                           course.placeholder ? (
                             <div
                               key={course.id}
@@ -369,65 +665,110 @@ const UserHome = () => {
                               />
                             </div>
                           ) : (
-                            <Card
-                              onClick={() => handleCourseClick(course.id)}
+                            <Popover
                               key={course.id}
-                              className="rounded-xl overflow-hidden shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer"
-                              cover={
-                                <img
-                                  onClick={() => handleCourseClick(course.id)}
-                                  alt={course.title}
-                                  src={course.thumbnailUrl}
-                                  className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
-                                />
-                              }
+                              content={renderCoursePopover(course, selectedTab)}
+                              placement="rightTop"
+                              trigger="hover"
                             >
-                              <div className="p-4">
-                                <Tag color="processing" className="mb-2">
-                                  {course.category}
-                                </Tag>
-                                <h3 className="text-lg font-semibold mb-2 line-clamp-2">
-                                  {course.title}
-                                </h3>
-                                <div className="flex items-center text-sm text-gray-600 mb-2">
-                                  <span>{course.lessons} Lessons</span>
-                                  <span className="mx-2">•</span>
-                                  <span>{formatDuration(course.totalDurations)}</span>
-                                </div>
-                                <div className="flex items-center justify-between text-sm text-gray-500">
-                                  <div className="flex items-center">
-                                    <div className="w-7 h-7 rounded-full bg-gray-300 mr-2 flex items-center justify-center text-white font-semibold transition-all duration-300 hover:bg-indigo-500">
-                                      {course.instructor?.charAt(0)?.toUpperCase() ||
-                                        "?"}
+                              <Card
+                                onClick={() => handleCourseClick(course.id)}
+                                className="rounded-xl overflow-hidden shadow hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
+                                cover={
+                                  <img
+                                    onClick={() => handleCourseClick(course.id)}
+                                    alt={course.title}
+                                    src={course.thumbnailUrl}
+                                    className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                                  />
+                                }
+                              >
+                                <div className="p-4">
+                                  <Tag
+                                    color="processing"
+                                    className="mb-2 transition-all duration-300 hover:opacity-80"
+                                  >
+                                    {course.category}
+                                  </Tag>
+
+                                  <h3 className="text-lg font-semibold mb-2 line-clamp-2 hover:text-indigo-600 transition-colors duration-300">
+                                    {course.title}
+                                  </h3>
+
+                                  <div className="flex items-center text-sm text-gray-600 mb-2">
+                                    <span>{course.totalLessons} Lessons</span>
+                                    <span className="mx-2">•</span>
+                                    <span>
+                                      {formatDuration(course.totalDurations)}
+                                    </span>
+                                  </div>
+
+                                  <div className="flex items-center justify-between mb-2">
+                                    <div>
+                                      {getDiscountedPrice(
+                                        course.price,
+                                        course.discount
+                                      ) === 0 ? (
+                                        <span className="text-green-600 font-semibold">
+                                          Free
+                                        </span>
+                                      ) : (
+                                        <>
+                                          <span className="text-lg font-bold text-indigo-600 transition-colors duration-300">
+                                            {formatCurrency(
+                                              getDiscountedPrice(
+                                                course.price,
+                                                course.discount
+                                              )
+                                            )}
+                                          </span>
+                                          {course.discount > 0 &&
+                                            course.price > 0 && (
+                                              <span className="line-through text-gray-500 ml-2">
+                                                {formatCurrency(course.price)}
+                                              </span>
+                                            )}
+                                        </>
+                                      )}
                                     </div>
-                                    <span className="hover:text-indigo-600 transition-colors duration-300">
-                                      {course.instructor || "Unknown"}
+                                  </div>
+
+                                  <div className="flex items-center justify-between text-sm text-gray-500">
+                                    <div className="flex items-center">
+                                      <div className="w-7 h-7 rounded-full bg-gray-300 mr-2 flex items-center justify-center text-white font-semibold transition-all duration-300 hover:bg-indigo-500">
+                                        {course.instructor
+                                          ?.charAt(0)
+                                          ?.toUpperCase() || "?"}
+                                      </div>
+                                      <span className="hover:text-indigo-600 transition-colors duration-300">
+                                        {course.instructor || "Unknown"}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-center space-x-1 my-2 pl-1">
+                                    <span className="font-semibold text-gray-900">
+                                      {course.rating}
+                                    </span>
+                                    <Rate
+                                      style={{
+                                        fontSize: "14px",
+                                        color: "#f4b400",
+                                        padding: "2px 4px",
+                                      }}
+                                      disabled
+                                      defaultValue={course.rating}
+                                      allowHalf
+                                    />
+                                    <span className="text-s text-gray-500">
+                                      ({course.ratingCount})
                                     </span>
                                   </div>
                                 </div>
-
-                                <div className="flex items-center space-x-1 my-2 pl-1">
-                                  <span className="font-semibold text-gray-900">
-                                    {course.rating}
-                                  </span>
-                                  <Rate
-                                    style={{
-                                      fontSize: "14px",
-                                      color: "#f4b400",
-                                      padding: "2px 4px",
-                                    }}
-                                    disabled
-                                    defaultValue={course.rating}
-                                    allowHalf
-                                  />
-                                  <span className="text-s text-gray-500">
-                                    ({course.ratingCount})
-                                  </span>
-                                </div>
-                              </div>
-                            </Card>
+                              </Card>
+                            </Popover>
                           )
-                        ));
+                        );
                       })()}
                     </main>
                   )}
@@ -452,7 +793,14 @@ const UserHome = () => {
           <div className="flex flex-wrap gap-y-4 gap-x-8">
             {Object.entries(skillRatings).map(([key, level]) => {
               const { iconSrc, name } = SKILL_META[key];
-              return <SkillCard key={key} iconSrc={iconSrc} name={name} level={level} />;
+              return (
+                <SkillCard
+                  key={key}
+                  iconSrc={iconSrc}
+                  name={name}
+                  level={level}
+                />
+              );
             })}
           </div>
         </div>

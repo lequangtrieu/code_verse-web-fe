@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Collapse, List } from "antd";
+import { Collapse, List, Tooltip } from "antd";
 import {
   FileTextOutlined,
   MenuUnfoldOutlined,
@@ -10,6 +10,19 @@ const { Panel } = Collapse;
 
 const LessonSidebar = ({ lessons, selectedLessonId, onSelect }) => {
   const [collapsed, setCollapsed] = useState(false);
+
+  const renderStatusIcon = (status) => {
+    switch (status) {
+      case "PASSED":
+        return <span className="text-green-500">✅</span>;
+      case "PENDING":
+        return <span className="text-yellow-500">⏳</span>;
+      case "FAILED":
+        return <span className="text-red-500">❌</span>;
+      default:
+        return <span className="text-gray-400">⚪</span>;
+    }
+  };
 
   if (collapsed) {
     return (
@@ -70,12 +83,17 @@ const LessonSidebar = ({ lessons, selectedLessonId, onSelect }) => {
                       }`}
                       onClick={() => onSelect(sub)}
                     >
-                      <div className="flex items-center gap-2">
-                        <FileTextOutlined className="text-base mr-1" />
-                        {sub.title}
-                      </div>
-                      {sub.completed && (
-                        <span className="text-green-500">✓</span>
+                      <Tooltip title={sub.title}>
+                        <div className="flex items-center gap-2 truncate max-w-[170px]">
+                          <FileTextOutlined className="text-base mr-1 flex-shrink-0" />
+                          <span className="truncate">{sub.title}</span>
+                        </div>
+                      </Tooltip>
+
+                      {sub.status && (
+                        <Tooltip title={sub.status}>
+                          {renderStatusIcon(sub.status)}
+                        </Tooltip>
                       )}
                     </List.Item>
                   )}
