@@ -5,6 +5,7 @@ import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
 } from "@ant-design/icons";
+import scrollTop from "../../../../config/scrollTop";
 
 const { Panel } = Collapse;
 
@@ -38,7 +39,7 @@ const LessonSidebar = ({ lessons, selectedLessonId, onSelect }) => {
   }
 
   return (
-    <div className="min-w-[250px] w-80 px-3 pb-2 bg-white border-r border-gray-200 overflow-y-auto shadow-sm max-h-[850px] flex flex-col">
+    <div className="min-w-[290px] max-w-[290px] w-80 px-3 pb-2 bg-white border-r border-gray-200 overflow-y-auto shadow-sm max-h-[850px] flex flex-col">
       <h2 className="text-xl font-semibold mb-4 text-blue-600 sticky top-0 bg-white z-10 pb-2">
         Lesson List
       </h2>
@@ -53,7 +54,10 @@ const LessonSidebar = ({ lessons, selectedLessonId, onSelect }) => {
                   ? "bg-blue-100 text-blue-700 font-medium"
                   : "hover:bg-gray-100"
               }`}
-              onClick={() => onSelect(lesson)}
+              onClick={() => {
+                onSelect(lesson);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
             >
               📝 <span>{lesson.title}</span>
             </div>
@@ -81,7 +85,10 @@ const LessonSidebar = ({ lessons, selectedLessonId, onSelect }) => {
                           ? "bg-blue-100 text-blue-700 font-medium"
                           : "hover:bg-gray-100"
                       }`}
-                      onClick={() => onSelect(sub)}
+                      onClick={() => {
+                        onSelect(sub);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
                     >
                       <Tooltip title={sub.title}>
                         <div className="flex items-center gap-2 truncate max-w-[170px]">
