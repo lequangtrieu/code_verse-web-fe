@@ -26,7 +26,7 @@ import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../../config/axiosInstance";
 import Context from "../../../config/context/context";
 import "../Courses/Courses.css";
-import { formatCurrency, getDiscountedPrice } from "../../../common/helper";
+import {formatCurrency, formatDuration, getDiscountedPrice} from "../../../common/helper";
 import { logoutUser } from "../../../config/store/userSlice";
 
 const { Search } = Input;
@@ -47,14 +47,6 @@ const Courses = () => {
 
   const user = useSelector((state) => state?.user?.user);
   const { fetchCartDetail, fetchCartItems } = useContext(Context);
-
-  const formatDuration = (minutes) => {
-    const hrs = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    const hrStr = hrs > 0 ? `${hrs} hr` : "";
-    const minStr = mins > 0 ? `${mins} min` : "";
-    return `${hrStr}${hrs && mins ? " " : ""}${minStr}`.trim();
-  };
 
   useEffect(() => {
     const fetchData = async () => {

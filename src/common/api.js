@@ -60,6 +60,9 @@ const commonApi = {
     category: {
         url: `${backendDomain}/category`,
     },
+    courseDetail: {
+        url: (courseId) => `${backendDomain}/course/${courseId}`
+    },
 
     /** Cart api */
     addToCartFree: {
