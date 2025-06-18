@@ -100,11 +100,17 @@ const commonApi = {
     createCourse: {
         url: `${backendDomain}/course`
     },
+    getModules: {
+        url: (courseId) => `${backendDomain}/module/course/${courseId}`
+    },
     createModule: {
         url: `${backendDomain}/module`
     },
     createLesson: {
         url: `${backendDomain}/lesson`
+    },
+    getTheory: {
+        url: (lessonId) => `${backendDomain}/theory/lesson/${lessonId}`
     },
     createTheory: {
         url: `${backendDomain}/theory`
@@ -115,8 +121,14 @@ const commonApi = {
     createExerciseTask: {
         url: `${backendDomain}/exercise-task`
     },
+    updateExerciseTask: {
+        url: (taskId) => `${backendDomain}/exercise-task/${taskId}`
+    },
     createTestCase: {
         url: `${backendDomain}/test-case`
+    },
+    updateTestCase: {
+        url: (testCaseId) => `${backendDomain}/test-case/${testCaseId}`
     },
     createQuizBank: {
         url: (lessonId) => `${backendDomain}/quiz/lesson/${lessonId}`

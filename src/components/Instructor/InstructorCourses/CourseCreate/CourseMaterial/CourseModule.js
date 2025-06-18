@@ -1,21 +1,16 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Collapse, Modal, Input, InputNumber, Form, Tabs, Typography, Select, message } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import RichTextEditor from "./RichTextEditor";
 import axiosInstance from "../../../../../config/axiosInstance";
 import commonApi from "../../../../../common/api";
 import ExerciseForm from "./ExerciseForm";
 import QuizForm from "./QuizForm";
-import { duration } from "moment/moment";
+import TheoryForm from "./TheoryForm";
+import LoadingOverlay from "../../../../../common/LoadingOverlay";
 
 const { Panel } = Collapse;
 const { Title } = Typography;
 const { Option } = Select;
-
-function htmlToFile(htmlContent, fileName = "theory.html") {
-    const blob = new Blob([htmlContent], { type: "text/html" });
-    return new File([blob], fileName, { type: "text/html" });
-}
 
 const CourseModule = ({ courseId }) => {
     const [modules, setModules] = useState([]);
@@ -27,14 +22,35 @@ const CourseModule = ({ courseId }) => {
     const [editingLesson, setEditingLesson] = useState(null);
     const [loadingModule, setLoadingModule] = useState(false);
     const [loadingLesson, setLoadingLesson] = useState(false);
-    const [loadingTheory, setLoadingTheory] = useState(false);
-    const editorRef = useRef();
+    const [initialLoading, setInitialLoading] = useState(false);
 
     const [moduleForm] = Form.useForm();
     const [lessonForm] = Form.useForm();
-    const [theoryForm] = Form.useForm();
 
-    const markTheoryTouched = () => { }
+    const [deleteConfirm, setDeleteConfirm] = useState({
+        visible: false,
+        type: '',
+        target: null,
+    });
+
+
+    useEffect(() => {
+        fetchModules();
+    }, [courseId]);
+
+    const fetchModules = async () => {
+        setInitialLoading(true);
+        try {
+            const result = await axiosInstance.get(commonApi.getModules.url(courseId));
+            setModules(result.data.result);
+        } catch (error) {
+            message.error("Error fetch course modules.");
+        } finally {
+            setTimeout(() => {
+                setInitialLoading(false);
+            }, 400);
+        }
+    };
 
     const handleSaveModule = async () => {
         setLoadingModule(true);
@@ -46,12 +62,13 @@ const CourseModule = ({ courseId }) => {
                 // Update module
                 const res = await axiosInstance.put(commonApi.updateCourseModule.url(editingModule.id), {
                     title: values.title,
-                    orderIndex: orderIndex
+                    orderIndex: editingModule.orderIndex
                 });
 
                 setModules((prev) =>
                     prev.map((m) => (m.id === editingModule.id ? res.data.result : m))
                 );
+
                 message.success("Module updated successfully!");
             } else {
                 // Create module
@@ -81,7 +98,7 @@ const CourseModule = ({ courseId }) => {
         try {
             const values = await lessonForm.validateFields();
             const module = modules.find((m) => m.id === activeModuleId);
-            const orderIndex = module?.lessons.length + 1 || 1;
+            const orderIndex = module?.lessons?.length + 1 || 1;
 
             if (editingLesson) {
                 // Update lesson
@@ -90,20 +107,21 @@ const CourseModule = ({ courseId }) => {
                     lessonType: values.lessonType,
                     duration: values.duration,
                     expReward: values.expReward,
-                    orderIndex: orderIndex
+                    orderIndex: editingLesson.orderIndex
                 });
 
                 const updatedModules = modules.map((mod) =>
                     mod.id === activeModuleId
                         ? {
                             ...mod,
-                            lessons: mod.lessons.map((l) =>
+                            lessons: mod.lessons?.map((l) =>
                                 l.id === editingLesson.id ? res.data.result : l
                             ),
                         }
                         : mod
                 );
                 setModules(updatedModules);
+                if (selectedLesson.id === editingLesson.id) setSelectedLesson({ ...res.data.result, moduleId: activeModuleId });
                 message.success("Lesson updated successfully!");
             } else {
                 const res = await axiosInstance.post(commonApi.createLesson.url, {
@@ -119,11 +137,12 @@ const CourseModule = ({ courseId }) => {
                     mod.id === activeModuleId
                         ? {
                             ...mod,
-                            lessons: [...mod.lessons, res.data.result],
+                            lessons: [...mod.lessons ?? [], res.data.result],
                         }
                         : mod
                 );
                 setModules(updatedModules);
+                setSelectedLesson({ ...res.data.result, moduleId: activeModuleId })
                 message.success("Lesson created successfully!");
             }
 
@@ -131,48 +150,36 @@ const CourseModule = ({ courseId }) => {
             setEditingLesson(null);
             lessonForm.resetFields();
         } catch (error) {
-            console.log("Failed to save lesson:", error);
             message.error("Error saving lesson.");
         } finally {
             setLoadingLesson(false);
         }
     };
 
-    const handleSaveTheory = async () => {
-        setLoadingTheory(true);
-        const htmlContent = editorRef.current?.getHtml();
-
+    const confirmDelete = async () => {
+        if (!deleteConfirm.target) return;
+      
+        setInitialLoading(true);
         try {
-            const values = await theoryForm.validateFields();
-            const title = values.title;
-            const lessonId = selectedLesson.id;
-            const result = await saveTheory({ lessonId, title, htmlContent });
-            message.success("Theory saved successfully!");
+          if (deleteConfirm.type === 'module') {
+            await axiosInstance.delete(commonApi.updateCourseModule.url(deleteConfirm.target.id));
+            message.success("Module deleted successfully!");
+          } else if (deleteConfirm.type === 'lesson') {
+            await axiosInstance.delete(commonApi.updateLesson.url(deleteConfirm.target.id));
+            message.success("Lesson deleted successfully!");
+          }
+      
+          fetchModules();
+          setSelectedLesson(null);
         } catch (err) {
-            message.error("Error saving theory.");
+          message.error("Delete failed.");
         } finally {
-            setLoadingTheory(false);
+          setDeleteConfirm({ visible: false, type: '', target: null });
+          setTimeout(() => {
+            setInitialLoading(false);
+        }, 400);
         }
-    };
-
-    const saveTheory = async ({ lessonId, title, htmlContent }) => {
-        const htmlFile = htmlToFile(htmlContent, `${title}.html`);
-
-        const formData = new FormData();
-        formData.append("lessonId", lessonId);
-        formData.append("title", title);
-        formData.append("contentFile", htmlFile);
-
-        try {
-            const res = await axiosInstance.post(commonApi.createTheory.url, formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-            });
-            return res.data;
-        } catch (error) {
-            console.error("Failed to save theory:", error);
-            throw error;
-        }
-    };
+      };      
 
     const renderModuleHeader = (mod) => (
         <div className="flex justify-between items-center">
@@ -186,6 +193,12 @@ const CourseModule = ({ courseId }) => {
                         e.stopPropagation();
                         setActiveModuleId(mod.id);
                         setShowLessonModal(true);
+                        lessonForm.setFieldsValue({
+                            title: null,
+                            lessonType: "CODE",
+                            duration: null,
+                            expReward: null
+                        });
                     }}
                 />
                 <Button
@@ -199,12 +212,23 @@ const CourseModule = ({ courseId }) => {
                         setShowModuleModal(true);
                     }}
                 />
+                <Button
+                    size="small"
+                    type="text"
+                    danger
+                    icon={<span className="text-sm"><DeleteOutlined /></span>}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteConfirm({ visible: true, type: 'module', target: mod });
+                    }}
+                />
             </div>
         </div>
     );
 
     return (
         <div className="flex border border-gray-200 min-h-[500px]">
+            {initialLoading && <LoadingOverlay />}
             {/* Sidebar */}
             <div className="w-[300px] bg-white p-4">
                 <Title level={4}>Modules</Title>
@@ -219,12 +243,12 @@ const CourseModule = ({ courseId }) => {
 
                 <div className="mt-4">
                     <Collapse accordion>
-                        {modules.map((mod) => (
+                        {modules?.map((mod) => (
                             <Panel
                                 header={renderModuleHeader(mod)}
                                 key={mod.id}
                             >
-                                {mod.lessons.map((lesson) => (
+                                {mod.lessons?.map((lesson) => (
                                     <div
                                         key={lesson.id}
                                         className={`flex justify-between items-center px-3 py-2 rounded cursor-pointer
@@ -245,9 +269,20 @@ const CourseModule = ({ courseId }) => {
                                                 setEditingLesson({ ...lesson });
                                                 lessonForm.setFieldsValue({
                                                     title: lesson.title,
-                                                    type: lesson.lessonType,
+                                                    lessonType: lesson.lessonType,
+                                                    duration: lesson.duration,
+                                                    expReward: lesson.expReward
                                                 });
                                                 setShowLessonModal(true);
+                                            }}
+                                        />
+                                        <Button
+                                            size="small"
+                                            type="text"
+                                            danger
+                                            icon={<DeleteOutlined />}
+                                            onClick={() => {
+                                                setDeleteConfirm({ visible: true, type: 'lesson', target: { ...lesson, moduleId: mod.id } });
                                             }}
                                         />
                                     </div>
@@ -267,36 +302,7 @@ const CourseModule = ({ courseId }) => {
                         {selectedLesson.lessonType === "CODE" ? (
                             <Tabs defaultActiveKey="theory">
                                 <Tabs.TabPane tab="Theory" key="theory">
-                                    <Form
-                                        form={theoryForm}
-                                        layout="vertical"
-                                        onValuesChange={() => markTheoryTouched()}
-                                    >
-                                        <Form.Item
-                                            name="title"
-                                            label="Theory Title"
-                                            rules={[{ required: true, message: "Please input the theory title" }]}
-                                        >
-                                            <Input placeholder="Enter theory title" />
-                                        </Form.Item>
-
-                                        <Form.Item label="Theory Content" required>
-                                            <RichTextEditor
-                                                content={theoryForm.getFieldValue("content") || ""}
-                                                onChange={(value) => theoryForm.setFieldsValue({ content: value })}
-                                                lessonId={selectedLesson.id}
-                                                ref={editorRef}
-                                            />
-                                        </Form.Item>
-                                        <Button
-                                            type="primary"
-                                            className="mt-6 justify-end"
-                                            onClick={handleSaveTheory}
-                                            loading={loadingTheory}
-                                        >
-                                            Save Theory
-                                        </Button>
-                                    </Form>
+                                    <TheoryForm lessonId={selectedLesson.id} />
                                 </Tabs.TabPane>
                                 <Tabs.TabPane tab="Exercise" key="exercise">
                                     <ExerciseForm lessonId={selectedLesson.id} />
@@ -387,6 +393,19 @@ const CourseModule = ({ courseId }) => {
                     </div>
                 </Form>
             </Modal>
+            <Modal
+                open={deleteConfirm.visible}
+                title={`Confirm Delete ${deleteConfirm.type === 'module' ? 'Module' : 'Lesson'}`}
+                onCancel={() => setDeleteConfirm({ visible: false, type: '', target: null })}
+                onOk={confirmDelete}
+                okText="Yes, Delete"
+                okButtonProps={{ danger: true }}
+            >
+                <p>
+                    Are you sure you want to delete this {deleteConfirm.type}? This action cannot be undone.
+                </p>
+            </Modal>
+
         </div>
     );
 };

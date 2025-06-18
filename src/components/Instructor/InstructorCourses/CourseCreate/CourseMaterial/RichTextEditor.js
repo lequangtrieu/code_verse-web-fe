@@ -99,6 +99,12 @@ const RichTextEditor = forwardRef(({ content, onChange, lessonId }, editorRef) =
         };
     }, [isFullscreen]);
 
+    useEffect(() => {
+        if (editor && content !== editor.getHTML()) {
+          editor.commands.setContent(content || "");
+        }
+      }, [content]);      
+
     return (
         <div className="border border-gray-300 rounded-md">
             <div className={`border rounded bg-white ${isFullscreen

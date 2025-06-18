@@ -3,6 +3,7 @@ import { Form, Input, Button, List, Modal, Select, Switch, Space, Card, message 
 import { DeleteOutlined, EditOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import axiosInstance from "../../../../../config/axiosInstance";
 import commonApi from "../../../../../common/api";
+import LoadingContainer from "../../../../../common/LoadingContainer";
 
 const { TextArea } = Input;
 
@@ -22,24 +23,43 @@ const ExerciseForm = ({ lessonId }) => {
     const [testCases, setTestCases] = useState([]);
     const [editingTestCase, setEditingTestCase] = useState(null);
     const [isTestCaseModalOpen, setIsTestCaseModalOpen] = useState(false);
+    const [initialLoading, setInitialLoading] = useState(false);
+    const [loadingTestCase, setLoadingTestCase] = useState(false);
     const [testCaseForm] = Form.useForm();
 
     useEffect(() => {
-        fetchExercise();
+        if (lessonId) {
+            exerciseForm.resetFields();
+            setExerciseTasks([]);
+            setTestCases([]);
+            fetchExercise();
+        }
     }, [lessonId]);
-
+    
     const fetchExercise = async () => {
+        setInitialLoading(true);
         try {
             const res = await axiosInstance.get(commonApi.getExerciseByLessonId.url(lessonId));
-            setExerciseId(res.data.result.id);
+            const exercise = res.data.result;
+    
+            if (!exercise) return;
+    
+            setExerciseId(exercise.id);
+            setExerciseTasks(exercise.tasks || []);
+            setTestCases(exercise.testCases || []);
+    
+            exerciseForm.setFieldsValue({
+                title: exercise.title,
+                instruction: exercise.instruction,
+            });
         } catch {
             message.error("Failed to get exercise.");
-        } finally{
+        } finally {
             setTimeout(() => {
-                
+                setInitialLoading(false);
             }, 400);
         }
-    };
+    };    
 
     const handleSaveExercise = async (values) => {
         try {
@@ -71,14 +91,24 @@ const ExerciseForm = ({ lessonId }) => {
         }
     };
 
-    const handleUpdateTask = () => {
-        setExerciseTasks((prev) =>
-            prev.map((t) =>
-                t.id === editingTaskId ? { ...t, description: editingDescription } : t
-            )
-        );
-        setEditingTaskId(null);
-        setEditingDescription("");
+    const handleUpdateTask = async () => {
+        try {
+            const newTask = {
+                id: editingTaskId,
+                description: editingDescription,
+            };
+            const res = await axiosInstance.put(commonApi.updateExerciseTask.url(editingTaskId), newTask);
+            setExerciseTasks((prev) =>
+                prev.map((t) =>
+                    t.id === editingTaskId ? { ...t, description: res.data.result.description } : t
+                )
+            );
+            setEditingTaskId(null);
+            setEditingDescription("");
+        } catch (err) {
+            message.error("Failed to update task");
+        }
+        
     };
 
     const handleCancelEdit = () => {
@@ -91,15 +121,45 @@ const ExerciseForm = ({ lessonId }) => {
         setEditingDescription(task.description);
     };
 
-    const handleAddTestCase = async (values) => {
+    const handleDeleteTask = async (item) => {
+        setInitialLoading(true);
+        try {
+            await axiosInstance.delete(commonApi.updateExerciseTask.url(item.id));
+            // setExerciseTasks((prev) => prev.filter((t) => t.id !== item.id));
+            fetchExercise();
+        } catch (err) {
+            message.error("Failed to delete task");
+        } finally{
+            setTimeout(() => {
+                setInitialLoading(false);
+            }, 400);
+        }
+    };
+
+    const handleSaveTestCase = async (values) => {
+        setLoadingTestCase(true);
         if (editingTestCase) {
+            const updateTestCase = { 
+                input: values.input,
+                expectedOutput: values.expectedOutput,
+                priority: values.priority,
+                public: values.isPublic
+             };
+             const res = await axiosInstance.put(commonApi.updateTestCase.url(editingTestCase.id), updateTestCase);
             setTestCases((prev) =>
                 prev.map((tc) =>
-                    tc === editingTestCase ? { ...editingTestCase, ...values } : tc
+                    tc === editingTestCase ? { ...editingTestCase, ...res.data.result } : tc
                 )
             );
+            message.success("Test case updated successfully!");
         } else {
-            const newTestCase = { ...values, exerciseId: exerciseId };
+            const newTestCase = { 
+                exerciseId: exerciseId,
+                input: values.input,
+                expectedOutput: values.expectedOutput,
+                priority: values.priority,
+                public: values.isPublic
+             };
             const res = await axiosInstance.post(commonApi.createTestCase.url, newTestCase);
             setTestCases([...testCases, res.data.result]);
             message.success("Test case saved successfully!");
@@ -107,10 +167,26 @@ const ExerciseForm = ({ lessonId }) => {
         setIsTestCaseModalOpen(false);
         setEditingTestCase(null);
         testCaseForm.resetFields();
+        setLoadingTestCase(false);
+    };
+
+    const handleDeleteTestCase = async (item) => {
+        setInitialLoading(true);
+        try {
+            await axiosInstance.delete(commonApi.updateTestCase.url(item.id));
+            fetchExercise();
+        } catch (err) {
+            message.error("Failed to delete test case");
+        } finally{
+            setTimeout(() => {
+                setInitialLoading(false);
+            }, 400);
+        }
     };
 
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 relative">
+            {initialLoading && <LoadingContainer />}
             {/* Exercise Info + Task List */}
             <div className="flex gap-4">
                 {/* Exercise Info */}
@@ -186,7 +262,7 @@ const ExerciseForm = ({ lessonId }) => {
                                                     danger
                                                     icon={<DeleteOutlined />}
                                                     onClick={() =>
-                                                        setExerciseTasks((prev) => prev.filter((t) => t.id !== item.id))
+                                                        handleDeleteTask(item)
                                                     }
                                                 />,
                                             ]
@@ -239,7 +315,7 @@ const ExerciseForm = ({ lessonId }) => {
                                         danger
                                         icon={<DeleteOutlined />}
                                         onClick={() =>
-                                            setTestCases((prev) => prev.filter((tc) => tc !== item))
+                                            handleDeleteTestCase(item)
                                         }
                                     />
                                 ]}
@@ -260,6 +336,7 @@ const ExerciseForm = ({ lessonId }) => {
             <Modal
                 title={editingTestCase ? "Edit Test Case" : "Add Test Case"}
                 open={isTestCaseModalOpen}
+                loading={loadingTestCase}
                 onCancel={() => {
                     setIsTestCaseModalOpen(false);
                     setEditingTestCase(null);
@@ -271,7 +348,7 @@ const ExerciseForm = ({ lessonId }) => {
                 <Form
                     form={testCaseForm}
                     layout="vertical"
-                    onFinish={handleAddTestCase}
+                    onFinish={handleSaveTestCase}
                 >
                     <Form.Item name="input" label="Input" rules={[{ required: true }]}>
                         <Input placeholder="e.g. 1,2,3" />
