@@ -1,104 +1,394 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, Radio, Checkbox, Button, notification } from "antd";
+import axiosInstance from "../../../../config/axiosInstance";
+import commonApi from "../../../../common/api";
 
-const QuizComponent = ({ quiz }) => {
+const QuizComponent = ({
+  quiz,
+  lessonId = null,
+  userId = null,
+  onProgressUpdate,
+}) => {
+  const [mode, setMode] = useState("info");
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [quizProgress, setQuizProgress] = useState(null);
+  const [quizHistory, setQuizHistory] = useState([]);
+  const [timeLeft, setTimeLeft] = useState(0);
 
-  const totalQuestions = quiz.questions.length;
-  const currentQuestion = quiz.questions[currentIndex];
+  const mapLessonProgressStatus = (status) => {
+    switch (status) {
+      case "NOT_STARTED":
+        return "Not Started";
+      case "PENDING":
+        return "In Progress";
+      case "PASSED":
+        return "Completed";
+      case "FAILED":
+        return "Failed";
+      default:
+        return "NOT_STARTED";
+    }
+  };
 
-  // Hàm xử lý khi người dùng chọn đáp án
-  const handleSelect = (questionId, value) => {
-    if (currentQuestion.quizType === "SINGLE") {
-      // Với câu hỏi kiểu SINGLE, chỉ cho phép chọn 1 câu trả lời
-      setAnswers({ ...answers, [questionId]: value });
-    } else {
-      // Với câu hỏi kiểu MULTIPLE, cho phép chọn nhiều câu trả lời
-      setAnswers((prevAnswers) => {
-        return {
-          ...prevAnswers,
-          [questionId]: value,
-        };
+  useEffect(() => {
+    if (mode === "attempt" && timeLeft > 0) {
+      const timer = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            axiosInstance
+              .put(commonApi.submitQuiz.url(userId, lessonId))
+              .then(async () => {
+                setTimeLeft(0);
+                setMode("info");
+                notification.warning({
+                  message: "Time's up",
+                  description: "Your time to complete the quiz has expired.",
+                });
+                await checkQuizProgress();
+              })
+              .catch(() => {
+                notification.error({
+                  message: "Error",
+                  description: "Failed to submit quiz after timeout.",
+                });
+              });
+
+            setMode("info");
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [mode, timeLeft]);
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60)
+      .toString()
+      .padStart(2, "0");
+    const secs = (seconds % 60).toString().padStart(2, "0");
+    return `${mins}:${secs}`;
+  };
+
+  const checkQuizProgress = async () => {
+    try {
+      const response = await axiosInstance.get(
+        commonApi.quizProgress.url(userId, lessonId)
+      );
+
+      const progresses = response.data || [];
+      setQuizHistory(progresses);
+
+      const latestInProgress = progresses.find((p) => p.status === "PENDING");
+      const latestPassed = progresses.find((p) => p.status === "PASSED");
+
+      if (latestInProgress) {
+        setQuizProgress(latestInProgress);
+        const timeElapsed = Math.floor(
+          (new Date() - new Date(latestInProgress.startedAt)) / 1000
+        );
+        const timeLeft = 30 * 60 - timeElapsed;
+        if (timeLeft <= 0) {
+          await axiosInstance.put(commonApi.submitQuiz.url(userId, lessonId));
+          await checkQuizProgress();
+          notification.warning({
+            message: "Time's up",
+            description: "Your time to complete the quiz has expired.",
+          });
+          await checkQuizProgress();
+          return;
+        } else {
+          setTimeLeft(timeLeft);
+          setMode("attempt");
+        }
+      } else if (
+        latestPassed ||
+        progresses.find((p) => p.status === "FAILED")
+      ) {
+        setQuizProgress(
+          latestPassed || progresses.find((p) => p.status === "FAILED")
+        );
+        setTimeLeft(0);
+        setMode("info");
+      } else {
+        setMode("info");
+      }
+    } catch (error) {
+      console.error("Error checking quiz progress", error);
+      notification.error({
+        message: "Error",
+        description: "Failed to check quiz progress.",
       });
     }
   };
 
-  // Hàm xử lý khi nộp bài
-  const handleSubmit = () => {
-    if (Object.keys(answers).length < totalQuestions) {
-      notification.warning({
-        message: "Incomplete Submission",
-        description: "Please answer all questions before submitting the quiz.",
-        placement: "bottomLeft",
+  useEffect(() => {
+    if (userId && lessonId) {
+      checkQuizProgress();
+    }
+  }, [lessonId, userId]);
+
+  const handleStartQuiz = async () => {
+    try {
+      await axiosInstance.put(commonApi.startQuiz.url(userId, lessonId));
+      setAnswers({});
+      setSubmitted(false);
+      setCurrentIndex(0);
+      setTimeLeft(30 * 60);
+      setMode("attempt");
+      await checkQuizProgress();
+    } catch (error) {
+      console.error("Error starting quiz:", error);
+      notification.error({
+        message: "Error",
+        description: "Failed to start quiz.",
       });
-      return;
+    }
+  };
+
+  const totalQuestions = quiz.questions.length;
+  const currentQuestion = quiz.questions[currentIndex];
+
+  const handleSelect = (questionId, value) => {
+    if (currentQuestion.quizType === "SINGLE") {
+      setAnswers({ ...answers, [questionId]: value });
+    } else {
+      setAnswers((prev) => ({ ...prev, [questionId]: value }));
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (Object.keys(answers).length < totalQuestions) {
+      return notification.warning({
+        message: "Incomplete Submission",
+        description: "Please answer all questions before submitting.",
+      });
     }
 
     setSubmitted(true);
 
     const correctCount = quiz.questions.filter((q) => {
-      const userAnswers = answers[q.id];
+      const userAnswer = answers[q.id];
       if (q.quizType === "SINGLE") {
-        // Kiểm tra cho câu hỏi loại SINGLE
-        return userAnswers === q.answers.find((answer) => answer.isCorrect)?.id;
+        return userAnswer === q.answers.find((a) => a.isCorrect)?.id;
       } else {
-        // Kiểm tra cho câu hỏi loại MULTIPLE
-        return userAnswers.every((answerId) =>
-          q.answers.some((answer) => answer.id === answerId && answer.isCorrect)
+        const correctIds = q.answers
+          .filter((a) => a.isCorrect)
+          .map((a) => a.id);
+        return (
+          Array.isArray(userAnswer) &&
+          userAnswer.length === correctIds.length &&
+          userAnswer.every((id) => correctIds.includes(id))
         );
       }
     }).length;
 
-    notification.success({
-      message: "Quiz Submitted Successfully",
-      description: `You answered ${correctCount}/${totalQuestions} questions correctly.`,
-      placement: "bottomLeft",
-    });
+    const scorePercent = Math.round((correctCount / totalQuestions) * 100);
+    const passScore = quiz.passScore || 80;
+
+    try {
+      await axiosInstance.put(commonApi.submitQuizPer.url(userId, lessonId), {
+        score: scorePercent,
+      });
+
+      if (scorePercent >= passScore) {
+        notification.success({
+          message: "Quiz Submitted",
+          description: `You passed with ${correctCount}/${totalQuestions} correct (${scorePercent}%)`,
+        });
+      } else {
+        notification.warning({
+          message: "Quiz Submitted",
+          description: `You did not pass. Only ${correctCount}/${totalQuestions} correct (${scorePercent}%)`,
+        });
+      }
+
+      await checkQuizProgress();
+      setMode("info");
+      setTimeLeft(0);
+
+      if (typeof onProgressUpdate === "function") {
+        onProgressUpdate();
+      }
+    } catch (error) {
+      console.error("Error submitting quiz:", error);
+      notification.error({
+        message: "Error",
+        description: "Failed to submit quiz.",
+      });
+    }
   };
 
-  // Hàm xác định kiểu hiển thị nút câu hỏi
   const getButtonStyle = (index) => {
     const questionId = quiz.questions[index].id;
     const userAnswer = answers[questionId];
 
     if (submitted) {
-      if (!userAnswer) {
-        return "border border-red-400 bg-red-50 text-red-600";
-      }
-
-      return userAnswer === quiz.questions[index].correct
-        ? "border-green-500"
-        : "border-red-500";
+      if (!userAnswer) return "border border-red-400 bg-red-50 text-red-600";
+      return "border-green-500";
     }
-
     return "border-gray-300";
   };
 
+  if (mode === "info") {
+    return (
+      <div className="bg-white p-8 rounded-xl shadow-md w-full mx-auto">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold text-gray-800">{quiz.title}</h2>
+          {quizProgress?.status === "PENDING" && (
+            <div className="bg-red-100 text-red-700 px-4 py-2 rounded text-sm font-semibold">
+              Time Left: {formatTime(timeLeft)}
+            </div>
+          )}
+        </div>
+        <div className="mb-4">
+          <p className="text-lg font-semibold">Quiz Status: </p>
+          <p className="text-gray-700">
+            {mapLessonProgressStatus(quizProgress?.status)}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-blue-50 p-4 rounded-lg text-center">
+            <p className="text-sm text-gray-500">Time Limit</p>
+            <p className="text-lg font-semibold text-blue-600">
+              {quiz.timeLimit || 30} min
+            </p>
+          </div>
+          <div className="bg-yellow-50 p-4 rounded-lg text-center">
+            <p className="text-sm text-gray-500">Questions</p>
+            <p className="text-lg font-semibold text-yellow-600">
+              {quiz.questions.length}
+            </p>
+          </div>
+          <div className="bg-green-50 p-4 rounded-lg text-center">
+            <p className="text-sm text-gray-500">Passing Score</p>
+            <p className="text-lg font-semibold text-green-600">
+              {quiz.passScore || 80}%
+            </p>
+          </div>
+          <div className="bg-purple-50 p-4 rounded-lg text-center">
+            <p className="text-sm text-gray-500">Attempts</p>
+            <p className="text-lg font-semibold text-purple-600">
+              {quizHistory.length}
+            </p>
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <p className="text-gray-700 italic text-center">
+            {quiz.description ||
+              "Make sure you understand the concepts before starting this quiz."}
+          </p>
+        </div>
+
+        {quizProgress?.status !== "PASSED" && (
+          <div className="flex justify-end">
+            <Button type="primary" onClick={handleStartQuiz} size="large">
+              Start Quiz
+            </Button>
+          </div>
+        )}
+
+        <div className="mb-8">
+          <h3 className="text-lg font-semibold mb-3">Attempt History</h3>
+          {quizHistory.length === 0 ? (
+            <p className="text-gray-500 italic">No attempts yet.</p>
+          ) : (
+            <ul className="space-y-2">
+              {[...quizHistory]
+                .sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt))
+                .map((attempt) => (
+                  <li
+                    key={attempt.id}
+                    className="bg-gray-50 border rounded-lg p-4 flex flex-col gap-1"
+                  >
+                    <div>
+                      <span className="font-semibold">Status: </span>
+                      <span
+                        className={
+                          attempt.status === "PASSED"
+                            ? "text-green-600"
+                            : attempt.status === "PENDING"
+                            ? "text-yellow-600"
+                            : "text-red-600"
+                        }
+                      >
+                        {mapLessonProgressStatus(attempt.status)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="font-semibold">Started: </span>
+                      {new Date(attempt.startedAt).toLocaleString()}
+                    </div>
+                    {attempt.completedAt && (
+                      <div>
+                        <span className="font-semibold">Completed: </span>
+                        {new Date(attempt.completedAt).toLocaleString()}
+                      </div>
+                    )}
+                    {typeof attempt.expGained === "number" && (
+                      <div>
+                        <span className="font-semibold">Exp Gained: </span>
+                        {attempt.expGained}
+                      </div>
+                    )}
+                  </li>
+                ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-w-[600px] w-full p-6 bg-white rounded shadow max-h-[850px] overflow-y-auto">
-      <div className="flex items-center justify-between mb-4">
+    <div className="min-w-[600px] w-full p-6 bg-white rounded shadow max-h-[850px] overflow-y-auto space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-800">{quiz.title}</h2>
+        <div
+          className={`px-4 py-2 rounded text-sm font-semibold ${
+            timeLeft <= 600
+              ? "bg-red-100 text-red-700"
+              : timeLeft <= 1000
+              ? "bg-yellow-100 text-yellow-700"
+              : "bg-green-100 text-green-700"
+          }`}
+        >
+          Time Left: {formatTime(timeLeft)}
+        </div>
+      </div>
+
+      <div className="flex justify-between items-center flex-wrap gap-2">
         <div className="flex flex-wrap gap-2">
           {quiz.questions.map((_, index) => (
             <Button
               key={index}
               type={index === currentIndex ? "primary" : "default"}
               onClick={() => setCurrentIndex(index)}
-              className={`w-20 border ${getButtonStyle(index)}`}
+              className={`w-16 border ${getButtonStyle(index)}`}
             >
-              Question {index + 1}
+              Q{index + 1}
             </Button>
           ))}
         </div>
-
-        <Button type="primary" onClick={handleSubmit} disabled={submitted}>
-          Submit Quiz
+        <Button
+          type="primary"
+          onClick={handleSubmit}
+          disabled={submitted}
+          className="mt-2 sm:mt-0"
+        >
+          Submit
         </Button>
       </div>
 
-      <Card key={currentQuestion.id} className="mb-4">
-        <p className="font-semibold">
+      <Card key={currentQuestion.id}>
+        <p className="font-semibold text-lg mb-2">
           {currentIndex + 1}. {currentQuestion.question}
         </p>
 
@@ -107,6 +397,7 @@ const QuizComponent = ({ quiz }) => {
             onChange={(e) => handleSelect(currentQuestion.id, e.target.value)}
             value={answers[currentQuestion.id]}
             disabled={submitted}
+            className="space-y-2 flex flex-col"
           >
             {currentQuestion.answers.map((opt) => (
               <Radio key={opt.id} value={opt.id}>
@@ -116,9 +407,10 @@ const QuizComponent = ({ quiz }) => {
           </Radio.Group>
         ) : (
           <Checkbox.Group
-            onChange={(checkedValues) => handleSelect(currentQuestion.id, checkedValues)}
-            value={answers[currentQuestion.id] || []}  // Đảm bảo giá trị là mảng
+            onChange={(vals) => handleSelect(currentQuestion.id, vals)}
+            value={answers[currentQuestion.id] || []}
             disabled={submitted}
+            className="space-y-2 flex flex-col"
           >
             {currentQuestion.answers.map((opt) => (
               <Checkbox key={opt.id} value={opt.id}>
@@ -129,19 +421,22 @@ const QuizComponent = ({ quiz }) => {
         )}
 
         {submitted && (
-          <p
-            className={`mt-2 font-medium ${
-              answers[currentQuestion.id] === currentQuestion.correct
-                ? "text-green-600"
-                : "text-red-500"
-            }`}
-          >
-            {answers[currentQuestion.id] === currentQuestion.correct
-              ? "Correct!"
-              : `Wrong. Correct answer: ${currentQuestion.correct}`}
+          <p className="mt-4 text-sm text-green-600 font-medium">
+            Submitted. See summary above.
           </p>
         )}
       </Card>
+
+      {/* <div className="flex justify-end">
+        <Button
+          onClick={async () => {
+            setMode("info");
+          }}
+          className="mt-4"
+        >
+          Back
+        </Button>
+      </div> */}
     </div>
   );
 };

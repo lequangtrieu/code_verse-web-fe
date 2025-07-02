@@ -33,6 +33,10 @@ const InstructorCoursesPage = () => {
     const user = useSelector((state) => state?.user?.user);
 
     useEffect(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }, [currentPage]);
+
+    useEffect(() => {
         fetchCourses();
         // eslint-disable-next-line
     }, [user]);

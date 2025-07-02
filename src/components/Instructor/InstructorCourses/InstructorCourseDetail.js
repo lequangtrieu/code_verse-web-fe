@@ -6,6 +6,8 @@ import { formatCurrency } from "../../../common/helper";
 import LoadingOverlay from "../../../common/LoadingOverlay";
 import { Form, Card, Descriptions, Tag, Collapse, Typography, Divider, message, Button } from "antd";
 import CourseDescription from "./CourseCreate/CourseInfo";
+import CourseModule from "./CourseCreate/CourseMaterial/CourseModule";
+import CourseModuleList from "./CourseView/CourseModuleList";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -18,6 +20,7 @@ const InstructorCourseDetailView = () => {
     const [categories, setCategories] = useState([]);
     const [course, setCourse] = useState(null);
     const [initialLoading, setInitialLoading] = useState(true);
+    const [submitLoading, setSubmitLoading] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
 
     const toggleEdit = () => {
@@ -31,12 +34,7 @@ const InstructorCourseDetailView = () => {
     const sortCourseData = (courseData) => {
         const sortedCourse = { ...courseData };
 
-        sortedCourse.modules = [...courseData.modules]
-            .sort((a, b) => a.orderIndex - b.orderIndex)
-            .map(module => ({
-                ...module,
-                lessons: [...module.lessons].sort((a, b) => a.orderIndex - b.orderIndex)
-            }));
+        sortedCourse.modules = [];
 
         setCourse(sortedCourse);
     };
@@ -73,7 +71,7 @@ const InstructorCourseDetailView = () => {
             setCategories(categoryRes.data.result);
             sortCourseData(courseRes.data.result);
         } catch (err) {
-            message.error("Error loading course or categories");
+            message.error("Error loading data.");
         } finally {
             setTimeout(() => {
                 setInitialLoading(false);
@@ -144,19 +142,58 @@ const InstructorCourseDetailView = () => {
             });
     }
 
+    const handleSubmitForApproval = async () => {
+        if (!id) {
+            message.error("Course ID not found.");
+            return;
+        }
+
+        setSubmitLoading(true);
+        try {
+            const res = await axiosInstance.get(commonApi.validateCourse.url(id));
+
+            const { valid, errors } = res.data.result;
+
+            if (valid) {
+                await axiosInstance.patch(commonApi.updateCourseStatus.url(id), {
+                    status: "PENDING",
+                });
+
+                loadInitialData();
+                message.success("Course submitted for approval.");
+            } else {
+                message.error("Course has validation issues:");
+                errors.forEach(err => {
+                    message.error(err);
+                });
+            }
+        } catch (error) {
+            console.error("Validation error:", error);
+            message.error("Failed to validate course.");
+        } finally {
+            setSubmitLoading(false);
+        }
+    };
+
+    const renderModuleHeader = (mod) => (
+        <div className="flex justify-between items-center">
+            <span>{mod.title}</span>
+        </div>
+    );
+
     return (
         <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
             {initialLoading && <LoadingOverlay />}
             {/* Course Overview */}
             <Card variant="outlined" className="shadow">
-                {!isEditing && (
-                    <div className="flex justify-end mb-4">
+                {!isEditing && course.status === "DRAFT" && (
+                    <div className="flex justify-end gap-2 mb-4">
+                        <Button type="primary" onClick={handleSubmitForApproval} loading={submitLoading}>
+                            Submit
+                        </Button>
                         <Button type="primary" onClick={toggleEdit}>
                             Edit
                         </Button>
-                        {/* {isEditing && (
-                        <Button type="primary"> Save </Button>
-                    )} */}
                     </div>
                 )}
 
@@ -227,7 +264,7 @@ const InstructorCourseDetailView = () => {
 
             {/* Modules & Lessons */}
             <Card title="Course Modules" variant="outlined" className="shadow">
-                {course.modules.length > 0 ? (
+                {/* {course.modules.length > 0 ? (
                     <Collapse
                         accordion
                         items={course.modules.map((module, moduleIndex) => ({
@@ -290,6 +327,9 @@ const InstructorCourseDetailView = () => {
                     <div className="text-center p-4 text-gray-500">
                         No modules yet.
                     </div>
+                )} */}
+                {course.status === "DRAFT" ? <CourseModule courseId={id} /> : (
+                    <CourseModuleList courseId={id} />
                 )}
 
 

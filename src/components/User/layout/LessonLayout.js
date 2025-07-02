@@ -28,19 +28,24 @@ export default function LessonLayout() {
         (module) => module.subLessons || []
       );
 
+      const currentSelectedId = selectedLesson?.id;
+
+      const updatedLesson = allLessons.find((l) => l.id === currentSelectedId);
+
       const firstUnfinished = allLessons.find(
         (lesson) => lesson.status !== "PASSED"
       );
-
       const fallbackLesson =
         allLessons.find((l) => l.lessonType !== "EXAM") || allLessons[0];
 
       setLessonData(response.data.result.data);
-      setSelectedLesson(firstUnfinished || fallbackLesson || null);
+      setSelectedLesson(
+        updatedLesson || firstUnfinished || fallbackLesson || null
+      );
     } catch (error) {
       console.error("Error fetching course details:", error);
     }
-  }, [courseId, user?.id]);
+  }, [courseId, user?.id, selectedLesson?.id]);
 
   useEffect(() => {
     fetchCourseData();
@@ -51,7 +56,7 @@ export default function LessonLayout() {
   }
 
   return (
-    <div className="flex min-h-[800px] overflow-y-auto py-6">
+    <div className="flex min-h-[800px] overflow-y-auto">
       <LessonSidebar
         lessons={lessonData}
         selectedLessonId={selectedLesson?.id}
@@ -60,7 +65,12 @@ export default function LessonLayout() {
       {selectedLesson && (
         <>
           {selectedLesson.lessonType === "EXAM" ? (
-            <QuizComponent quiz={selectedLesson} />
+            <QuizComponent
+              quiz={selectedLesson}
+              lessonId={selectedLesson?.id}
+              userId={user?.id}
+              onProgressUpdate={fetchCourseData}
+            />
           ) : (
             <>
               <LessonContent lesson={selectedLesson} />

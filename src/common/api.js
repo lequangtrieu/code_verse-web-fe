@@ -14,6 +14,31 @@ const commonApi = {
         url: `${backendDomain}/code/execute`,
     },
 
+    quizProgress: {
+    url: (userId, lessonId) => `${backendDomain}/quiz/progress/${userId}/${lessonId}`,
+    },
+
+    startQuiz: {
+    url: (userId, lessonId) => `${backendDomain}/quiz/start/${userId}/${lessonId}`,
+    },
+
+    submitQuiz: {
+    url: (userId, lessonId) => `${backendDomain}/quiz/submit/${userId}/${lessonId}`,
+    },
+
+    submitQuizPer: {
+    url: (userId, lessonId) => `${backendDomain}/quiz/submitPer/${userId}/${lessonId}`,
+    },
+
+    /** Discussion message */
+    discussion: {
+    getByLesson: (lessonId) => `${backendDomain}/discussions/lesson/${lessonId}`,
+    create: `${backendDomain}/discussions`,
+    reply: (parentId) => `${backendDomain}/discussions/${parentId}/reply`,
+    delete: (id) => `${backendDomain}/discussions/${id}`,
+    update: (id) => `${backendDomain}/discussions/${id}`,
+},
+
     /** User api */
     signUP: {
         url: `${backendDomain}/auth/signup`,
@@ -60,6 +85,9 @@ const commonApi = {
     category: {
         url: `${backendDomain}/category`,
     },
+    courseDetail: {
+        url: (courseId) => `${backendDomain}/course/${courseId}`
+    },
 
     /** Cart api */
     addToCartFree: {
@@ -97,11 +125,17 @@ const commonApi = {
     createCourse: {
         url: `${backendDomain}/course`
     },
+    getModules: {
+        url: (courseId) => `${backendDomain}/module/course/${courseId}`
+    },
     createModule: {
         url: `${backendDomain}/module`
     },
     createLesson: {
         url: `${backendDomain}/lesson`
+    },
+    getTheory: {
+        url: (lessonId) => `${backendDomain}/theory/lesson/${lessonId}`
     },
     createTheory: {
         url: `${backendDomain}/theory`
@@ -112,8 +146,14 @@ const commonApi = {
     createExerciseTask: {
         url: `${backendDomain}/exercise-task`
     },
+    updateExerciseTask: {
+        url: (taskId) => `${backendDomain}/exercise-task/${taskId}`
+    },
     createTestCase: {
         url: `${backendDomain}/test-case`
+    },
+    updateTestCase: {
+        url: (testCaseId) => `${backendDomain}/test-case/${testCaseId}`
     },
     createQuizBank: {
         url: (lessonId) => `${backendDomain}/quiz/lesson/${lessonId}`

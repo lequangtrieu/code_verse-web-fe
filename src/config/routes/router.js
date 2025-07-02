@@ -1,8 +1,8 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import {createBrowserRouter, Navigate} from "react-router-dom";
 import App from "../../App";
 
 import Courses from "../../components/User/Courses/Courses";
-import CourseDetail from "../../components/User/Courses/CourseDetail";
+import CourseDetail from "../../components/User/Courses/CourseDetail/CourseDetail";
 // import CourseForm from "../../components/Instructor/InstructorCourses/CourseCreate/CourseForm";
 import CourseForm from "../../components/Instructor/InstructorCourses/CourseCreate/CourseCreation";
 import Home from "../../components/layout/Home";
@@ -38,6 +38,7 @@ import RegisterPage from "../../components/Auth/RegisterPage";
 import LearnerDetailPage from "../../components/Admin/AdminAccount/LearnerDetailPage";
 import InstructorDetailPage from "../../components/Admin/AdminAccount/InstructorDetailPage";
 import AdminApproveInstructorPage from "../../components/Admin/AdminApproveInstructor/AdminApproveInstructorPage";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -56,7 +57,7 @@ const router = createBrowserRouter([
         element: <Courses />,
       },
       {
-        path: "course/:id",
+        path: "course/:courseId",
         element: <CourseDetail />,
       },
       {
