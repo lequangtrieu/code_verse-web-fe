@@ -3,7 +3,7 @@ import {Collapse, message, Skeleton, Tabs} from "antd";
 import {HiOutlineLightBulb} from "react-icons/hi";
 import {RiSendPlaneLine} from "react-icons/ri";
 import {GiPlanetCore} from "react-icons/gi";
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import axios from "axios";
 import commonApi from "../../../../common/api";
 import {useParams} from "react-router-dom";
@@ -12,6 +12,9 @@ import CurriculumTabs from "./CurriculumTabs";
 import AuthorCourses from "./AuthorCourses";
 import CoursePurchaseInfo from "./CoursePurchaseInfo";
 import PopularCourses from "./PopularCourses";
+import {useSelector} from "react-redux";
+import Context from "../../../../config/context/context";
+import useAddToCart from "../../../../hooks/useAddToCart";
 
 const {Panel} = Collapse;
 
@@ -21,6 +24,14 @@ const CourseDetail = () => {
     const [initialLoading, setInitialLoading] = useState(true);
     const {courseId} = useParams();
     const [courseDetail, setCourseDetail] = useState(null);
+    const user = useSelector((state) => state?.user?.user);
+    const [cartCourseIds, setCartCourseIds] = useState([]);
+    const { fetchCartDetail, fetchCartItems } = useContext(Context);
+
+    const [enrollmentStatus, setEnrollmentStatus] = useState({
+        enrolled: false,
+        completionPercentage: 0,
+    });
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -44,6 +55,30 @@ const CourseDetail = () => {
 
         fetchData();
     }, [courseId]);
+
+    useEffect(() => {
+        const fetchEnrollmentStatus = async () => {
+            if (!user?.id || !courseId) return;
+            try {
+                const response = await axios.get(
+                    `${commonApi.course.url}/${courseId}/enrollment-status?userId=${user.id}`
+                );
+                setEnrollmentStatus(response.data);
+            } catch (error) {
+                console.error("Failed to fetch enrollment status:", error);
+            }
+        };
+
+        fetchEnrollmentStatus();
+    }, [user?.id, courseId]);
+
+    const { handleAddToCart } = useAddToCart({
+        user,
+        cartCourseIds,
+        setCartCourseIds,
+        fetchCartDetail,
+        fetchCartItems,
+    });
 
     const curriculumData = [
         {
@@ -115,7 +150,7 @@ const CourseDetail = () => {
         <>
             {initialLoading ? (
                 <Skeleton active paragraph={{rows: 10}}/>
-            ) : (
+            ) : courseDetail ? (
                 <>
                     <section
                         className="relative bg-gradient-to-br from-[#eef2f7] to-[#fefefe] py-40 overflow-hidden shadow-inner">
@@ -147,13 +182,19 @@ const CourseDetail = () => {
 
 
                             <div>
-                                <CoursePurchaseInfo course={courseDetail}/>
+                                <CoursePurchaseInfo course={courseDetail}
+                                                    handleAddToCart={handleAddToCart}
+                                                    enrollmentStatus={enrollmentStatus}/>
+
                                 <PopularCourses popularCourses={popularCourses}/>
                             </div>
                         </div>
                     </section>
                 </>
-            )}
+            ): (
+                <div className="text-center text-red-500 py-12">Failed to load course details.</div>
+            )
+            }
         </>
     );
 };
