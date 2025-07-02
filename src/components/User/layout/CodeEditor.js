@@ -84,7 +84,7 @@ const CodeEditor = ({
           description: "Error",
         });
       }
-      if (i !== testCases.length - 1) await delay(300);
+      if (i !== testCases.length - 1) await delay(1);
     }
 
     setTestResults(results);

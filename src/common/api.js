@@ -1,5 +1,5 @@
-// const backendDomain = "http://localhost:8080/codeVerse";
-const backendDomain = "https://code-verse-web-be.onrender.com/codeVerse";
+const backendDomain = "http://localhost:8080/codeVerse";
+// const backendDomain = "https://code-verse-web-be.onrender.com/codeVerse";
 
 const commonApi = {
     default: {
@@ -14,6 +14,22 @@ const commonApi = {
         url: `${backendDomain}/code/execute`,
     },
 
+    quizProgress: {
+    url: (userId, lessonId) => `${backendDomain}/quiz/progress/${userId}/${lessonId}`,
+    },
+
+    startQuiz: {
+    url: (userId, lessonId) => `${backendDomain}/quiz/start/${userId}/${lessonId}`,
+    },
+
+    submitQuiz: {
+    url: (userId, lessonId) => `${backendDomain}/quiz/submit/${userId}/${lessonId}`,
+    },
+
+    submitQuizPer: {
+    url: (userId, lessonId) => `${backendDomain}/quiz/submitPer/${userId}/${lessonId}`,
+    },
+    
     /** User api */
     signUP: {
         url: `${backendDomain}/auth/signup`,
