@@ -71,7 +71,7 @@ const Footer = () => {
             <li className="flex items-start gap-2">
               <FaBuilding className="text-3xl" />
               <span>
-                FPT Building, No. 10 Pham Van Bach, Dich Vong Ward, Cau Giay District, Hanoi, Vietnam
+                FPT Complex, Nam Ky Khoi Nghia Street, Da Nang, Vietnam
               </span>
             </li>
             <li className="flex items-start gap-2">

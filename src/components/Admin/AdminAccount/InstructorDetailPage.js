@@ -61,28 +61,36 @@ const InstructorDetailPage = () => {
     return (
         <div style={{ padding: 24 }}>
             <Card title="Instructor's Information" style={{ marginBottom: 24 }}>
-                <Avatar
-                    size={100}
-                    src={instructor.avatar ? instructor.avatar : undefined}
-                    style={{ backgroundColor: instructor.avatar ? 'transparent' : '#87d068' }}
-                >
-                    {!instructor.avatar && instructor.name ? instructor.name.charAt(0).toUpperCase() : null}
-                </Avatar>
-                <p><b>Name:</b> {instructor.name}</p>
-                <p><b>Email:</b> {instructor.username}</p>
-                <p><b>Phone Number:</b> {instructor.phoneNumber || "N/A"}</p>
-                <p><b>Bio:</b> {instructor.bio || "N/A"}</p>
-                <p><b>Verified:</b> {instructor.isVerified ? "Yes" : "No"}</p>
-                <p>
-                    <b>Teaching Credentials:</b>{" "}
-                    {instructor.teachingCredentials ? (
-                        <a href={instructor.teachingCredentials} target="_blank" rel="noreferrer">
-                            View Document
-                        </a>
-                    ) : (
-                        "N/A"
-                    )}
-                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                    <Avatar
+                        size={120}
+                        src={instructor.avatar ? instructor.avatar : undefined}
+                        style={{ backgroundColor: instructor.avatar ? 'transparent' : '#87d068' }}
+                    >
+                        {!instructor.avatar && instructor.name ? instructor.name.charAt(0).toUpperCase() : null}
+                    </Avatar>
+                    <div style={{ flex: 1, lineHeight: 1.8 }}>
+                        <p><b>Name:</b> {instructor.name}</p>
+                        <p><b>Email:</b> {instructor.username}</p>
+                        <p><b>Phone Number:</b> {instructor.phoneNumber || "N/A"}</p>
+                        <p><b>Bio:</b> {instructor.bio || "N/A"}</p>
+                        <p><b>Verified:</b>
+                            <span style={{ marginLeft: 8, color: instructor.isVerified ? 'green' : 'red' }}>
+                                {instructor.isVerified ? 'Yes' : 'No'}
+                            </span>
+                        </p>
+                        <p>
+                            <b>Teaching Credentials:</b>{" "}
+                            {instructor.teachingCredentials ? (
+                                <a href={instructor.teachingCredentials} target="_blank" rel="noreferrer">
+                                    View Document
+                                </a>
+                            ) : (
+                                "N/A"
+                            )}
+                        </p>
+                    </div>
+                </div>
             </Card>
 
             <Card title="Courses Taught by Instructor">

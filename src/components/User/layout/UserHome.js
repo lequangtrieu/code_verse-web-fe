@@ -296,7 +296,7 @@ const UserHome = () => {
         placement: "bottomLeft",
       });
 
-            const responses = await Promise.all([
+      const responses = await Promise.all([
         fetch(`${commonApi.course.url}/user/${userId}/in-progress`),
         fetch(`${commonApi.course.url}/user/${userId}/completed`),
         fetch(`${commonApi.course.url}/user/${userId}/suggested`),
@@ -659,7 +659,7 @@ const UserHome = () => {
                               className="rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center"
                             >
                               <img
-                                src="imgPlaceholderCousre.png"
+                                src="robot.png"
                                 alt="Placeholder"
                                 className="w-full object-cover opacity-50"
                               />
