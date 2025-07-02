@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Card, Tabs, Input, Button, notification, Avatar } from "antd";
+import {
+  Card,
+  Tabs,
+  Input,
+  Button,
+  notification,
+  Avatar,
+  Tooltip,
+  Modal,
+} from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/en";
+import axiosInstance from "../../../../config/axiosInstance";
+import commonApi from "../../../../common/api";
+import { useSelector } from "react-redux";
+import CommentActions from "../../../../common/CommentActions";
 
 dayjs.extend(relativeTime);
 dayjs.locale("en");
@@ -12,14 +25,32 @@ const { TabPane } = Tabs;
 const { TextArea } = Input;
 
 const LessonContent = ({ lesson }) => {
-  
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState(null);
+  const [editingComment, setEditingComment] = useState(null);
+  const [editingParentId, setEditingParentId] = useState(null);
+  const [editText, setEditText] = useState("");
+  const user = useSelector((state) => state?.user?.user);
   const [commentInput, setCommentInput] = useState("");
   const [comments, setComments] = useState([]);
   const [activeReplyId, setActiveReplyId] = useState(null);
   const [replyInputs, setReplyInputs] = useState({});
 
   useEffect(() => {
-    setComments(lesson?.comments || []);
+    if (!lesson) return;
+
+    const fetchComments = async () => {
+      try {
+        const res = await axiosInstance.get(
+          commonApi.discussion.getByLesson(lesson.id)
+        );
+        setComments(res.data);
+      } catch (err) {
+        console.error("Failed to load comments:", err);
+      }
+    };
+
+    fetchComments();
     setActiveReplyId(null);
     setReplyInputs({});
   }, [lesson]);
@@ -32,57 +63,128 @@ const LessonContent = ({ lesson }) => {
     );
   }
 
-  const openNotification = (type, messageText) => {
+  const openNotification = (type, message, description = "") => {
     notification[type]({
-      message: messageText,
+      message,
+      description,
       placement: "topLeft",
       duration: 4,
     });
   };
 
-  const handleSubmitComment = () => {
-    if (!commentInput.trim()) {
-      openNotification("warning", "Please enter a comment.");
-      return;
-    }
-
-    const newComment = {
-      id: Date.now().toString(),
-      author: "DOLV2@fpt.com",
-      content: commentInput,
-      createdAt: new Date().toISOString(),
-      replies: [],
-    };
-
-    setComments([newComment, ...comments]);
-    setCommentInput("");
-    openNotification("success", "Comment submitted successfully!");
+  const confirmDeleteComment = (commentId) => {
+    setCommentToDelete(commentId);
+    setDeleteModalOpen(true);
   };
 
-  const handleSubmitReply = (commentId) => {
-    const reply = replyInputs[commentId];
-    if (!reply || !reply.trim()) {
-      openNotification("warning", "Please enter a reply.");
+  const handleConfirmedDelete = async () => {
+    try {
+      await axiosInstance.delete(commonApi.discussion.delete(commentToDelete));
+      setComments((prev) =>
+        prev.map((c) =>
+          c.id === commentToDelete
+            ? { ...c, isDeleted: true }
+            : {
+                ...c,
+                replies: c.replies?.map((r) =>
+                  r.id === commentToDelete ? { ...r, isDeleted: true } : r
+                ),
+              }
+        )
+      );
+      openNotification(
+        "success",
+        "Comment Deleted",
+        "Your comment has been deleted successfully."
+      );
+    } catch {
+      openNotification(
+        "error",
+        "Deletion Failed",
+        "An error occurred while deleting the comment."
+      );
+    } finally {
+      setDeleteModalOpen(false);
+      setCommentToDelete(null);
+    }
+  };
+
+  const handleSubmitComment = async () => {
+    if (!user?.username) return;
+    if (!commentInput.trim()) {
+      openNotification(
+        "warning",
+        "Comment Required",
+        "Please enter your comment before submitting."
+      );
       return;
     }
 
-    const newReply = {
-      id: Date.now().toString(),
-      author: "DOLV2@fpt.com",
-      content: reply,
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      const res = await axiosInstance.post(commonApi.discussion.create, {
+        lessonId: lesson.id,
+        userId: user?.id,
+        messageText: commentInput,
+      });
+      setComments([res.data, ...comments]);
+      setCommentInput("");
+      openNotification(
+        "success",
+        "Comment Submitted",
+        "Your comment has been posted successfully."
+      );
+    } catch (err) {
+      openNotification(
+        "error",
+        "Failed to Submit",
+        "We were unable to post your comment. Please try again."
+      );
+    }
+  };
 
-    const updatedComments = comments.map((cmt) =>
-      cmt.id === commentId
-        ? { ...cmt, replies: [...(cmt.replies || []), newReply] }
-        : cmt
-    );
+  const handleSubmitReply = async (commentId) => {
+    if (!user?.username) return;
+    const reply = replyInputs[commentId];
+    if (!reply || !reply.trim()) {
+      openNotification(
+        "warning",
+        "Reply Required",
+        "Please enter your reply before submitting."
+      );
+      return;
+    }
 
-    setComments(updatedComments);
-    setReplyInputs((prev) => ({ ...prev, [commentId]: "" }));
-    setActiveReplyId(null);
-    openNotification("success", "Reply submitted successfully!");
+    try {
+      const res = await axiosInstance.post(
+        commonApi.discussion.reply(commentId),
+        {
+          lessonId: lesson.id,
+          userId: user?.id,
+          messageText: reply,
+        }
+      );
+
+      const updatedComments = comments.map((cmt) =>
+        cmt.id === commentId
+          ? { ...cmt, replies: [...(cmt.replies || []), res.data] }
+          : cmt
+      );
+
+      setComments(updatedComments);
+      setReplyInputs((prev) => ({ ...prev, [commentId]: "" }));
+      setActiveReplyId(null);
+      openNotification(
+        "success",
+        "Reply Submitted",
+        "Your reply has been posted successfully."
+      );
+    } catch (err) {
+      openNotification(
+        "error",
+        "Failed to Submit Reply",
+        "We were unable to post your reply. Please try again."
+      );
+    }
   };
 
   const handleKeyDown = (e, type, commentId = null) => {
@@ -94,6 +196,58 @@ const LessonContent = ({ lesson }) => {
         handleSubmitReply(commentId);
       }
     }
+  };
+
+  const startEditComment = (comment, parentId = null) => {
+    setEditingComment(comment.id);
+    setEditingParentId(parentId);
+    setEditText(comment.messageText);
+  };
+
+  const submitEditComment = async () => {
+    try {
+      await axiosInstance.put(commonApi.discussion.update(editingComment), {
+        messageText: editText,
+      });
+
+      setComments((prev) =>
+        prev.map((c) => {
+          if (c.id === editingComment && editingParentId === null) {
+            return {
+              ...c,
+              originalMessage: c.messageText,
+              messageText: editText,
+            };
+          }
+
+          if (c.id === editingParentId) {
+            const updatedReplies = c.replies.map((rep) =>
+              rep.id === editingComment
+                ? {
+                    ...rep,
+                    originalMessage: rep.messageText,
+                    messageText: editText,
+                  }
+                : rep
+            );
+            return { ...c, replies: updatedReplies };
+          }
+
+          return c;
+        })
+      );
+
+      setEditingComment(null);
+      setEditingParentId(null);
+      setEditText("");
+      openNotification("success", "Comment updated");
+    } catch {
+      openNotification("error", "Failed to update comment");
+    }
+  };
+
+  const handleReport = (id) => {
+    openNotification("info", "Report feature coming soon");
   };
 
   return (
@@ -149,87 +303,218 @@ const LessonContent = ({ lesson }) => {
                   No comments yet for this lesson.
                 </p>
               )}
-              {comments.map((comment) => (
-                <div
-                  key={comment.id}
-                  className="bg-blue-50 p-4 rounded shadow-sm"
-                >
-                  <div className="flex items-start gap-3">
-                    <Avatar icon={<UserOutlined />} />
-                    <div>
-                      <p className="font-semibold">{comment.author}</p>
-                      <p className="text-xs text-gray-500">
-                        {dayjs(comment.createdAt).fromNow()}
-                      </p>
-                      <p className="text-gray-800 mt-1">{comment.content}</p>
-                    </div>
-                  </div>
 
-                  <div className="mt-3 space-y-2 pl-6 border-l border-gray-300">
-                    {(comment.replies || []).map((rep) => (
-                      <div key={rep.id} className="bg-gray-100 p-2 rounded">
-                        <div className="flex items-start gap-2">
-                          <Avatar size="small" icon={<UserOutlined />} />
+              {comments.map((comment) =>
+                comment.isDeleted ? null : (
+                  <div
+                    key={comment.id}
+                    className="bg-blue-50 p-4 rounded shadow-sm"
+                  >
+                    <div className="flex items-start gap-3">
+                      <Avatar
+                        src={comment.avatar}
+                        icon={!comment.avatar && <UserOutlined />}
+                      />
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start">
                           <div>
-                            <p className="font-semibold text-sm">
-                              {rep.author}
+                            <p className="font-semibold">
+                              {comment.authorEmail}
                             </p>
                             <p className="text-xs text-gray-500">
-                              {dayjs(rep.createdAt).fromNow()}
-                            </p>
-                            <p className="text-gray-800 text-sm mt-1">
-                              {rep.content}
+                              {dayjs(comment.createdAt).fromNow()}
                             </p>
                           </div>
+                          <CommentActions
+                            isOwner={user?.id === comment.userId}
+                            onEdit={() => startEditComment(comment)}
+                            onDelete={() => confirmDeleteComment(comment.id)}
+                            onReport={() => handleReport(comment.id)}
+                          />
                         </div>
-                      </div>
-                    ))}
-                  </div>
 
-                  <div className="mt-2">
-                    <Button
-                      size="small"
-                      onClick={() =>
-                        setActiveReplyId(
-                          activeReplyId === comment.id ? null : comment.id
-                        )
-                      }
-                    >
-                      {activeReplyId === comment.id ? "Cancel" : "Reply"}
-                    </Button>
-                  </div>
-
-                  {activeReplyId === comment.id && (
-                    <div className="mt-2">
-                      <TextArea
-                        rows={2}
-                        value={replyInputs[comment.id] || ""}
-                        onChange={(e) =>
-                          setReplyInputs((prev) => ({
-                            ...prev,
-                            [comment.id]: e.target.value,
-                          }))
-                        }
-                        onKeyDown={(e) => handleKeyDown(e, "reply", comment.id)}
-                        placeholder="Write a reply..."
-                      />
-                      <div className="text-right mt-1">
-                        <Button
-                          size="small"
-                          type="primary"
-                          onClick={() => handleSubmitReply(comment.id)}
-                        >
-                          Submit Reply
-                        </Button>
+                        {editingComment === comment.id ? (
+                          <div className="mt-2">
+                            <TextArea
+                              style={{ resize: "none" }}
+                              rows={3}
+                              value={editText}
+                              onChange={(e) => setEditText(e.target.value)}
+                            />
+                            <div className="text-right mt-1">
+                              <Button
+                                size="small"
+                                onClick={() => setEditingComment(null)}
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                size="small"
+                                type="primary"
+                                className="ml-2"
+                                onClick={submitEditComment}
+                              >
+                                Save
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-gray-800 mt-1 text-sm">
+                            {comment.messageText}
+                            {comment.originalMessage && (
+                              <Tooltip
+                                title={`Original: ${comment.originalMessage}`}
+                              >
+                                <span className="ml-2 text-blue-500 text-xs cursor-pointer">
+                                  Edited
+                                </span>
+                              </Tooltip>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
-                  )}
-                </div>
-              ))}
+
+                    {/* Replies */}
+                    <div className="mt-3 space-y-2 pl-6 border-l border-gray-300">
+                      {(comment.replies || []).map((rep) =>
+                        rep?.isDeleted ? null : (
+                          <div key={rep.id} className="bg-gray-100 p-2 rounded">
+                            <div className="flex items-start gap-2">
+                              <Avatar
+                                src={rep.avatar}
+                                icon={!rep.avatar && <UserOutlined />}
+                              />
+                              <div className="flex-1">
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    <p className="font-semibold text-sm">
+                                      {rep.authorEmail}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      {dayjs(rep.createdAt).fromNow()}
+                                    </p>
+                                  </div>
+                                  <CommentActions
+                                    isOwner={user?.id === rep.userId}
+                                    onEdit={() =>
+                                      startEditComment(rep, comment.id)
+                                    }
+                                    onDelete={() =>
+                                      confirmDeleteComment(rep.id)
+                                    }
+                                    onReport={() => handleReport(rep.id)}
+                                  />
+                                </div>
+
+                                {editingComment === rep.id ? (
+                                  <div className="mt-1">
+                                    <TextArea
+                                      style={{ resize: "none" }}
+                                      rows={3}
+                                      value={editText}
+                                      onChange={(e) =>
+                                        setEditText(e.target.value)
+                                      }
+                                    />
+                                    <div className="text-right mt-1">
+                                      <Button
+                                        size="small"
+                                        onClick={() => setEditingComment(null)}
+                                      >
+                                        Cancel
+                                      </Button>
+                                      <Button
+                                        size="small"
+                                        type="primary"
+                                        className="ml-2"
+                                        onClick={submitEditComment}
+                                      >
+                                        Save
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <p className="text-gray-800 text-sm mt-1">
+                                    {rep.messageText}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+
+                    {/* Reply input */}
+                    <div className="mt-2">
+                      <Button
+                        size="small"
+                        onClick={() =>
+                          setActiveReplyId(
+                            activeReplyId === comment.id ? null : comment.id
+                          )
+                        }
+                      >
+                        {activeReplyId === comment.id ? "Cancel" : "Reply"}
+                      </Button>
+                    </div>
+
+                    {activeReplyId === comment.id && (
+                      <div className="mt-2">
+                        <TextArea
+                          style={{ resize: "none" }}
+                          rows={3}
+                          value={replyInputs[comment.id] || ""}
+                          onChange={(e) =>
+                            setReplyInputs((prev) => ({
+                              ...prev,
+                              [comment.id]: e.target.value,
+                            }))
+                          }
+                          onKeyDown={(e) =>
+                            handleKeyDown(e, "reply", comment.id)
+                          }
+                          placeholder="Write a reply..."
+                        />
+                        <div className="text-right mt-1">
+                          <Button
+                            size="small"
+                            type="primary"
+                            onClick={() => handleSubmitReply(comment.id)}
+                          >
+                            Submit Reply
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              )}
             </div>
           </Card>
         </TabPane>
       </Tabs>
+      <Modal
+        open={deleteModalOpen}
+        onCancel={() => setDeleteModalOpen(false)}
+        footer={null}
+        centered
+        className="custom-modal"
+        getContainer={false}
+        width={400}
+      >
+        <div className="text-center">
+          <h3 className="text-lg font-semibold mb-2">Are you sure?</h3>
+          <p className="text-gray-600 mb-4">This action cannot be undone.</p>
+          <div className="flex justify-end gap-2">
+            <Button onClick={() => setDeleteModalOpen(false)}>Cancel</Button>
+            <Button danger type="primary" onClick={handleConfirmedDelete}>
+              Delete
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
