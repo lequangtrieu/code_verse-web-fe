@@ -1,8 +1,45 @@
 import React from "react";
 import { FaPlay } from "react-icons/fa";
 import {formatCurrency, formatDuration, getDiscountedPrice} from "../../../../common/helper";
+import {useNavigate} from "react-router-dom";
 
-const CoursePurchaseInfo = ({ course, handleAddToCart  }) => {
+const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus  }) => {
+    const navigate = useNavigate();
+    const { enrolled, completionPercentage } = enrollmentStatus;
+
+    const renderActionButton = () => {
+        if (!enrolled) {
+            return (
+                <button
+                    className="mt-3 w-full bg-purple-600 text-white py-2 rounded"
+                    onClick={() => handleAddToCart(course?.course)}
+                >
+                    Add To Cart
+                </button>
+            );
+        }
+
+        if (completionPercentage < 100) {
+            return (
+                <button
+                    className="mt-3 w-full bg-green-600 text-white py-2 rounded"
+                    onClick={() => navigate(`/course/${course?.course.id}/learn`)}
+                >
+                    Learning Now
+                </button>
+            );
+        }
+
+        return (
+            <button
+                className="mt-3 w-full bg-gray-400 text-white py-2 rounded cursor-not-allowed"
+                disabled
+            >
+                Completed
+            </button>
+        );
+    };
+
     return (
         <div className="rounded-xl border border-gray-200 p-5">
             <div className="relative">
@@ -22,10 +59,9 @@ const CoursePurchaseInfo = ({ course, handleAddToCart  }) => {
                 <p className="line-through text-sm text-gray-400">{formatCurrency(course?.course.price)}</p>
                 <p className="text-right text-xs text-red-500">{course?.course.discount}% OFF</p>
             </div>
-            <button className="mt-3 w-full bg-purple-600 text-white py-2 rounded"
-                    onClick={() => handleAddToCart(course?.course)}>
-                Add To Cart
-            </button>
+
+            {renderActionButton()}
+
             <p className="text-xs mt-1 text-center text-gray-500">{course?.course.description}</p>
 
             <div className="mt-4 space-y-2 text-sm text-gray-600">

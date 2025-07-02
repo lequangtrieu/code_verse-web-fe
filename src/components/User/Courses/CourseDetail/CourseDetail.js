@@ -28,6 +28,11 @@ const CourseDetail = () => {
     const [cartCourseIds, setCartCourseIds] = useState([]);
     const { fetchCartDetail, fetchCartItems } = useContext(Context);
 
+    const [enrollmentStatus, setEnrollmentStatus] = useState({
+        enrolled: false,
+        completionPercentage: 0,
+    });
+
     useEffect(() => {
         const timer = setTimeout(() => {
             setInitialLoading(false);
@@ -50,6 +55,22 @@ const CourseDetail = () => {
 
         fetchData();
     }, [courseId]);
+
+    useEffect(() => {
+        const fetchEnrollmentStatus = async () => {
+            if (!user?.id || !courseId) return;
+            try {
+                const response = await axios.get(
+                    `${commonApi.course.url}/${courseId}/enrollment-status?userId=${user.id}`
+                );
+                setEnrollmentStatus(response.data);
+            } catch (error) {
+                console.error("Failed to fetch enrollment status:", error);
+            }
+        };
+
+        fetchEnrollmentStatus();
+    }, [user?.id, courseId]);
 
     const { handleAddToCart } = useAddToCart({
         user,
@@ -161,7 +182,10 @@ const CourseDetail = () => {
 
 
                             <div>
-                                <CoursePurchaseInfo course={courseDetail} handleAddToCart={handleAddToCart} />
+                                <CoursePurchaseInfo course={courseDetail}
+                                                    handleAddToCart={handleAddToCart}
+                                                    enrollmentStatus={enrollmentStatus}/>
+
                                 <PopularCourses popularCourses={popularCourses}/>
                             </div>
                         </div>
