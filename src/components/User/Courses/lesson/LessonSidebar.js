@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Collapse, List, Tooltip } from "antd";
 import {
   FileTextOutlined,
@@ -9,6 +9,24 @@ const { Panel } = Collapse;
 
 const LessonSidebar = ({ lessons, selectedLessonId, onSelect }) => {
   const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+      for (const lesson of lessons) {
+        if (lesson.type === "quiz" && lesson.status === "PENDING") {
+          onSelect(lesson);
+          break;
+        } else if (lesson.subLessons?.length) {
+          const pendingSub = lesson.subLessons.find(
+            (s) => s.status === "PENDING"
+          );
+          if (pendingSub) {
+            onSelect(pendingSub);
+            break;
+          }
+        }
+      }
+    
+  }, [lessons]);
 
   const renderStatusIcon = (status) => {
     switch (status) {
@@ -37,7 +55,7 @@ const LessonSidebar = ({ lessons, selectedLessonId, onSelect }) => {
   }
 
   return (
-    <div className="min-w-[290px] max-w-[290px] w-80 px-3 pb-2 bg-white border-r border-gray-200 overflow-y-auto shadow-sm max-h-[850px] flex flex-col">
+    <div className="min-w-[290px] max-w-[290px] w-80 px-3 pb-2 bg-white border-r border-gray-200 overflow-y-auto shadow-sm flex flex-col">
       <h2 className="text-xl font-semibold mb-4 text-blue-600 sticky top-0 bg-white z-10 pb-2">
         Lesson List
       </h2>

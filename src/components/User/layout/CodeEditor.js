@@ -84,7 +84,7 @@ const CodeEditor = ({
           description: "Error",
         });
       }
-      if (i !== testCases.length - 1) await delay(300);
+      if (i !== testCases.length - 1) await delay(1);
     }
 
     setTestResults(results);
@@ -132,13 +132,11 @@ const CodeEditor = ({
       }
 
       const userCode = editorRef.current.getValue();
-      const response = await axiosInstance.post(commonApi.submitCode.url(), {
+      await axiosInstance.post(commonApi.submitCode.url(), {
         lessonId,
         userId,
         code: userCode,
       });
-
-      console.log(response);
 
       notification.success({
         message: "Code Submitted",
