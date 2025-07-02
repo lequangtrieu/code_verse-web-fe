@@ -74,10 +74,10 @@ const CourseDetailInfo = ({ courseDetail }) => {
                 </div>
 
                 {/* Category and Instructor */}
-                <div className="flex items-center gap-6 text-sm text-gray-500">
-                    <span className="font-semibold">{courseDetail?.course.category}</span>
-                    <span className="font-semibold">{courseDetail?.course.instructor}</span>
-                </div>
+                {/*<div className="flex items-center gap-6 text-sm text-gray-500">*/}
+                {/*    <span className="font-semibold">{courseDetail?.courseMoreInfo.category}</span>*/}
+                {/*    <span className="font-semibold">{courseDetail?.courseMoreInfo.instructor}</span>*/}
+                {/*</div>*/}
             </div>
 
             {/* Course Description */}
