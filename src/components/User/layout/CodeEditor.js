@@ -14,6 +14,7 @@ const CodeEditor = ({
   testCases = [],
   language: fixedLanguage,
   onRefreshLessonData,
+  exercise = [],
 }) => {
   const defaultCodeMap = useMemo(
     () => ({
@@ -115,6 +116,8 @@ const CodeEditor = ({
           input: firstFailed.input,
           expected: firstFailed.expected,
           actual: firstFailed.actual,
+          exerciseTitle: exercise?.title,
+          exerciseTasks: exercise?.tasks?.map((t) => `• ${t}`).join("\n"),
         });
         setAISuggestion(suggestion);
       }
