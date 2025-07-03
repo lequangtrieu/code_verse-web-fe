@@ -66,9 +66,9 @@ const userInfo = {
   ],
 };
 const banners = [
-  { id: 1, image: "banerDemo.png", link: "/home" },
-  { id: 2, image: "banerDemo.png", link: "/home" },
-  { id: 3, image: "banerDemo.png", link: "/home" },
+  { id: 1, image: "banner1.png", link: "/home" },
+  { id: 2, image: "banner2.png", link: "/home" },
+  { id: 3, image: "banner3.png", link: "/home" },
 ];
 const completedLessons = 562;
 const totalLessons = 801;
