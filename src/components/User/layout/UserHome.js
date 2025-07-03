@@ -66,9 +66,9 @@ const userInfo = {
   ],
 };
 const banners = [
-  { id: 1, image: "banerDemo.png", link: "https://example.com/page1" },
-  { id: 2, image: "banerDemo.png", link: "https://example.com/page2" },
-  { id: 3, image: "banerDemo.png", link: "https://example.com/page3" },
+  { id: 1, image: "banerDemo.png", link: "/home" },
+  { id: 2, image: "banerDemo.png", link: "/home" },
+  { id: 3, image: "banerDemo.png", link: "/home" },
 ];
 const completedLessons = 562;
 const totalLessons = 801;
@@ -500,7 +500,7 @@ const UserHome = () => {
         <Carousel autoplay dots>
           {banners.map((banner) => (
             <div key={banner.id}>
-              <a href={banner.link} target="_blank" rel="noopener noreferrer">
+              <a href={banner.link} rel="noopener noreferrer">
                 <img
                   src={banner.image}
                   alt={`Banner ${banner.id}`}
