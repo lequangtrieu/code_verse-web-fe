@@ -26,7 +26,7 @@ import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../../config/axiosInstance";
 import Context from "../../../config/context/context";
 import "../Courses/Courses.css";
-import {formatCurrency, formatDuration, getDiscountedPrice} from "../../../common/helper";
+import { formatCurrency, formatDuration, getDiscountedPrice } from "../../../common/helper";
 import { logoutUser } from "../../../config/store/userSlice";
 
 const { Search } = Input;
@@ -263,7 +263,7 @@ const Courses = () => {
       description:
         "Discover a world of programming knowledge with our comprehensive courses. Whether you're a beginner or an experienced developer, we have the perfect learning path for you.",
       image:
-        "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/images%2Fa53129ba-4965-4353-8bd2-6e917bdc9d3a_tutien.png?alt=media",
+        "boy.png",
       buttonText: "Explore Courses",
       buttonLink: "/courses",
     },
@@ -273,7 +273,7 @@ const Courses = () => {
       description:
         "Our courses are designed and taught by industry professionals. Get practical, real-world experience through our project-based learning approach.",
       image:
-        "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/images%2Fa53129ba-4965-4353-8bd2-6e917bdc9d3a_tutien.png?alt=media",
+        "robot.png",
       buttonText: "View Instructors",
       buttonLink: "/instructors",
     },
@@ -283,7 +283,7 @@ const Courses = () => {
       description:
         "Become part of our growing community of developers. Share knowledge, collaborate on projects, and grow together in your coding journey.",
       image:
-        "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/images%2Fa53129ba-4965-4353-8bd2-6e917bdc9d3a_tutien.png?alt=media",
+        "robot.png",
       buttonText: "Join Community",
       buttonLink: "/community",
     },
