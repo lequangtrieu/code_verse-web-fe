@@ -82,6 +82,7 @@ export default function LessonLayout() {
                 testCases={selectedLesson.testCases || []}
                 language={language === "all" ? null : language}
                 onRefreshLessonData={fetchCourseData}
+                exercise={selectedLesson?.exercise}
               />
             </>
           )}

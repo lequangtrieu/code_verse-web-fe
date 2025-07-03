@@ -9,6 +9,12 @@ const commonApi = {
     healthAPI: {
         url: `${backendDomain}/health`,
     },
+    
+    /** AI HELP */
+    aiFeedback: {
+        url: `${backendDomain}/ai/feedback`,
+    },
+
     /** Code api */
     executionCode: {
         url: `${backendDomain}/code/execute`,

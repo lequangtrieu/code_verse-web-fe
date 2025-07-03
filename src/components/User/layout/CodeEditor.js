@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { Select, Button, notification, Tooltip } from "antd";
+import { Select, Button, notification, Tooltip, Modal } from "antd";
 import Editor from "@monaco-editor/react";
 import commonApi from "../../../common/api";
 import axiosInstance from "../../../config/axiosInstance";
+import { getAIFeedback } from "../../../common/aiHelper";
 
 const { Option } = Select;
 
@@ -13,6 +14,7 @@ const CodeEditor = ({
   testCases = [],
   language: fixedLanguage,
   onRefreshLessonData,
+  exercise = [],
 }) => {
   const defaultCodeMap = useMemo(
     () => ({
@@ -25,6 +27,8 @@ const CodeEditor = ({
     []
   );
 
+  const [showAIModal, setShowAIModal] = useState(false);
+  const [aiSuggestion, setAISuggestion] = useState("");
   const languageList = ["javascript", "python", "java", "c", "cpp"];
   const themeList = ["vs-dark", "light", "hc-black"];
   const editorRef = useRef();
@@ -101,6 +105,22 @@ const CodeEditor = ({
         description: "Please check the result details.",
         placement: "topLeft",
       });
+
+      const firstFailed = results.find(
+        (r) => r.description === "Fail" || r.description === "Error"
+      );
+      if (firstFailed) {
+        const suggestion = await getAIFeedback({
+          language,
+          code: userCode,
+          input: firstFailed.input,
+          expected: firstFailed.expected,
+          actual: firstFailed.actual,
+          exerciseTitle: exercise?.title,
+          exerciseTasks: exercise?.tasks?.map((t) => `• ${t}`).join("\n"),
+        });
+        setAISuggestion(suggestion);
+      }
     } else {
       setLastPassedCode(userCode);
       notification.success({
@@ -161,7 +181,10 @@ const CodeEditor = ({
     testResults.length === 0;
 
   return (
-    <div className="w-full p-4 bg-gray-900 rounded-lg shadow max-h-[850px] overflow-y-auto">
+    <div
+      style={{ overflow: "hidden" }}
+      className="w-full p-4 bg-gray-900 rounded-lg shadow max-h-[850px] overflow-y-auto"
+    >
       <div className="flex items-center justify-between mb-4 space-x-4">
         <div className="flex gap-2">
           {fixedLanguage ? (
@@ -240,11 +263,22 @@ const CodeEditor = ({
       </div>
 
       <div className="bg-[#2e2f45] text-white rounded-lg shadow-lg p-4 mt-6">
-        <h3 className="text-lg font-semibold mb-4 text-green-400">
-          Test Results
-        </h3>
-        <div className="grid grid-cols-3 gap-4">
-          <div className="bg-[#1e1f33] rounded-lg p-3 space-y-2">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-green-400">Test Results</h3>
+
+          {aiSuggestion && (
+            <Button
+              onClick={() => setShowAIModal(true)}
+              className="flex items-center gap-2 px-4 py-2 text-white bg-gradient-to-r from-blue-500 to-purple-500 hover:from-purple-600 hover:to-blue-600 transition-all duration-200 rounded-md shadow-md border-none"
+            >
+              <span>💡 View AI Suggestion</span>
+            </Button>
+          )}
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Left: Test case buttons */}
+          <div className="flex flex-row md:flex-col gap-2 md:w-1/4">
             {testCases.map((_, index) => (
               <Button
                 key={index}
@@ -265,9 +299,10 @@ const CodeEditor = ({
             ))}
           </div>
 
-          <div className="col-span-2 bg-[#1e1f33] rounded-lg p-4">
+          {/* Right: Details of selected test */}
+          <div className="flex-1 bg-[#1e1f33] rounded-lg p-4">
             {selectedIndex !== null && testCases[selectedIndex] && (
-              <div className="space-y-2 text-sm">
+              <div className="space-y-3 text-sm">
                 <div>
                   <span className="text-gray-400">Input:</span>{" "}
                   {testCases[selectedIndex].input}
@@ -309,6 +344,44 @@ const CodeEditor = ({
           </div>
         </div>
       </div>
+
+      <Modal
+        title="💡 AI Suggestion"
+        open={showAIModal}
+        onCancel={() => setShowAIModal(false)}
+        footer={null}
+        centered
+        className="custom-modal"
+        getContainer={false}
+        width={800}
+        bodyStyle={{
+          maxHeight: "70vh",
+          overflowY: "auto",
+          backgroundColor: "#1e1f33",
+          color: "#e5e5e5",
+          fontFamily: "monospace",
+          whiteSpace: "pre-wrap",
+          padding: "1.5rem",
+          borderRadius: "0.5rem",
+        }}
+      >
+        <div className="space-y-4">
+          {aiSuggestion.split("```").map((block, i) =>
+            i % 2 === 0 ? (
+              <div key={i} className="text-sm leading-relaxed">
+                {block}
+              </div>
+            ) : (
+              <pre
+                key={i}
+                className="bg-gray-800 text-green-300 p-3 rounded overflow-x-auto text-sm"
+              >
+                {block.replace(/^(java|python|c|cpp|javascript)?/, "").trim()}
+              </pre>
+            )
+          )}
+        </div>
+      </Modal>
     </div>
   );
 };
