@@ -1,9 +1,8 @@
-import {useContext, useEffect, useState} from "react";
-import {Link, useLocation, useNavigate} from "react-router-dom";
-import {Avatar, Badge, Button, Dropdown, Form, Input, Menu, message, Modal, notification, Popover, Tabs,} from "antd";
+import { useContext, useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Avatar, Badge, Button, Dropdown, Form, Input, Menu, message, Modal, notification, Popover, Tabs, Drawer } from "antd";
 import {
   DashboardOutlined,
-  GithubOutlined,
   LogoutOutlined,
   MenuOutlined,
   ProfileOutlined,
@@ -12,15 +11,15 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import scrollTop from "../../config/scrollTop";
-import {GoogleLogin} from "@react-oauth/google";
+import { GoogleLogin } from "@react-oauth/google";
 import commonApi from "../../common/api";
 import axios from "axios";
 import Context from "../../config/context/context";
-import {useDispatch, useSelector} from "react-redux";
-import {logoutUser} from "../../config/store/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser } from "../../config/store/userSlice";
 import ROLE from "../../common/role";
 import setAuthInfo from "../../config/setAuthInfo";
-import {formatCurrency, getDiscountedPrice} from "../../common/helper";
+import { formatCurrency, getDiscountedPrice } from "../../common/helper";
 
 const { TabPane } = Tabs;
 
@@ -33,6 +32,7 @@ const Header = () => {
   const [activeTab, setActiveTab] = useState("login");
   const location = useLocation();
   const { fetchUserDetails, cartDetailCount, cartItems } = useContext(Context);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const openModal = (tab) => {
     setActiveTab(tab);
@@ -197,7 +197,7 @@ const Header = () => {
           navigate("/admin-panel");
         } else if (user?.role === ROLE.LEARNER) {
           navigate("/user-panel");
-        } else if (user?.role === ROLE.INSTRUCTOR){
+        } else if (user?.role === ROLE.INSTRUCTOR) {
           navigate("/instructor-panel")
         }
         break;
@@ -328,16 +328,16 @@ const Header = () => {
       ? "border-b-[#2c31cf] text-[#2c31cf]"
       : "border-transparent text-[#3b3c54]";
 
-  useEffect(() => {}, [user]);
+  useEffect(() => { }, [user]);
   return (
     <>
-      <div style={{zIndex: 1031}} className="header-content transition-all duration-300 justify-between flex items-center h-[82px] px-4 bg-white fixed top-0 left-0 right-0 shadow">
+      <div style={{ zIndex: 1031 }} className="header-content transition-all duration-300 justify-between flex items-center h-[82px] px-4 bg-white fixed top-0 left-0 right-0 shadow">
         <div className="flex items-center gap-x-[34px] h-full">
           <Link to="/">
             <img
-              className="cursor-pointer w-[82px] xs:w-[82px] xs:h-[82px]"
+              className="cursor-pointer w-[140px]"
               alt="logo"
-              src="../../logoCodeVerse.png"
+              src="../../logoCodeVerseNoBG.png"
             />
           </Link>
           <div className="hidden lg:flex h-full gap-8 text-[15px] font-[600]">
@@ -432,8 +432,8 @@ const Header = () => {
               </Button>
               <Link to="register">
                 <Button
-                    type="primary"
-                    className="bg-[#E8505B] text-white hover:bg-[#4d96ff] hover:text-white border-none"
+                  type="primary"
+                  className="bg-[#E8505B] text-white hover:bg-[#4d96ff] hover:text-white border-none"
                 >
                   Register
                 </Button>
@@ -441,7 +441,68 @@ const Header = () => {
             </div>
           )}
           <div className="lg:hidden">
-            <MenuOutlined className="text-xl text-gray-700" />
+            <MenuOutlined className="text-xl text-gray-700" onClick={() => setIsMobileMenuOpen(prev => !prev)} />
+            <Drawer
+              placement="left"
+              onClose={() => setIsMobileMenuOpen(false)}
+              open={isMobileMenuOpen}
+              maxWidth="360px"
+              styles={{
+                header: {
+                  minHeight: "82px",
+                },
+                body: {
+                  padding: "24px 0",
+                },
+              }}
+            >
+              <Menu
+                mode="inline"
+                className="font-semibold text-base"
+                onClick={() => setIsMobileMenuOpen(false)}
+                items={[
+                  {
+                    key: "course",
+                    label: <Link to="/course">📚 Courses</Link>,
+                  },
+                  {
+                    key: "fights",
+                    label: <Link to="/fights">⚔️ Compete</Link>,
+                  },
+                  {
+                    key: "challenges",
+                    label: <Link to="/challenges">🏆 Challenges</Link>,
+                  },
+                  {
+                    key: "ranking",
+                    label: <Link to="/ranking">📈 Ranking</Link>,
+                  },
+                  !user?.role && {
+                    type: "group",
+                    label: "Account",
+                    children: [
+                      {
+                        key: "login",
+                        label: (
+                          <div onClick={() => openModal("login")}>
+                            🔐 Login
+                          </div>
+                        ),
+                      },
+                      {
+                        key: "register",
+                        label: (
+                          <Link to="/register">
+                            📝 Register
+                          </Link>
+                        ),
+                      },
+                    ],
+                  },
+                ].filter(Boolean)}
+              />
+            </Drawer>
+
           </div>
         </div>
       </div>

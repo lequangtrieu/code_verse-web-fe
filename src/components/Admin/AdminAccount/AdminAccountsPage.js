@@ -1,10 +1,7 @@
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import axios from "axios";
 import { Form, Popconfirm, message, Pagination, Upload, Input, Select, Button, Tag, Table } from "antd";
 import * as XLSX from 'xlsx';
 import commonApi from "../../../common/api";
-import getAuthInfo from "../../../config/getAuthInfo"
 import { useNavigate } from 'react-router-dom';
 import CustomModal from '../../../common/CustomModal';
 import LoadingOverlay from "../../../common/LoadingOverlay";

@@ -60,19 +60,31 @@ const LearnerDetailPage = () => {
     return (
         <div style={{ padding: 24 }}>
             <Card title="Learner's Information" style={{ marginBottom: 24 }}>
-                <Avatar
-                    size={100}
-                    src={userDetail.avatar ? userDetail.avatar : undefined}
-                    style={{ backgroundColor: userDetail.avatar ? 'transparent' : '#87d068' }}
-                >
-                    {!userDetail.avatar && userDetail.name ? userDetail.name.charAt(0).toUpperCase() : null}
-                </Avatar>
-                <p><b>Name:</b> {userDetail.name}</p>
-                <p><b>Email:</b> {userDetail.username}</p>
-                <p><b>Phone Number:</b> {userDetail.phoneNumber}</p>
-                <p><b>Role:</b> {userDetail.role}</p>
-                <p><b>Bio:</b> {userDetail.bio}</p>
-                <p><b>Verified:</b> {userDetail.isVerified ? "Yes" : "No"}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                    <Avatar
+                        size={120}
+                        src={userDetail.avatar || undefined}
+                        style={{ backgroundColor: userDetail.avatar ? 'transparent' : '#87d068' }}
+                    >
+                        {!userDetail.avatar && userDetail.name?.charAt(0).toUpperCase()}
+                    </Avatar>
+
+                    <div style={{ flex: 1, lineHeight: 1.8 }}>
+                        <p><b>Name:</b> {userDetail.name}</p>
+                        <p><b>Email:</b> {userDetail.username}</p>
+                        <p><b>Phone:</b> {userDetail.phoneNumber}</p>
+                        <p><b>Role:</b> {userDetail.role}</p>
+                        <p><b>Bio:</b> {userDetail.bio}</p>
+                        <p><b>Verified:</b>
+                            <span style={{ marginLeft: 8, color: userDetail.isVerified ? 'green' : 'red' }}>
+                                {userDetail.isVerified ? 'Yes' : 'No'}
+                            </span>
+                        </p>
+                        {userDetail.bio && (
+                            <p><b>Bio:</b> <span style={{ color: '#555' }}>{userDetail.bio}</span></p>
+                        )}
+                    </div>
+                </div>
             </Card>
 
             <Card title="Learner's Courses">
