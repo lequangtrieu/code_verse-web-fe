@@ -1,6 +1,6 @@
 import React from "react";
 import { FaPlay } from "react-icons/fa";
-import {formatCurrency, formatDuration, getDiscountedPrice} from "../../../../common/helper";
+import {formatCurrency, formatDate, formatDuration, getDiscountedPrice} from "../../../../common/helper";
 import {useNavigate} from "react-router-dom";
 
 const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus  }) => {
@@ -55,10 +55,27 @@ const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus  }) => {
                 </button>
             </div>
             <div className="mt-4">
-                <p className="text-xl font-bold text-purple-600">{formatCurrency(getDiscountedPrice(course?.course.price, course?.course.discount))}</p>
-                <p className="line-through text-sm text-gray-400">{formatCurrency(course?.course.price)}</p>
-                <p className="text-right text-xs text-red-500">{course?.course.discount}% OFF</p>
+                {getDiscountedPrice(course?.course.price, course?.course.discount) === 0 ? (
+                    <span className="text-green-600 font-semibold text-lg">Free</span>
+                ) : (
+                    <>
+                        <p className="text-xl font-bold text-purple-600">
+                            {formatCurrency(getDiscountedPrice(course?.course.price, course?.course.discount))}
+                        </p>
+                        <p className="line-through text-sm text-gray-400">
+                            {formatCurrency(course?.course.price)}
+                        </p>
+
+                        <p className="text-right text-xs text-red-500">
+                            {course?.course.discount}% OFF
+                        </p>
+                    </>
+
+                )}
+
+
             </div>
+
 
             {renderActionButton()}
 
@@ -66,13 +83,13 @@ const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus  }) => {
 
             <div className="mt-4 space-y-2 text-sm text-gray-600">
                 <p>Instructor: {course?.courseMoreInfo.instructor}</p>
-                <p>Start Date: {course?.course.createdAt}</p>
+                <p>Start Date: {formatDate(course?.course.createdAt)}</p>
                 <p>Total Duration: {formatDuration(course?.courseMoreInfo.totalDurations)}</p>
                 <p>Enrolled: Enrolled</p>
                 <p>Skill Level: {course?.course.level}</p>
                 <p>Language: {course?.course.language}</p>
-                <p>Quiz: {course.quiz ? "Yes" : "No"}</p>
-                <p>Certificate: {course.certificate ? "Yes" : "No"}</p>
+                {/*<p>Quiz: {course.quiz ? "Yes" : "No"}</p>*/}
+                {/*<p>Certificate: {course.certificate ? "Yes" : "No"}</p>*/}
             </div>
 
             <div className="mt-4 text-center text-sm">
