@@ -1,41 +1,14 @@
 import React from "react";
-import { Collapse, Tabs } from "antd";
-import { BsFileEarmarkText } from "react-icons/bs";
-import { FaPlayCircle, FaLock } from "react-icons/fa";
+import {Collapse, Tabs} from "antd";
+import {BsFileEarmarkText} from "react-icons/bs";
+import {FaLock, FaRegEye} from "react-icons/fa";
 import Reviews from "./Reviews";
 
 const { Panel } = Collapse;
 const { TabPane } = Tabs;
 
 
-const CurriculumTabs = ({ curriculumData }) => {
-    const reviewsData = [
-        {
-            username: "John Doe",
-            userAvatar: "https://pethelpful.com/.image/c_fill,g_faces:center/MTk2NzY3MjA5ODc0MjY5ODI2/top-10-cutest-cat-photos-of-all-time.jpg",
-            rating: 5,
-            comment:
-                "This course is amazing! Learned a lot about software development.",
-        },
-        {
-            username: "Jane Smith",
-            userAvatar: "https://pethelpful.com/.image/c_fill,g_faces:center/MTk2NzY3MjA5ODc0MjY5ODI2/top-10-cutest-cat-photos-of-all-time.jpg",
-            rating: 4,
-            comment: "Great course, but I wish there were more examples.",
-        },
-        {
-            username: "Alice Brown",
-            userAvatar: "https://pethelpful.com/.image/c_fill,g_faces:center/MTk2NzY3MjA5ODc0MjY5ODI2/top-10-cutest-cat-photos-of-all-time.jpg",
-            rating: 4,
-            comment: "Good content but the course could be a bit faster.",
-        },
-        {
-            username: "Bob White",
-            userAvatar: "https://pethelpful.com/.image/c_fill,g_faces:center/MTk2NzY3MjA5ODc0MjY5ODI2/top-10-cutest-cat-photos-of-all-time.jpg",
-            rating: 3,
-            comment: "The course was helpful, but the explanations were too brief.",
-        },
-    ];
+const CurriculumTabs = ({ curriculumData, courseDetailData }) => {
     return (
         <Tabs defaultActiveKey="curriculum" className="mt-10">
             <TabPane tab="Curriculum" key="curriculum">
@@ -44,13 +17,13 @@ const CurriculumTabs = ({ curriculumData }) => {
                         <Panel
                             header={
                                 <div className="flex justify-between font-semibold">
-                                    <span>{section.title}</span>
-                                    <span className="text-xs text-gray-400">{section.duration}</span>
+                                    <span>{section.courseModule.title}</span>
+                                    <span className="text-xs text-gray-400">{section.totalDuration}</span>
                                 </div>
                             }
                             key={index}
                         >
-                            {section.items.map((item, idx) =>
+                            {section.lessons.map((item, idx) =>
                                 typeof item === "string" ? (
                                     <p key={idx} className="text-gray-600 mb-2 flex items-center gap-2">
                                         <BsFileEarmarkText className="text-purple-600" />
@@ -59,7 +32,7 @@ const CurriculumTabs = ({ curriculumData }) => {
                                 ) : (
                                     <div key={idx} className="flex items-center justify-between border-b py-2">
                                         <div className="flex items-center gap-2 text-sm text-gray-600">
-                                            {item.type === "video" ? <FaPlayCircle /> : <FaLock />}
+                                            {item.orderIndex < 3 ? <FaRegEye /> : <FaLock />}
                                             <span>{item.type === "video" ? "Video: " : "Lesson: "} {item.title}</span>
                                         </div>
                                         <div className="text-xs text-gray-400">
@@ -72,19 +45,9 @@ const CurriculumTabs = ({ curriculumData }) => {
                     ))}
                 </Collapse>
             </TabPane>
-            <TabPane tab="Description" key="description">
-                <div className="mt-6 text-gray-600">
-                    This is a detailed description of the course.
-                </div>
-            </TabPane>
             <TabPane tab="Reviews" key="reviews">
                 <div className="mt-6 text-gray-600">
-                    <Reviews reviewsData={reviewsData} />
-                </div>
-            </TabPane>
-            <TabPane tab="Instructor" key="instructor">
-                <div className="mt-6 text-gray-600">
-                    Instructor details section goes here.
+                    <Reviews courseId={courseDetailData?.id} />
                 </div>
             </TabPane>
         </Tabs>

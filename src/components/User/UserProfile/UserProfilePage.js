@@ -11,8 +11,8 @@ const UserProfilePage = () => {
   const [userData, setUserData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
-  const [setIsAvatarUpdating] = useState(false);
-  const [setIsUpdateAvatarModalOpen] = useState(false);
+  const [isAvatarUpdating,setIsAvatarUpdating] = useState(false);
+  const [isUpdateAvatarModalOpen, setIsUpdateAvatarModalOpen] = useState(false);
   const fileInputRef = useRef(null);
 
   const dispatch = useDispatch();
