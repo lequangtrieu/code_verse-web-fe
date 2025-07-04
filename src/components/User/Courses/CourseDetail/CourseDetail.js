@@ -80,31 +80,6 @@ const CourseDetail = () => {
         fetchCartItems,
     });
 
-    const curriculumData = [
-        {
-            title: "Intro Course content",
-            duration: "02hr 35min",
-            items: ["Lesson 01", "Lesson 02"],
-        },
-        {
-            title: "Course Conclusion",
-            duration: "02hr 10min",
-            items: [
-                {
-                    type: "video",
-                    title: "Lorem ipsum dolor sit amet",
-                    duration: "26 min",
-                },
-                {type: "quiz", title: "Lesson 03 Exam", questionCount: 20},
-            ],
-        },
-        {
-            title: "Course Fundamentals",
-            duration: "01hr 35min",
-            items: ["Lesson 01", "Lesson 02"],
-        },
-    ];
-
     const popularCourses = [
         {
             img: "/images/popular-1.jpg",
@@ -176,7 +151,7 @@ const CourseDetail = () => {
                             <div className="lg:col-span-2">
                                 <CourseDetailInfo courseDetail={courseDetail}/>
 
-                                <CurriculumTabs curriculumData={curriculumData}/>
+                                <CurriculumTabs curriculumData={courseDetail?.courseModuleMoreInfoDTOList}/>
                                 <AuthorCourses authorCourses={authorCourses}/>
                             </div>
 

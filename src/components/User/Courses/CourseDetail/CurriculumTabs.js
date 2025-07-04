@@ -1,7 +1,7 @@
 import React from "react";
 import { Collapse, Tabs } from "antd";
 import { BsFileEarmarkText } from "react-icons/bs";
-import { FaPlayCircle, FaLock } from "react-icons/fa";
+import {FaPlayCircle, FaLock, FaRegEye} from "react-icons/fa";
 import Reviews from "./Reviews";
 
 const { Panel } = Collapse;
@@ -44,13 +44,13 @@ const CurriculumTabs = ({ curriculumData }) => {
                         <Panel
                             header={
                                 <div className="flex justify-between font-semibold">
-                                    <span>{section.title}</span>
-                                    <span className="text-xs text-gray-400">{section.duration}</span>
+                                    <span>{section.courseModule.title}</span>
+                                    <span className="text-xs text-gray-400">{section.totalDuration}</span>
                                 </div>
                             }
                             key={index}
                         >
-                            {section.items.map((item, idx) =>
+                            {section.lessons.map((item, idx) =>
                                 typeof item === "string" ? (
                                     <p key={idx} className="text-gray-600 mb-2 flex items-center gap-2">
                                         <BsFileEarmarkText className="text-purple-600" />
@@ -59,7 +59,7 @@ const CurriculumTabs = ({ curriculumData }) => {
                                 ) : (
                                     <div key={idx} className="flex items-center justify-between border-b py-2">
                                         <div className="flex items-center gap-2 text-sm text-gray-600">
-                                            {item.type === "video" ? <FaPlayCircle /> : <FaLock />}
+                                            {item.orderIndex < 3 ? <FaRegEye /> : <FaLock />}
                                             <span>{item.type === "video" ? "Video: " : "Lesson: "} {item.title}</span>
                                         </div>
                                         <div className="text-xs text-gray-400">
