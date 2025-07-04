@@ -4,20 +4,13 @@ import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
 import { formatCurrency } from "../../../common/helper";
 import LoadingOverlay from "../../../common/LoadingOverlay";
-import { Form, message, Pagination, Input, Select } from "antd";
-import { useNavigate, useLocation } from "react-router-dom";
+import { message, Pagination, Input, Select } from "antd";
+import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
 
 const AdminCoursesPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const handleRedirectToCreate = () => {
-    navigate('/admin-panel/courses/create');
-  };
-
-  const isCreatePage = location.pathname === '/admin-panel/courses/create';
   const [initialLoading, setInitialLoading] = useState(true);
   const [courses, setCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
@@ -26,15 +19,10 @@ const AdminCoursesPage = () => {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
-
-  const [form] = Form.useForm();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState(null);
   const user = useSelector((state) => state?.user?.user);
 
   useEffect(() => {
     fetchCourses();
-    // eslint-disable-next-line
   }, [user]);
 
   useEffect(() => {
@@ -97,12 +85,6 @@ const AdminCoursesPage = () => {
     navigate(`/admin-panel/courses/${courseId}`);
   };
 
-  const handleCancelModal = () => {
-    setIsModalOpen(false);
-    setSelectedCourse(null);
-    form.resetFields();
-  };
-
   const handleAccept = async (courseId) => {
     try {
       await axiosInstance.patch(commonApi.updateCourseStatus.url(courseId), { status: 'PUBLISHED' });
@@ -148,17 +130,6 @@ const AdminCoursesPage = () => {
     <div>
       <h2 className="text-2xl font-semibold mb-2">Courses</h2>
       <div className="w-16 h-[2px] bg-pink-500 mb-6 rounded"></div>
-
-      {!isCreatePage && (
-        <div className="flex gap-4 mb-6">
-          <button
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-            onClick={handleRedirectToCreate}
-          >
-            Create Course
-          </button>
-        </div>
-      )}
 
       {/* Search and Filters */}
       <div className="flex flex-wrap gap-4 mb-4">

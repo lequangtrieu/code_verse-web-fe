@@ -9,6 +9,12 @@ const commonApi = {
     healthAPI: {
         url: `${backendDomain}/health`,
     },
+    
+    /** AI HELP */
+    aiFeedback: {
+        url: `${backendDomain}/ai/feedback`,
+    },
+
     /** Code api */
     executionCode: {
         url: `${backendDomain}/code/execute`,
@@ -29,7 +35,16 @@ const commonApi = {
     submitQuizPer: {
     url: (userId, lessonId) => `${backendDomain}/quiz/submitPer/${userId}/${lessonId}`,
     },
-    
+
+    /** Discussion message */
+    discussion: {
+    getByLesson: (lessonId) => `${backendDomain}/discussions/lesson/${lessonId}`,
+    create: `${backendDomain}/discussions`,
+    reply: (parentId) => `${backendDomain}/discussions/${parentId}/reply`,
+    delete: (id) => `${backendDomain}/discussions/${id}`,
+    update: (id) => `${backendDomain}/discussions/${id}`,
+},
+
     /** User api */
     signUP: {
         url: `${backendDomain}/auth/signup`,
