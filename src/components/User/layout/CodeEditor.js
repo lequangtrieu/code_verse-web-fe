@@ -15,6 +15,8 @@ const CodeEditor = ({
   language: fixedLanguage,
   onRefreshLessonData,
   exercise = [],
+  onChangeLesson,
+  allLessons = []
 }) => {
   const defaultCodeMap = useMemo(
     () => ({
@@ -166,6 +168,14 @@ const CodeEditor = ({
 
       if (typeof onRefreshLessonData === "function") {
         onRefreshLessonData();
+      }
+
+      if (typeof onChangeLesson === "function" && allLessons?.length > 0) {
+        const currentIndex = allLessons.findIndex((l) => l.id === lessonId);
+        const nextLesson = allLessons[currentIndex + 1];
+        if (nextLesson) {
+          onChangeLesson(nextLesson);
+        }
       }
     }
   };
