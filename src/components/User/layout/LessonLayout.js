@@ -83,6 +83,10 @@ export default function LessonLayout() {
                 language={language === "all" ? null : language}
                 onRefreshLessonData={fetchCourseData}
                 exercise={selectedLesson?.exercise}
+                onChangeLesson={setSelectedLesson}
+                allLessons={lessonData.flatMap(
+                  (module) => module.subLessons || []
+                )}
               />
             </>
           )}
