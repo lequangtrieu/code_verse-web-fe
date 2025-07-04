@@ -94,6 +94,16 @@ const commonApi = {
     courseDetail: {
         url: (courseId) => `${backendDomain}/course/${courseId}`
     },
+    viewCourseRating: {
+        url: (courseId) => `${backendDomain}/api/ratings/course/${courseId}`
+    },
+    authorCourses: {
+        url: (instructorId, excludeCourseId) =>
+            `${backendDomain}/course/authorOther/${instructorId}?excludeCourseId=${excludeCourseId}`,
+    },
+    popularCourses: {
+        url: () => `${backendDomain}/course/popular`,
+    },
 
     /** Cart api */
     addToCartFree: {

@@ -27,6 +27,8 @@ const CourseDetail = () => {
     const user = useSelector((state) => state?.user?.user);
     const [cartCourseIds, setCartCourseIds] = useState([]);
     const { fetchCartDetail, fetchCartItems } = useContext(Context);
+    const [authorCourses, setAuthorCourses] = useState([]);
+    const [popularCourses, setPopularCourses] = useState([]);
 
     const [enrollmentStatus, setEnrollmentStatus] = useState({
         enrolled: false,
@@ -80,46 +82,28 @@ const CourseDetail = () => {
         fetchCartItems,
     });
 
-    const popularCourses = [
-        {
-            img: "/images/popular-1.jpg",
-            title: "Making Music with Other People",
-            price: "$32.00",
-        },
-        {
-            img: "/images/popular-2.jpg",
-            title: "Making Music with Other People",
-            price: "$32.00",
-        },
-        {
-            img: "/images/popular-3.jpg",
-            title: "Making Music with Other People",
-            price: "$32.00",
-        },
-    ];
+    useEffect(() => {
+        const fetchSidebarData = async () => {
+            if (!courseDetail?.course?.id || !courseDetail?.courseMoreInfo?.instructorId) return;
 
-    const authorCourses = [
-        {
-            title: "Introduction to Programming",
-            image: "https://via.placeholder.com/200x150",
-            price: "$20.00",
-        },
-        {
-            title: "Advanced JavaScript",
-            image: "https://via.placeholder.com/200x150",
-            price: "$30.00",
-        },
-        {
-            title: "React for Beginners",
-            image: "https://via.placeholder.com/200x150",
-            price: "$25.00",
-        },
-        {
-            title: "Node.js and Express",
-            image: "https://via.placeholder.com/200x150",
-            price: "$35.00",
-        },
-    ];
+            try {
+                const authorRes = await axios.get(
+                    commonApi.authorCourses.url(
+                        courseDetail.courseMoreInfo?.instructorId,
+                        courseDetail.course.id
+                    )
+                );
+                setAuthorCourses(authorRes.data);
+
+                const popularRes = await axios.get(commonApi.popularCourses.url());
+                setPopularCourses(popularRes.data);
+            } catch (err) {
+                message.error("Failed to load author or popular courses", err);
+            }
+        };
+
+        fetchSidebarData();
+    }, [courseDetail?.course?.id, courseDetail?.courseMoreInfo?.instructorId]);
 
     return (
         <>
@@ -151,7 +135,7 @@ const CourseDetail = () => {
                             <div className="lg:col-span-2">
                                 <CourseDetailInfo courseDetail={courseDetail}/>
 
-                                <CurriculumTabs curriculumData={courseDetail?.courseModuleMoreInfoDTOList}/>
+                                <CurriculumTabs curriculumData={courseDetail?.courseModuleMoreInfoDTOList} courseDetailData={courseDetail?.course}/>
                                 <AuthorCourses authorCourses={authorCourses}/>
                             </div>
 
