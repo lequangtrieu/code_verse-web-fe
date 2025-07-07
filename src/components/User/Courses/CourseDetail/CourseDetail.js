@@ -1,5 +1,5 @@
 import {FaBookOpen,} from "react-icons/fa";
-import {Collapse, message, Skeleton, Tabs} from "antd";
+import {message} from "antd";
 import {HiOutlineLightBulb} from "react-icons/hi";
 import {RiSendPlaneLine} from "react-icons/ri";
 import {GiPlanetCore} from "react-icons/gi";
@@ -15,10 +15,7 @@ import PopularCourses from "./PopularCourses";
 import {useSelector} from "react-redux";
 import Context from "../../../../config/context/context";
 import useAddToCart from "../../../../hooks/useAddToCart";
-
-const {Panel} = Collapse;
-
-const {TabPane} = Tabs;
+import LoadingOverlay from "../../../../common/LoadingOverlay";
 
 const CourseDetail = () => {
     const [initialLoading, setInitialLoading] = useState(true);
@@ -26,7 +23,7 @@ const CourseDetail = () => {
     const [courseDetail, setCourseDetail] = useState(null);
     const user = useSelector((state) => state?.user?.user);
     const [cartCourseIds, setCartCourseIds] = useState([]);
-    const { fetchCartDetail, fetchCartItems } = useContext(Context);
+    const {fetchCartDetail, fetchCartItems} = useContext(Context);
     const [authorCourses, setAuthorCourses] = useState([]);
     const [popularCourses, setPopularCourses] = useState([]);
 
@@ -49,7 +46,7 @@ const CourseDetail = () => {
                 const response = await axios.get(commonApi.courseDetail.url(courseId));
                 setCourseDetail(response.data.result);
             } catch (error) {
-                message.error("Failed to fetch course detail");
+                console.error("Failed to fetch course detail");
             } finally {
                 setInitialLoading(false);
             }
@@ -74,7 +71,7 @@ const CourseDetail = () => {
         fetchEnrollmentStatus();
     }, [user?.id, courseId]);
 
-    const { handleAddToCart } = useAddToCart({
+    const {handleAddToCart} = useAddToCart({
         user,
         cartCourseIds,
         setCartCourseIds,
@@ -108,7 +105,7 @@ const CourseDetail = () => {
     return (
         <>
             {initialLoading ? (
-                <Skeleton active paragraph={{rows: 10}}/>
+                <LoadingOverlay/>
             ) : courseDetail ? (
                 <>
                     <section
@@ -135,7 +132,8 @@ const CourseDetail = () => {
                             <div className="lg:col-span-2">
                                 <CourseDetailInfo courseDetail={courseDetail}/>
 
-                                <CurriculumTabs curriculumData={courseDetail?.courseModuleMoreInfoDTOList} courseDetailData={courseDetail?.course}/>
+                                <CurriculumTabs curriculumData={courseDetail?.courseModuleMoreInfoDTOList}
+                                                courseDetailData={courseDetail?.course}/>
                                 <AuthorCourses authorCourses={authorCourses}/>
                             </div>
 
@@ -150,7 +148,7 @@ const CourseDetail = () => {
                         </div>
                     </section>
                 </>
-            ): (
+            ) : (
                 <div className="text-center text-red-500 py-12">Failed to load course details.</div>
             )
             }

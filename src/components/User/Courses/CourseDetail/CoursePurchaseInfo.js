@@ -1,22 +1,87 @@
 import React from "react";
-import { FaPlay } from "react-icons/fa";
+import {FaPlay} from "react-icons/fa";
 import {formatCurrency, formatDate, formatDuration, getDiscountedPrice} from "../../../../common/helper";
 import {useNavigate} from "react-router-dom";
+import {notification} from "antd";
+import axiosInstance from "../../../../config/axiosInstance";
+import commonApi from "../../../../common/api";
+import {logoutUser} from "../../../../config/store/userSlice";
+import {useDispatch, useSelector} from "react-redux";
 
-const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus  }) => {
+const CoursePurchaseInfo = ({course, handleAddToCart, enrollmentStatus}) => {
     const navigate = useNavigate();
-    const { enrolled, completionPercentage } = enrollmentStatus;
+    const {enrolled, completionPercentage} = enrollmentStatus;
+    const dispatch = useDispatch();
+    const user = useSelector((state) => state?.user?.user);
 
+    const handleAddToCartFree = async (course) => {
+        if (!user) {
+            return notification.warning({
+                message: "Login Required",
+                description: "Please log in to add courses to your cart.",
+                placement: "topLeft",
+            });
+        }
+
+        try {
+            await axiosInstance.post(commonApi.addToCartFree.url, {
+                username: user.username,
+                courseId: course.id,
+            });
+
+            notification.success({
+                message: "Enrollment Successful",
+                description: `You have successfully enrolled in "${course.title}". Enjoy learning!`,
+                placement: "bottomLeft",
+            });
+        } catch (error) {
+            notification.error({
+                message: "Enrollment Failed",
+                description: error?.response?.data?.message,
+                placement: "bottomLeft",
+            });
+
+            if (error?.response?.data?.code === 1010) {
+                dispatch(logoutUser());
+                navigate("/");
+            }
+        }
+    };
+
+    const enrollFreeCourse = (course) => {
+        try {
+            console.log("Enrolling course...");
+            handleAddToCartFree(course)
+            navigate(`/course/${course.id}/learn`)
+        } catch (e) {
+            console.log(e)
+        }
+    };
     const renderActionButton = () => {
+        const isFree = getDiscountedPrice(course?.course.price, course?.course.discount) === 0;
         if (!enrolled) {
             return (
-                <button
-                    className="mt-3 w-full bg-purple-600 text-white py-2 rounded"
-                    onClick={() => handleAddToCart(course?.course)}
-                >
-                    Add To Cart
-                </button>
-            );
+                <>
+                    {isFree ? (
+                        <button
+                            className="mt-3 w-full bg-green-600 text-white py-2 rounded"
+                            onClick={() => enrollFreeCourse(course?.course)}
+                        >
+                            Learning Now
+                        </button>
+                    ) : (
+                        <div className="flex justify-between">
+                            <button
+                                className="mt-3 w-full bg-purple-600 text-white py-2 rounded"
+                                onClick={() => handleAddToCart(course?.course)}
+                            >
+                                Add To Cart
+                            </button>
+                        </div>
+
+                    )}
+                </>
+            )
         }
 
         if (completionPercentage < 100) {
@@ -51,7 +116,7 @@ const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus  }) => {
                 <button
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white bg-purple-600 rounded-full p-3"
                 >
-                    <FaPlay />
+                    <FaPlay/>
                 </button>
             </div>
             <div className="mt-4">
