@@ -4,8 +4,9 @@ import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
 import { formatCurrency } from "../../../common/helper";
 import LoadingOverlay from "../../../common/LoadingOverlay";
-import { Form, Modal, message, Pagination, Input, Select } from "antd";
+import { Form, Modal, message, Pagination, Input, Select, Progress, Tag, Table, Image, Button } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
+import moment from "moment/moment";
 
 const { Option } = Select;
 
@@ -19,6 +20,8 @@ const InstructorCoursesPage = () => {
 
     const isCreatePage = location.pathname === '/instructor-panel/courses/create';
     const [initialLoading, setInitialLoading] = useState(true);
+    const [loadingLearner, setLoadingLearner] = useState(true);
+    const [learners, setLearners] = useState([]);
     const [courses, setCourses] = useState([]);
     const [filteredCourses, setFilteredCourses] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
@@ -27,10 +30,126 @@ const InstructorCoursesPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 10;
 
-    const [form] = Form.useForm();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState(null);
     const user = useSelector((state) => state?.user?.user);
+
+    const course_columns = [
+        {
+            title: "Image",
+            dataIndex: "thumbnailUrl",
+            key: "thumbnail",
+            render: (url, record) => (
+                <Image
+                    width={80}
+                    height={80}
+                    src={url || "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"}
+                    alt={record.title}
+                    style={{ objectFit: "cover", borderRadius: 8 }}
+                />
+            ),
+        },
+        {
+            title: "Title",
+            dataIndex: "title",
+            key: "title",
+        },
+        {
+            title: "Category",
+            dataIndex: "category",
+            key: "category",
+        },
+        {
+            title: "Price",
+            dataIndex: "price",
+            key: "price",
+            align: "center",
+            render: (price) => price === 0 ? <Tag color="green">Free</Tag> : formatCurrency(price),
+        },
+        {
+            title: "Status",
+            dataIndex: "status",
+            key: "status",
+            render: (status) => {
+                let color = "default";
+                if (status === "PUBLISHED") color = "blue";
+                else if (status === "DRAFT" || status === "PENDING") color = "red";
+
+                return (
+                    <Tag color={color} className="font-semibold">
+                        {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
+                    </Tag>
+                );
+            },
+        },
+        {
+            title: "Actions",
+            key: "actions",
+            render: (_, record) => (
+                <div className="space-x-2">
+                    <Button
+                        type="primary"
+                        className="bg-yellow-400 hover:bg-yellow-500"
+                        onClick={() => handleViewDetail(record.id)}
+                    >
+                        View Detail
+                    </Button>
+                    <Button
+                        type="primary"
+                        className="bg-yellow-400 hover:bg-yellow-500"
+                        onClick={() => {
+                            setSelectedCourse(record);
+                            handleViewLearners(record.id);
+                        }}
+                    >
+                        View Learners
+                    </Button>
+                </div>
+            ),
+        },
+    ];
+
+    const learner_columns = [
+        {
+            title: "Learner",
+            dataIndex: ["learner", "name"],
+            key: "name",
+        },
+        {
+            title: "Completion",
+            dataIndex: "completionPercentage",
+            key: "completionPercentage",
+            render: (val) => <Progress percent={Math.round(val || 0)} />,
+        },
+        {
+            title: "Exp Gained",
+            dataIndex: "totalExpGained",
+            key: "exp",
+        },
+        {
+            title: "Enrolled at",
+            dataIndex: "createdAt",
+            key: "createdAt",
+            render: (val) => moment(val).format("YYYY-MM-DD HH:mm"),
+        },
+        {
+            title: "Last studied at",
+            dataIndex: "updatedAt",
+            key: "updatedAt",
+            render: (val) => moment(val).format("YYYY-MM-DD HH:mm"),
+        },
+        {
+            title: "Completed at",
+            dataIndex: "completedAt",
+            key: "completedAt",
+            render: (val) =>
+                val ? (
+                    <Tag color="green">{moment(val).format("YYYY-MM-DD")}</Tag>
+                ) : (
+                    <Tag color="default">In Progress</Tag>
+                ),
+        },
+    ];
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -84,7 +203,7 @@ const InstructorCoursesPage = () => {
         if (selectedStatus === "pending") {
             filtered = filtered.filter((course) => course.status === "PENDING");
         }
-        
+
         setTimeout(() => {
             setFilteredCourses(filtered);
         }, 500);
@@ -102,10 +221,19 @@ const InstructorCoursesPage = () => {
         navigate(`/instructor-panel/courses/${courseId}`);
     };
 
-    const handleCancelModal = () => {
-        setIsModalOpen(false);
-        setSelectedCourse(null);
-        form.resetFields();
+    const handleViewLearners = async (courseId) => {
+        setIsModalOpen(true);
+        setLoadingLearner(true);
+        try {
+            const result = await axiosInstance.get(commonApi.getLearners.url(courseId));
+            setLearners(result.data.result);
+        } catch (error) {
+            message.error("Fetch data error.");
+        } finally {
+            setTimeout(() => {
+                setLoadingLearner(false);
+            }, 500);
+        }
     };
 
     return (
@@ -155,63 +283,12 @@ const InstructorCoursesPage = () => {
                 </Select>
             </div>
             {initialLoading && <LoadingOverlay />}
-            <div className="overflow-x-auto">
-                <table className="w-full table-auto border-collapse">
-                    <thead>
-                        <tr className="bg-gray-100">
-                            <th className="border p-2">Image</th>
-                            <th className="border p-2">Title</th>
-                            <th className="border p-2">Description</th>
-                            <th className="border p-2">Category</th>
-                            <th className="border p-2">Price</th>
-                            <th className="border p-2">Status</th>
-                            <th className="border p-2">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {paginatedCourses.length > 0 ? (
-                            paginatedCourses.map((course) => (
-                                <tr key={course.id} className="text-center">
-                                    <td className="border p-2">
-                                        <img src={course.thumbnailUrl || "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"}
-                                            alt={course.title} className="w-20 h-20 object-cover mx-auto rounded" />
-                                    </td>
-                                    <td className="border p-2">{course.title}</td>
-                                    <td className="border p-2">{course.description}</td>
-                                    <td className="border p-2">{course.category}</td>
-                                    <td className="border p-2">{formatCurrency(course.price)}</td>
-                                    <td className="border p-2">
-                                        {course.status === "PUBLISHED" && (
-                                            <span className="text-green-500 font-semibold">Published</span>
-                                        )}
-                                        {course.status === "DRAFT" && (
-                                            <span className="text-red-500 font-semibold">Draft</span>
-                                        )}
-                                        {course.status === "PENDING" && (
-                                            <span className="text-red-500 font-semibold">Pending</span>
-                                        )}
-                                    </td>
-                                    <td className="border p-2 space-x-2">
-                                        <button
-                                            className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded"
-                                            onClick={() => handleViewDetail(course.id)}
-                                        >
-                                            View Detail
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="7" className="text-center p-4 text-gray-500">
-                                    No courses found.
-                                </td>
-                            </tr>
-                        )
-                        }
-                    </tbody>
-                </table>
-            </div>
+            <Table
+                dataSource={paginatedCourses}
+                columns={course_columns}
+                rowKey="id"
+                pagination={false}
+            />
 
             <div className="flex justify-end mt-4">
                 <Pagination
@@ -223,69 +300,21 @@ const InstructorCoursesPage = () => {
                 />
             </div>
 
-            {/* Modal Course Detail */}
-            <Modal
-                title="Course Details"
+            <Modal title={selectedCourse?.title}
                 open={isModalOpen}
-                onCancel={handleCancelModal}
-                footer={[
-                    <button
-                        key="cancel"
-                        className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
-                        onClick={handleCancelModal}
-                    >
-                        Cancel
-                    </button>,
-                    <button
-                        key="update"
-                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    >
-                        Update
-                    </button>,
-                ]}
-                getContainer={false}
-            >
-                {selectedCourse && (
-                    <Form
-                        form={form}
-                        initialValues={selectedCourse}
-                        layout="vertical"
-                    >
-                        <Form.Item label="Image">
-                            <img src={selectedCourse.description.image} alt={selectedCourse.description.title} className="w-full h-auto rounded" />
-                        </Form.Item>
-
-                        <Form.Item label="Name">
-                            <span>{selectedCourse.description.title}</span>
-                        </Form.Item>
-
-                        <Form.Item label="Description">
-                            <span>{selectedCourse.description.description}</span>
-                        </Form.Item>
-
-                        <Form.Item label="Category">
-                            <span>{selectedCourse.description.category}</span>
-                        </Form.Item>
-
-                        <Form.Item label="Price">
-                            <span>${selectedCourse.bonus.price}</span>
-                        </Form.Item>
-
-                        <Form.Item label="Bonus">
-                            {selectedCourse.bonus && (
-                                <div>
-                                    <p>Price: ${selectedCourse.bonus.price}</p>
-                                    <p>Level ID: {selectedCourse.bonus.levelId}</p>
-                                    <p>Notes: {selectedCourse.bonus.notes}</p>
-                                </div>
-                            )}
-                        </Form.Item>
-
-                        <Form.Item label="Status">
-                            <span>{selectedCourse.isActive ? "Active" : "Inactive"}</span>
-                        </Form.Item>
-                    </Form>
-                )}
+                onCancel={() => {setLearners([]); setIsModalOpen(false);}}
+                footer={null}
+                width={800}
+                centered>
+                <div style={{ maxHeight: "60vh", overflowY: "auto" }}>
+                    <Table
+                        dataSource={learners}
+                        columns={learner_columns}
+                        rowKey={(record) => record.learner?.id}
+                        loading={loadingLearner}
+                        pagination={{ pageSize: 5 }}
+                    />
+                </div>
             </Modal>
 
 

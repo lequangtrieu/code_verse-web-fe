@@ -16,6 +16,8 @@ function App() {
   const dispatch = useDispatch();
   const [cartDetailCount, setCartDetailCount] = useState(0);
   const [cartItems, setCartItems] = useState([]);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [notifications, setNotifications] = useState([]);
   const user = useSelector((state) => state?.user?.user);
 
   const fetchUserDetails = useCallback(async () => {
@@ -101,6 +103,55 @@ function App() {
     }
   };
 
+  const fetchNotificationUnread = async () => {
+    const { username } = getAuthInfo();
+    try {
+      const result = await axiosInstance.get(commonApi.notificationUreadCount.url, {
+        params: { username: username },
+      });
+      setNotificationCount(result.data.result);
+    } catch (error) {
+      message.error("Fetch data error.");
+    }
+  }
+
+  const fetchNotifications = async () => {
+    const { username } = getAuthInfo();
+    try {
+      const res = await axiosInstance.get(commonApi.getNotifications.url, {
+        params: { username: username },
+      });
+      setNotifications(res.data.result);
+    } catch (error) {
+      message.error("Fetch data error.");
+    }
+  }
+
+  const handleMarkRead = async (notificationId) => {
+    const { username } = getAuthInfo();
+    try {
+      await axiosInstance.put(commonApi.markRead.url(notificationId));
+      fetchNotifications();
+      fetchNotificationUnread();
+    } catch (error) {
+      console.log(error)
+      message.error("There is an error connecting with database.");
+    }
+  };  
+
+  const handleMarkAllAsRead = async () => {
+    const { username } = getAuthInfo();
+    try {
+      await axiosInstance.put(commonApi.markAllAsRead.url, {}, {
+        params: { username: username },
+      });
+      fetchNotificationUnread();
+      fetchNotifications();
+    } catch (error) {
+      message.error("There is an error connecting with database.");
+    }
+  };  
+
   useEffect(() => {
     fetchUserDetails();
   }, [fetchUserDetails]);
@@ -109,6 +160,8 @@ function App() {
     if (user?.username) {
       fetchCartDetail();
       fetchCartItems();
+      fetchNotificationUnread();
+      fetchNotifications();
     }
   }, [user]);
 
@@ -118,6 +171,10 @@ function App() {
         fetchUserDetails,
         cartDetailCount,
         cartItems,
+        notificationCount,
+        notifications,
+        handleMarkAllAsRead,
+        handleMarkRead,
         fetchCartDetail,
         fetchCartItems,
       }}

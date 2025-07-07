@@ -68,6 +68,7 @@ const QuizForm = ({ lessonId }) => {
     };
 
     const handleSubmit = async () => {
+        console.log(quizData);
         try {
             await axiosInstance.post(commonApi.createQuizBank.url(lessonId), quizData);
             message.success('Quiz imported successfully!');
