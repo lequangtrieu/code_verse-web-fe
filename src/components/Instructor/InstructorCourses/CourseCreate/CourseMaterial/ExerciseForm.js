@@ -35,19 +35,19 @@ const ExerciseForm = ({ lessonId }) => {
             fetchExercise();
         }
     }, [lessonId]);
-    
+
     const fetchExercise = async () => {
         setInitialLoading(true);
         try {
             const res = await axiosInstance.get(commonApi.getExerciseByLessonId.url(lessonId));
             const exercise = res.data.result;
-    
+
             if (!exercise) return;
-    
+
             setExerciseId(exercise.id);
             setExerciseTasks(exercise.tasks || []);
             setTestCases(exercise.testCases || []);
-    
+
             exerciseForm.setFieldsValue({
                 title: exercise.title,
                 instruction: exercise.instruction,
@@ -59,7 +59,7 @@ const ExerciseForm = ({ lessonId }) => {
                 setInitialLoading(false);
             }, 400);
         }
-    };    
+    };
 
     const handleSaveExercise = async (values) => {
         try {
@@ -108,7 +108,7 @@ const ExerciseForm = ({ lessonId }) => {
         } catch (err) {
             message.error("Failed to update task");
         }
-        
+
     };
 
     const handleCancelEdit = () => {
@@ -129,7 +129,7 @@ const ExerciseForm = ({ lessonId }) => {
             fetchExercise();
         } catch (err) {
             message.error("Failed to delete task");
-        } finally{
+        } finally {
             setTimeout(() => {
                 setInitialLoading(false);
             }, 400);
@@ -138,36 +138,56 @@ const ExerciseForm = ({ lessonId }) => {
 
     const handleSaveTestCase = async (values) => {
         setLoadingTestCase(true);
-        if (editingTestCase) {
-            const updateTestCase = { 
-                input: values.input,
-                expectedOutput: values.expectedOutput,
-                priority: values.priority,
-                public: values.isPublic
-             };
-             const res = await axiosInstance.put(commonApi.updateTestCase.url(editingTestCase.id), updateTestCase);
-            setTestCases((prev) =>
-                prev.map((tc) =>
-                    tc === editingTestCase ? { ...editingTestCase, ...res.data.result } : tc
-                )
-            );
-            message.success("Test case updated successfully!");
-        } else {
-            const newTestCase = { 
-                exerciseId: exerciseId,
-                input: values.input,
-                expectedOutput: values.expectedOutput,
-                priority: values.priority,
-                public: values.isPublic
-             };
-            const res = await axiosInstance.post(commonApi.createTestCase.url, newTestCase);
-            setTestCases([...testCases, res.data.result]);
-            message.success("Test case saved successfully!");
+
+        const inputString = stringifyInputListToString(values.inputList || []);
+
+        try {
+            if (editingTestCase) {
+                const updateTestCase = {
+                    input: inputString,
+                    expectedOutput: values.expectedOutput,
+                    priority: values.priority,
+                    public: values.isPublic
+                };
+
+                const res = await axiosInstance.put(
+                    commonApi.updateTestCase.url(editingTestCase.id),
+                    updateTestCase
+                );
+
+                setTestCases((prev) =>
+                    prev.map((tc) =>
+                        tc === editingTestCase ? { ...editingTestCase, ...res.data.result } : tc
+                    )
+                );
+
+                message.success("Test case updated successfully!");
+            } else {
+                const newTestCase = {
+                    exerciseId: exerciseId,
+                    input: inputString,
+                    expectedOutput: values.expectedOutput,
+                    priority: values.priority,
+                    public: values.isPublic
+                };
+
+                const res = await axiosInstance.post(
+                    commonApi.createTestCase.url,
+                    newTestCase
+                );
+
+                setTestCases([...testCases, res.data.result]);
+                message.success("Test case saved successfully!");
+            }
+
+            setIsTestCaseModalOpen(false);
+            setEditingTestCase(null);
+            testCaseForm.resetFields();
+        } catch (err) {
+            message.error("Failed to save test case.");
+        } finally {
+            setLoadingTestCase(false);
         }
-        setIsTestCaseModalOpen(false);
-        setEditingTestCase(null);
-        testCaseForm.resetFields();
-        setLoadingTestCase(false);
     };
 
     const handleDeleteTestCase = async (item) => {
@@ -177,11 +197,21 @@ const ExerciseForm = ({ lessonId }) => {
             fetchExercise();
         } catch (err) {
             message.error("Failed to delete test case");
-        } finally{
+        } finally {
             setTimeout(() => {
                 setInitialLoading(false);
             }, 400);
         }
+    };
+
+    const stringifyInputListToString = (list) => {
+        return list.map(val => `#@ip!${val}#@ip!`).join("");
+    };
+
+    const parseInputStringToList = (inputString) => {
+        if (!inputString) return [];
+        const matches = [...inputString.matchAll(/#@ip!(.*?)#@ip!/g)];
+        return matches.map(m => m[1]);
     };
 
     return (
@@ -293,7 +323,6 @@ const ExerciseForm = ({ lessonId }) => {
                 }}>
                     + Add Test Case
                 </Button>
-
                 <div className="max-h-64 overflow-y-auto mt-4">
                     <List
                         dataSource={testCases}
@@ -307,7 +336,13 @@ const ExerciseForm = ({ lessonId }) => {
                                         onClick={() => {
                                             setEditingTestCase(item);
                                             setIsTestCaseModalOpen(true);
-                                            testCaseForm.setFieldsValue(item);
+
+                                            testCaseForm.setFieldsValue({
+                                                inputList: parseInputStringToList(item.input),
+                                                expectedOutput: item.expectedOutput,
+                                                priority: item.priority,
+                                                isPublic: item.isPublic,
+                                            });
                                         }}
                                     />,
                                     <Button
@@ -321,7 +356,7 @@ const ExerciseForm = ({ lessonId }) => {
                                 ]}
                             >
                                 <Space direction="vertical">
-                                    <div><strong>Input:</strong> {item.input}</div>
+                                    <div><strong>Input:</strong> {parseInputStringToList(item.input).join("\n")}</div>
                                     <div><strong>Expected Output:</strong> {item.expectedOutput}</div>
                                     <div><strong>Priority:</strong> {item.priority}</div>
                                     <div><strong>Public:</strong> {item.isPublic ? "Yes" : "No"}</div>
@@ -349,10 +384,68 @@ const ExerciseForm = ({ lessonId }) => {
                     form={testCaseForm}
                     layout="vertical"
                     onFinish={handleSaveTestCase}
+                    initialValues={{
+                        priority: editingTestCase?.priority ?? PRIORITY_OPTIONS[0]?.value,
+                    }}
                 >
-                    <Form.Item name="input" label="Input" rules={[{ required: true }]}>
-                        <Input placeholder="e.g. 1,2,3" />
-                    </Form.Item>
+                    <div style={{ position: "relative", maxHeight: 200, overflowY: "auto", paddingRight: 8, marginBottom: 24 }}>
+                        <Form.List name="inputList">
+                            {(fields, { add, remove }) => (
+                                <>
+                                    <label className="block mb-1 font-medium">Inputs</label>
+                                    {fields.map(({ key, name, ...restField }, index) => (
+                                        <div key={key} className="flex items-center gap-2 mb-2">
+                                            <Form.Item
+                                                {...restField}
+                                                name={name}
+                                                rules={[{ required: true, message: "Please input a value" }]}
+                                                style={{ marginBottom: 0 }}
+                                                className="flex-1"
+                                            >
+                                                <Input
+                                                    placeholder={`Input ${index + 1}`}
+                                                    onChange={(e) => {
+                                                        const sanitizedValue = e.target.value.replace(/@/g, "");
+                                                        const currentValues = testCaseForm.getFieldValue("inputList") || [];
+                                                        currentValues[name] = sanitizedValue;
+                                                        testCaseForm.setFieldsValue({ inputList: currentValues });
+                                                    }}
+                                                />
+                                            </Form.Item>
+                                            <Button
+                                                danger
+                                                onClick={() => remove(name)}
+                                                disabled={fields.length <= 1}
+                                            >
+                                                Remove
+                                            </Button>
+                                        </div>
+                                    ))}
+                                    <div
+                                        style={{
+                                            position: "sticky",
+                                            bottom: 0,
+                                            background: "#fff",
+                                            paddingTop: 8,
+                                        }}
+                                    >
+                                        <Button
+                                            type="dashed"
+                                            onClick={() => {
+                                                add();
+                                            }}
+                                            block
+                                            disabled={fields.length >= 20}
+                                        >
+                                            + Add Input
+                                        </Button>
+                                    </div>
+
+                                </>
+                            )}
+                        </Form.List>
+                    </div>
+
                     <Form.Item name="expectedOutput" label="Expected Output" rules={[{ required: true }]}>
                         <Input placeholder="e.g. 6" />
                     </Form.Item>
@@ -362,6 +455,7 @@ const ExerciseForm = ({ lessonId }) => {
                     <Form.Item name="isPublic" label="Public?" valuePropName="checked">
                         <Switch />
                     </Form.Item>
+
                 </Form>
             </Modal>
 

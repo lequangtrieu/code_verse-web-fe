@@ -4,6 +4,7 @@ import Editor from "@monaco-editor/react";
 import commonApi from "../../../common/api";
 import axiosInstance from "../../../config/axiosInstance";
 import { getAIFeedback } from "../../../common/aiHelper";
+import party from "party-js";
 
 const { Option } = Select;
 
@@ -13,10 +14,9 @@ const CodeEditor = ({
   defaultCode = "",
   testCases = [],
   language: fixedLanguage,
-  onRefreshLessonData,
   exercise = [],
   onChangeLesson,
-  allLessons = []
+  allLessons = [],
 }) => {
   const defaultCodeMap = useMemo(
     () => ({
@@ -34,7 +34,7 @@ const CodeEditor = ({
   const languageList = ["javascript", "python", "java", "c", "cpp"];
   const themeList = ["vs-dark", "light", "hc-black"];
   const editorRef = useRef();
-
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState("javascript");
   const language = fixedLanguage || selectedLanguage;
   const [theme, setTheme] = useState("vs-dark");
@@ -143,6 +143,7 @@ const CodeEditor = ({
         placement: "topLeft",
       });
     }
+
     if (userId && lessonId) {
       const hasFailed = testResults.some((r) => r.description !== "Pass");
       if (hasFailed) {
@@ -152,7 +153,7 @@ const CodeEditor = ({
           placement: "topLeft",
         });
       }
-
+      setShowSuccessModal(true);
       const userCode = editorRef.current.getValue();
       await axiosInstance.post(commonApi.submitCode.url(), {
         lessonId,
@@ -160,23 +161,11 @@ const CodeEditor = ({
         code: userCode,
       });
 
-      notification.success({
-        message: "Code Submitted",
-        description: "Your code has been submitted successfully!",
-        placement: "topLeft",
+      party.confetti(document.body, {
+        count: 100,
+        spread: 70,
+        speed: 300,
       });
-
-      if (typeof onRefreshLessonData === "function") {
-        onRefreshLessonData();
-      }
-
-      if (typeof onChangeLesson === "function" && allLessons?.length > 0) {
-        const currentIndex = allLessons.findIndex((l) => l.id === lessonId);
-        const nextLesson = allLessons[currentIndex + 1];
-        if (nextLesson) {
-          onChangeLesson(nextLesson);
-        }
-      }
     }
   };
 
@@ -192,7 +181,7 @@ const CodeEditor = ({
 
   return (
     <div
-      style={{ overflow: "hidden" }}
+      style={{ overflow: "hidden", position: "relative" }}
       className="w-full p-4 bg-gray-900 rounded-lg shadow max-h-[850px] overflow-y-auto"
     >
       <div className="flex items-center justify-between mb-4 space-x-4">
@@ -312,10 +301,13 @@ const CodeEditor = ({
           {/* Right: Details of selected test */}
           <div className="flex-1 bg-[#1e1f33] rounded-lg p-4">
             {selectedIndex !== null && testCases[selectedIndex] && (
-              <div className="space-y-3 text-sm">
+              <div className="space-y-2 text-sm text-white">
                 <div>
                   <span className="text-gray-400">Input:</span>{" "}
-                  {testCases[selectedIndex].input}
+                  {testCases[selectedIndex].input
+                    .split("#@ip!")
+                    .filter((line) => line.trim() !== "")
+                    .join(" | ")}
                 </div>
                 <div>
                   <span className="text-gray-400">Expected:</span>{" "}
@@ -390,6 +382,42 @@ const CodeEditor = ({
               </pre>
             )
           )}
+        </div>
+      </Modal>
+      <Modal
+        title="🎉 Congratulations!"
+        open={showSuccessModal}
+        onCancel={() => setShowSuccessModal(false)}
+        centered
+        okText="Next Lesson →"
+        onOk={() => {
+          setShowSuccessModal(false);
+          if (typeof onChangeLesson === "function" && allLessons?.length > 0) {
+            const currentIndex = allLessons.findIndex((l) => l.id === lessonId);
+            const nextLesson = allLessons[currentIndex + 1];
+            if (nextLesson) {
+              onChangeLesson(nextLesson);
+            }
+          }
+        }}
+        className="custom-modal"
+        width={600}
+        bodyStyle={{
+          backgroundColor: "#f0fdf4",
+          color: "#065f46",
+          padding: "2rem",
+          borderRadius: "0.75rem",
+          textAlign: "center",
+        }}
+      >
+        <div className="text-center">
+          <div className="text-5xl mb-3">🏆</div>
+          <p className="font-bold text-xl mb-2">
+            You've passed all test cases!
+          </p>
+          <p className="text-gray-700">
+            Ready for the next challenge? Let’s keep going! 💪
+          </p>
         </div>
       </Modal>
     </div>

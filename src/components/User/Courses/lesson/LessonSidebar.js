@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Collapse, List, Tooltip } from "antd";
 import {
   FileTextOutlined,
@@ -9,24 +9,6 @@ const { Panel } = Collapse;
 
 const LessonSidebar = ({ lessons, selectedLessonId, onSelect }) => {
   const [collapsed, setCollapsed] = useState(false);
-
-  useEffect(() => {
-      for (const lesson of lessons) {
-        if (lesson.type === "quiz" && lesson.status === "PENDING") {
-          onSelect(lesson);
-          break;
-        } else if (lesson.subLessons?.length) {
-          const pendingSub = lesson.subLessons.find(
-            (s) => s.status === "PENDING"
-          );
-          if (pendingSub) {
-            onSelect(pendingSub);
-            break;
-          }
-        }
-      }
-    
-  }, [lessons]);
 
   const renderStatusIcon = (status) => {
     switch (status) {

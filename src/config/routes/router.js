@@ -1,9 +1,8 @@
-import {createBrowserRouter, Navigate} from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import App from "../../App";
 
 import Courses from "../../components/User/Courses/Courses";
 import CourseDetail from "../../components/User/Courses/CourseDetail/CourseDetail";
-// import CourseForm from "../../components/Instructor/InstructorCourses/CourseCreate/CourseForm";
 import CourseForm from "../../components/Instructor/InstructorCourses/CourseCreate/CourseCreation";
 import Home from "../../components/layout/Home";
 import DashboardPage from "../../components/Admin/AdminDashBoard/DashboardPage";
@@ -11,7 +10,7 @@ import AdminPanel from "../../components/Admin/layout/AdminPanel";
 import AdminCoursesPage from "../../components/Admin/AdminCourses/AdminCoursesPage";
 import AdminReviewPage from "../../components/Admin/AdminReview/AdminReviewPage";
 import AdminProfilePage from "../../components/Admin/AdminProfile/AdminProfilePage";
-import AdminQuizPage from "../../components/Admin/AdminQuiz/AdminQuizPage";
+import AdminUserReportsPage from "../../components/Admin/AdminViolationManagement/AdminUserReportsPage";
 import AdminAccountsPage from "../../components/Admin/AdminAccount/AdminAccountsPage";
 import UserPanel from "../../components/User/layout/UserPanel";
 import LessonLayout from "../../components/User/layout/LessonLayout";
@@ -149,6 +148,10 @@ const router = createBrowserRouter([
         element: <InstructorPanel />,
         children: [
           {
+            path: "",
+            element: <Navigate to="dashboard" />,
+          },
+          {
             path: "dashboard",
             element: <InstructorDashboardPage />
           },
@@ -205,8 +208,8 @@ const router = createBrowserRouter([
             element: <AdminReviewPage />,
           },
           {
-            path: "quiz",
-            element: <AdminQuizPage />,
+            path: "violation",
+            element: <AdminUserReportsPage />,
           },
           {
             path: "settings",

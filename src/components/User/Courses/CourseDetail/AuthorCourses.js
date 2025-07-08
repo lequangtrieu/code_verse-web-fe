@@ -1,8 +1,15 @@
 import React from "react";
 import { Carousel } from "antd";
 import { formatCurrency, getDiscountedPrice } from "../../../../common/helper";
+import {useNavigate} from "react-router-dom";
 
 const AuthorCourses = ({ authorCourses }) => {
+    const navigate = useNavigate();
+    const handleCourseClick = (id) => {
+        console.log("Clicked course id:", id);
+        navigate(`/course/${id}`);
+    };
+
     return (
         <div className="bg-white rounded-xl border p-4 mt-10">
             <h3 className="text-lg font-bold border-b pb-2 mb-4">Author's More Courses</h3>
@@ -20,7 +27,8 @@ const AuthorCourses = ({ authorCourses }) => {
                     const discounted = getDiscountedPrice(course.price, course.discount);
 
                     return (
-                        <div key={idx} className="px-1">
+                        <div key={idx}
+                             className="px-1">
                             <div className="flex flex-col h-full rounded-lg overflow-hidden border shadow-sm bg-white hover:shadow transition-all duration-300">
                                 <img
                                     src={
@@ -28,7 +36,8 @@ const AuthorCourses = ({ authorCourses }) => {
                                         "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"
                                     }
                                     alt={course.title}
-                                    className="w-full h-32 object-cover"
+                                    className="w-full h-32 object-cover items-center rounded-xl overflow-hidden shadow hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
+                                    onClick={() => handleCourseClick(course.id)}
                                 />
                                 <div className="flex flex-col justify-between flex-1 p-3">
                                     <h4 className="text-sm font-semibold text-gray-800 leading-snug line-clamp-2 min-h-[3.25rem]">

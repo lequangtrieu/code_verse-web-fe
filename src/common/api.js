@@ -5,11 +5,11 @@ const commonApi = {
     default: {
         url: backendDomain,
     },
-    
+
     healthAPI: {
         url: `${backendDomain}/health`,
     },
-    
+
     /** AI HELP */
     aiFeedback: {
         url: `${backendDomain}/ai/feedback`,
@@ -21,29 +21,29 @@ const commonApi = {
     },
 
     quizProgress: {
-    url: (userId, lessonId) => `${backendDomain}/quiz/progress/${userId}/${lessonId}`,
+        url: (userId, lessonId) => `${backendDomain}/quiz/progress/${userId}/${lessonId}`,
     },
 
     startQuiz: {
-    url: (userId, lessonId) => `${backendDomain}/quiz/start/${userId}/${lessonId}`,
+        url: (userId, lessonId) => `${backendDomain}/quiz/start/${userId}/${lessonId}`,
     },
 
     submitQuiz: {
-    url: (userId, lessonId) => `${backendDomain}/quiz/submit/${userId}/${lessonId}`,
+        url: (userId, lessonId) => `${backendDomain}/quiz/submit/${userId}/${lessonId}`,
     },
 
     submitQuizPer: {
-    url: (userId, lessonId) => `${backendDomain}/quiz/submitPer/${userId}/${lessonId}`,
+        url: (userId, lessonId) => `${backendDomain}/quiz/submitPer/${userId}/${lessonId}`,
     },
 
     /** Discussion message */
     discussion: {
-    getByLesson: (lessonId) => `${backendDomain}/discussions/lesson/${lessonId}`,
-    create: `${backendDomain}/discussions`,
-    reply: (parentId) => `${backendDomain}/discussions/${parentId}/reply`,
-    delete: (id) => `${backendDomain}/discussions/${id}`,
-    update: (id) => `${backendDomain}/discussions/${id}`,
-},
+        getByLesson: (lessonId) => `${backendDomain}/discussions/lesson/${lessonId}`,
+        create: `${backendDomain}/discussions`,
+        reply: (parentId) => `${backendDomain}/discussions/${parentId}/reply`,
+        delete: (id) => `${backendDomain}/discussions/${id}`,
+        update: (id) => `${backendDomain}/discussions/${id}`,
+    },
 
     /** User api */
     signUP: {
@@ -131,7 +131,24 @@ const commonApi = {
         url: `${backendDomain}/cart/confirm-payment`,
     },
 
+    // Notification api
+    notificationUreadCount: {
+        url: `${backendDomain}/notifications/user/count`
+    },
+    getNotifications: {
+        url: `${backendDomain}/notifications/history`
+    },
+    markRead: {
+        url: (notificationId) => `${backendDomain}/notifications/${notificationId}/user/read`
+    },
+    markAllAsRead: {
+        url: `${backendDomain}/notifications/user/mark-all-as-read`
+    },
+
     /** Instructor api */
+    getLearners: {
+        url: (courseId) => `${backendDomain}/course/${courseId}/learners`
+    },
     instructorCourses: {
         url: `${backendDomain}/course/instructor`
     },
@@ -186,6 +203,9 @@ const commonApi = {
     updateCourseStatus: {
         url: (courseId) => `${backendDomain}/course/${courseId}/status`
     },
+    getMonthlyStats: {
+        url: `${backendDomain}/course/monthly-stats/instructor`
+    },
     getCoursesByUser: (userId) => `${backendDomain}/course/user/${userId}`,
     getInProgressCourses: (userId) => `${backendDomain}/course/user/${userId}/in-progress`,
     getCompletedCourses: (userId) => `${backendDomain}/course/user/${userId}/completed`,
@@ -225,6 +245,20 @@ const commonApi = {
     },
     deactivateInstructor: {
         url: (instructorId) => `${backendDomain}/api/users/${instructorId}/deactivate`
+    },
+
+    /** report user api */
+    userReport: {
+        url: `${backendDomain}/api/user-reports`,
+    },
+    getReportReasons: {
+        url: `${backendDomain}/api/report-reasons`
+    },
+    getAllReports: {
+        url: `${backendDomain}/api/user-reports/list-report`
+    },
+    updateReportStatus: {
+        url: (id) => `${backendDomain}/api/user-reports/admin-review/${id}`
     }
 }
 

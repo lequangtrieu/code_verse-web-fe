@@ -5,11 +5,6 @@ import axiosInstance from "../../../../../config/axiosInstance";
 import commonApi from "../../../../../common/api";
 import LoadingContainer from "../../../../../common/LoadingContainer";
 
-function htmlToFile(htmlContent, fileName = "theory.html") {
-  const blob = new Blob([htmlContent], { type: "text/html" });
-  return new File([blob], fileName, { type: "text/html" });
-}
-
 const TheoryForm = ({ lessonId }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -19,6 +14,7 @@ const TheoryForm = ({ lessonId }) => {
 
   useEffect(() => {
     fetchTheory();
+    // eslint-disable-next-line
   }, [lessonId]);
 
   const fetchTheory = async () => {
@@ -26,13 +22,12 @@ const TheoryForm = ({ lessonId }) => {
     try {
       const res = await axiosInstance.get(commonApi.getTheory.url(lessonId));
       form.setFieldsValue({
-        title: res.data.result.title
+        title: res.data.result.title,
       });
       setEditorContent(res.data.result.content || "");
     } catch (error) {
       message.error("Error fetching theory.");
-    }
-    finally {
+    } finally {
       setTimeout(() => {
         setInitialLoading(false);
       }, 400);
@@ -41,21 +36,15 @@ const TheoryForm = ({ lessonId }) => {
 
   const handleSaveTheory = async () => {
     setLoading(true);
-    const htmlContent = editorContent;
-
     try {
       const values = await form.validateFields();
-      const title = values.title;
+      const payload = {
+        lessonId,
+        title: values.title,
+        content: editorContent,
+      };
 
-      const htmlFile = htmlToFile(htmlContent, `${title}.html`);
-      const formData = new FormData();
-      formData.append("lessonId", lessonId);
-      formData.append("title", title);
-      formData.append("contentFile", htmlFile);
-
-      await axiosInstance.post(commonApi.createTheory.url, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await axiosInstance.post(commonApi.createTheory.url, payload);
 
       message.success("Theory saved successfully!");
     } catch (err) {
@@ -68,6 +57,7 @@ const TheoryForm = ({ lessonId }) => {
   return (
     <Form form={form} layout="vertical" className="relative">
       {initialLoading && <LoadingContainer />}
+
       <Form.Item
         name="title"
         label="Theory Title"
