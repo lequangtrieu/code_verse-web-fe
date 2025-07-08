@@ -233,6 +233,12 @@ const commonApi = {
     },
     getReportReasons: {
         url: `${backendDomain}/api/report-reasons`
+    },
+    getAllReports: {
+        url: `${backendDomain}/api/user-reports/list-report`
+    },
+    updateReportStatus: {
+        url: (id) => `${backendDomain}/api/user-reports/admin-review/${id}`
     }
 }
 
