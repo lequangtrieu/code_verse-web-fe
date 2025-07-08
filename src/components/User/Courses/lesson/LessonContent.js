@@ -17,6 +17,7 @@ import axiosInstance from "../../../../config/axiosInstance";
 import commonApi from "../../../../common/api";
 import { useSelector } from "react-redux";
 import CommentActions from "../../../../common/CommentActions";
+import ReportCommentModal from "../../../../common/ReportCommentModal";
 
 dayjs.extend(relativeTime);
 dayjs.locale("en");
@@ -35,6 +36,8 @@ const LessonContent = ({ lesson }) => {
   const [comments, setComments] = useState([]);
   const [activeReplyId, setActiveReplyId] = useState(null);
   const [replyInputs, setReplyInputs] = useState({});
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportComment, setReportComment] = useState(null);
 
   useEffect(() => {
     if (!lesson) return;
@@ -85,11 +88,11 @@ const LessonContent = ({ lesson }) => {
           c.id === commentToDelete
             ? { ...c, isDeleted: true }
             : {
-                ...c,
-                replies: c.replies?.map((r) =>
-                  r.id === commentToDelete ? { ...r, isDeleted: true } : r
-                ),
-              }
+              ...c,
+              replies: c.replies?.map((r) =>
+                r.id === commentToDelete ? { ...r, isDeleted: true } : r
+              ),
+            }
         )
       );
       openNotification(
@@ -224,10 +227,10 @@ const LessonContent = ({ lesson }) => {
             const updatedReplies = c.replies.map((rep) =>
               rep.id === editingComment
                 ? {
-                    ...rep,
-                    originalMessage: rep.messageText,
-                    messageText: editText,
-                  }
+                  ...rep,
+                  originalMessage: rep.messageText,
+                  messageText: editText,
+                }
                 : rep
             );
             return { ...c, replies: updatedReplies };
@@ -246,8 +249,15 @@ const LessonContent = ({ lesson }) => {
     }
   };
 
-  const handleReport = (id) => {
-    openNotification("info", "Report feature coming soon");
+  const handleReport = (commentId) => {
+    const comment = comments
+      .flatMap((c) => [c, ...(c.replies || [])])
+      .find((c) => c.id === commentId);
+
+    if (comment) {
+      setReportComment({ messageId: comment.id, reportedUserId: comment.userId });
+      setReportModalOpen(true);
+    }
   };
 
   return (
@@ -348,6 +358,13 @@ const LessonContent = ({ lesson }) => {
                             onReport={() => handleReport(comment.id)}
                           />
                         </div>
+
+                        <ReportCommentModal
+                          open={reportModalOpen}
+                          onClose={() => setReportModalOpen(false)}
+                          messageId={reportComment?.messageId}
+                          reportedUserId={reportComment?.reportedUserId}
+                        />
 
                         {editingComment === comment.id ? (
                           <div className="mt-2">
