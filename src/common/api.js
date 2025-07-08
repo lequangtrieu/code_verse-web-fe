@@ -131,7 +131,24 @@ const commonApi = {
         url: `${backendDomain}/cart/confirm-payment`,
     },
 
+    // Notification api
+    notificationUreadCount: {
+        url: `${backendDomain}/notifications/user/count`
+    },
+    getNotifications: {
+        url: `${backendDomain}/notifications/history`
+    },
+    markRead: {
+        url: (notificationId) => `${backendDomain}/notifications/${notificationId}/user/read`
+    },
+    markAllAsRead: {
+        url: `${backendDomain}/notifications/user/mark-all-as-read`
+    },
+
     /** Instructor api */
+    getLearners: {
+        url: (courseId) => `${backendDomain}/course/${courseId}/learners`
+    },
     instructorCourses: {
         url: `${backendDomain}/course/instructor`
     },
@@ -185,6 +202,9 @@ const commonApi = {
     },
     updateCourseStatus: {
         url: (courseId) => `${backendDomain}/course/${courseId}/status`
+    },
+    getMonthlyStats: {
+        url: `${backendDomain}/course/monthly-stats/instructor`
     },
     getCoursesByUser: (userId) => `${backendDomain}/course/user/${userId}`,
     getInProgressCourses: (userId) => `${backendDomain}/course/user/${userId}/in-progress`,

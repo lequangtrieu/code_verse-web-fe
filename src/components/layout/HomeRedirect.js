@@ -15,6 +15,9 @@ const HomeRedirect = () => {
         if (user?.role === ROLE.ADMIN) {
             navigate("/admin-panel/dashboard");
         }
+        if (user?.role === ROLE.INSTRUCTOR) {
+            navigate("/instructor-panel/dashboard");
+        }
     }, [user, navigate]);
 
     return !user ? <Home /> : null;

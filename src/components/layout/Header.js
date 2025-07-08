@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Avatar, Badge, Button, Dropdown, Form, Input, Menu, message, Modal, notification, Popover, Tabs, Drawer } from "antd";
 import {
   DashboardOutlined,
+  BellOutlined,
   LogoutOutlined,
   MenuOutlined,
   ProfileOutlined,
@@ -31,8 +32,11 @@ const Header = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
   const location = useLocation();
-  const { fetchUserDetails, cartDetailCount, cartItems } = useContext(Context);
+  const { fetchUserDetails, cartDetailCount, cartItems, notificationCount, notifications, handleMarkAllAsRead, handleMarkRead } = useContext(Context);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState(null);
+  const [isNotiModalOpen, setIsNotiModalOpen] = useState(false);
+
 
   const openModal = (tab) => {
     setActiveTab(tab);
@@ -225,6 +229,56 @@ const Header = () => {
     navigate(`/course/${id}`);
   };
 
+  const notificationContent = (
+    <div style={{ width: 300, maxHeight: 400, overflowY: "auto" }}>
+      {notifications.length > 0 ? (
+        <div>
+          <div className="flex justify-end pr-3 pt-2 pb-1">
+            <span
+              className="text-blue-500 text-sm hover:underline cursor-pointer"
+              onClick={
+                () => {
+                  if (notifications.some((n) => !n.read)) handleMarkAllAsRead();
+                }
+              }
+            >
+              Mark all as read
+            </span>
+          </div>
+
+          <div className="divide-y">
+            {notifications.map((notif) => (
+              <div
+                key={notif.id}
+                className={`p-3 cursor-pointer hover:bg-gray-100 transition rounded ${notif.read ? "bg-white" : "bg-blue-50"
+                  }`}
+                onClick={() => {
+                  if (!notif.read) handleMarkRead(notif.id);
+                  setSelectedNotification(notif);
+                  setIsNotiModalOpen(true);
+                }}
+              >
+                <div className="font-medium text-sm text-gray-800">{notif.title}</div>
+                <div className="text-[11px] text-gray-400 mt-1">
+                  {new Date(notif.createdAt).toLocaleString()}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-20">
+          <img
+            src="../../logoCodeVerse.png"
+            alt="Notifications"
+            className="w-32 h-32 mb-6"
+          />
+          <h2 className="text-gray-500 text-lg">No notification.</h2>
+        </div>
+      )}
+    </div>
+  );
+
   const cartContent = (
     <div style={{ width: 300 }}>
       {cartItems.length > 0 ? (
@@ -382,6 +436,33 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          {user?.role ? (
+            <Popover
+              content={notificationContent}
+              trigger="click"
+              placement="bottomRight"
+            >
+              <Button
+                className="text-gray-700 border-full hover:bg-[#4d96ff] hover:text-white relative"
+                style={{ fontSize: "18px", verticalAlign: "middle" }}
+
+              >
+                <BellOutlined />
+                <Badge
+                  count={notificationCount || 0}
+                  style={{
+                    position: "absolute",
+                    top: -25,
+                    right: -16,
+                    backgroundColor: "#E8505B",
+                  }}
+                />
+              </Button>
+            </Popover>
+          ) : (
+            ""
+          )}
+
           {user?.role ? (
             <Popover
               content={cartContent}
@@ -604,6 +685,18 @@ const Header = () => {
             </Button>
           </Form.Item>
         </Form>
+      </Modal>
+      <Modal
+        open={isNotiModalOpen}
+        title={selectedNotification?.title}
+        onCancel={() => setIsNotiModalOpen(false)}
+        footer={null}
+      >
+        <p className="whitespace-pre-wrap">{selectedNotification?.content}</p>
+        <p className="text-xs text-gray-400 mt-4">
+          {selectedNotification &&
+            new Date(selectedNotification.createdAt).toLocaleString()}
+        </p>
       </Modal>
     </>
   );
