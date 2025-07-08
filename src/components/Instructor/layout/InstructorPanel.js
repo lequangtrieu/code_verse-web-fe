@@ -7,16 +7,16 @@ import {
   MenuFoldOutlined,
   DashboardOutlined,
   UserOutlined,
-  MessageOutlined,
   BookOutlined,
-  StarOutlined,
-  QuestionCircleOutlined,
+  NotificationOutlined,
   SettingOutlined,
-  LogoutOutlined,
-  TeamOutlined,
+  LogoutOutlined
 } from "@ant-design/icons";
 import ROLE from "../../../common/role";
 import { logoutUser } from "../../../config/store/userSlice";
+import commonApi from "../../../common/api";
+import axiosInstance from "../../../config/axiosInstance";
+import LoadingOverlay from "../../../common/LoadingOverlay";
 
 const { Sider, Content } = Layout;
 
@@ -26,12 +26,16 @@ const InstructorPanel = () => {
   const dispatch = useDispatch();
 
   const [collapsed, setCollapsed] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
     if (user?.role !== ROLE.INSTRUCTOR) {
       message.error("You do not have permission to access the instructor panel.");
       navigate("/");
     }
+
+    fetchNotificationUnread();
     // eslint-disable-next-line
   }, [user]);
 
@@ -49,8 +53,25 @@ const InstructorPanel = () => {
     }
   };
 
+  const fetchNotificationUnread = async () => {
+    try {
+      const result = await axiosInstance.get(commonApi.notificationUreadCount.url, {
+        params: { username: user.username },
+      });
+      setNotificationCount(result.data.result);
+    } catch(error){
+      message.error("Fetch data error.");
+    } finally{
+      setTimeout(() => {
+        setInitialLoading(false);
+    }, 400);
+    }
+    
+  }
+
   return (
     <Layout className="min-h-screen">
+      {initialLoading && <LoadingOverlay />}
       <Sider
         width={265}
         collapsible
@@ -72,22 +93,13 @@ const InstructorPanel = () => {
             My Profile
           </Menu.Item>
           <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
-            Management Dashboard
+            Dashboard
           </Menu.Item>
-          <Menu.Item key="accounts" icon={<TeamOutlined />}>
-            Management Accounts
-          </Menu.Item>
-          <Menu.Item key="messages" icon={<MessageOutlined />}>
-            Management Messages <Badge count={12} offset={[10, 0]} />
+          <Menu.Item key="notification" icon={<NotificationOutlined />}>
+            Notifications <Badge count={notificationCount} offset={[10, 0]} />
           </Menu.Item>
           <Menu.Item key="courses" icon={<BookOutlined />}>
             Management Courses
-          </Menu.Item>
-          <Menu.Item key="reviews" icon={<StarOutlined />}>
-            Management Reviews
-          </Menu.Item>
-          <Menu.Item key="quiz" icon={<QuestionCircleOutlined />}>
-            Management Quiz Attempts
           </Menu.Item>
 
           {!collapsed && (

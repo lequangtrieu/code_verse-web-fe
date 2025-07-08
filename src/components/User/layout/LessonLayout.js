@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import LessonSidebar from "../Courses/lesson/LessonSidebar";
 import LessonContent from "../Courses/lesson/LessonContent";
 import CodeEditor from "./CodeEditor";
@@ -16,40 +16,60 @@ export default function LessonLayout() {
   const [lessonData, setLessonData] = useState(null);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [language, setLanguage] = useState(null);
+  const [shouldSelectInitialLesson, setShouldSelectInitialLesson] =
+    useState(true);
+  const selectedLessonIdRef = useRef(null);
 
   const fetchCourseData = useCallback(async () => {
     try {
       const response = await axiosInstance.get(
         commonApi.getCourseDetails.url(courseId, user?.id)
       );
+
       setLanguage(response.data.result?.language.toLowerCase());
+      setLessonData(response.data.result.data);
 
       const allLessons = response.data.result.data.flatMap(
         (module) => module.subLessons || []
       );
 
-      const currentSelectedId = selectedLesson?.id;
+      if (shouldSelectInitialLesson) {
+        const firstUnfinished = allLessons.find(
+          (lesson) => lesson.status !== "PASSED"
+        );
+        const fallbackLesson =
+          allLessons.find((l) => l.lessonType !== "EXAM") || allLessons[0];
 
-      const updatedLesson = allLessons.find((l) => l.id === currentSelectedId);
-
-      const firstUnfinished = allLessons.find(
-        (lesson) => lesson.status !== "PASSED"
-      );
-      const fallbackLesson =
-        allLessons.find((l) => l.lessonType !== "EXAM") || allLessons[0];
-
-      setLessonData(response.data.result.data);
-      setSelectedLesson(
-        updatedLesson || firstUnfinished || fallbackLesson || null
-      );
+        const selected = firstUnfinished || fallbackLesson || null;
+        selectedLessonIdRef.current = selected?.id || null;
+        setSelectedLesson(selected);
+        setShouldSelectInitialLesson(false);
+      } else {
+        // 🧠 Dùng ref để giữ đúng bài mới nhất
+        const updated = allLessons.find(
+          (l) => l.id === selectedLessonIdRef.current
+        );
+        if (updated) {
+          setSelectedLesson(updated);
+        }
+      }
     } catch (error) {
       console.error("Error fetching course details:", error);
     }
-  }, [courseId, user?.id, selectedLesson?.id]);
+  }, [courseId, user?.id, shouldSelectInitialLesson]);
 
   useEffect(() => {
     fetchCourseData();
-  }, [courseId, user?.id]);
+  }, [fetchCourseData]);
+
+  const handleSelectLesson = (lesson) => {
+    selectedLessonIdRef.current = lesson?.id;
+    setSelectedLesson(lesson);
+  };
+
+  if (!lessonData) {
+    return <LoadingOverlay />;
+  }
 
   if (!lessonData) {
     return <LoadingOverlay />;
@@ -83,10 +103,8 @@ export default function LessonLayout() {
                 language={language === "all" ? null : language}
                 onRefreshLessonData={fetchCourseData}
                 exercise={selectedLesson?.exercise}
-                onChangeLesson={setSelectedLesson}
-                allLessons={lessonData.flatMap(
-                  (module) => module.subLessons || []
-                )}
+                allLessons={lessonData.flatMap((m) => m.subLessons || [])}
+                onChangeLesson={handleSelectLesson}
               />
             </>
           )}

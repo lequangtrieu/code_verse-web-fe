@@ -1,7 +1,14 @@
 import React from "react";
 import {formatCurrency, getDiscountedPrice} from "../../../../common/helper";
+import scrollTop from "../../../../config/scrollTop";
+import {useNavigate} from "react-router-dom";
 
 const PopularCourses = ({ popularCourses }) => {
+    const navigate = useNavigate();
+    const handleCourseClick = (id) => {
+        console.log("Clicked course id:", id);
+        navigate(`/course/${id}`);
+    };
     return (
         <div className="bg-white rounded-xl border p-4 mt-10">
             <h3 className="text-lg font-bold border-b pb-2 mb-4">🔥 Popular Courses</h3>
@@ -10,7 +17,9 @@ const PopularCourses = ({ popularCourses }) => {
                     const discounted = getDiscountedPrice(course.price, course.discount);
 
                     return (
-                        <div key={idx} className="flex gap-3 items-center">
+                        <div key={idx}
+                             className="flex gap-3 items-center rounded-xl overflow-hidden shadow hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
+                             onClick={() => handleCourseClick(course.id)}>
                             <img
                                 src={
                                     course.thumbnailUrl ||
