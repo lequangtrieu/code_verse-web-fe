@@ -48,6 +48,14 @@ const CodeEditor = ({
 
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+  const formatInputForAI = (rawInput) => {
+  return rawInput
+    ?.split("#@ip!")
+    .filter((line) => line.trim() !== "")
+    .join("\n")
+    .trim();
+};
+
   const runTests = async () => {
     setIsRunning(true);
     const userCode = editorRef.current.getValue();
@@ -115,7 +123,7 @@ const CodeEditor = ({
         const suggestion = await getAIFeedback({
           language,
           code: userCode,
-          input: firstFailed.input,
+          input: formatInputForAI(firstFailed.input),
           expected: firstFailed.expected,
           actual: firstFailed.actual,
           exerciseTitle: exercise?.title,
