@@ -14,7 +14,6 @@ const CodeEditor = ({
   defaultCode = "",
   testCases = [],
   language: fixedLanguage,
-  onRefreshLessonData,
   exercise = [],
   onChangeLesson,
   allLessons = [],
@@ -154,7 +153,7 @@ const CodeEditor = ({
           placement: "topLeft",
         });
       }
-
+      setShowSuccessModal(true);
       const userCode = editorRef.current.getValue();
       await axiosInstance.post(commonApi.submitCode.url(), {
         lessonId,
@@ -167,14 +166,6 @@ const CodeEditor = ({
         spread: 70,
         speed: 300,
       });
-
-      setTimeout(() => {
-        setShowSuccessModal(true);
-      }, 400);
-
-      if (typeof onRefreshLessonData === "function") {
-        onRefreshLessonData();
-      }
     }
   };
 
@@ -190,7 +181,7 @@ const CodeEditor = ({
 
   return (
     <div
-      style={{ overflow: "hidden" }}
+      style={{ overflow: "hidden", position: "relative" }}
       className="w-full p-4 bg-gray-900 rounded-lg shadow max-h-[850px] overflow-y-auto"
     >
       <div className="flex items-center justify-between mb-4 space-x-4">
@@ -310,10 +301,13 @@ const CodeEditor = ({
           {/* Right: Details of selected test */}
           <div className="flex-1 bg-[#1e1f33] rounded-lg p-4">
             {selectedIndex !== null && testCases[selectedIndex] && (
-              <div className="space-y-3 text-sm">
+              <div className="space-y-2 text-sm text-white">
                 <div>
                   <span className="text-gray-400">Input:</span>{" "}
-                  {testCases[selectedIndex].input}
+                  {testCases[selectedIndex].input
+                    .split("#@ip!")
+                    .filter((line) => line.trim() !== "")
+                    .join(" | ")}
                 </div>
                 <div>
                   <span className="text-gray-400">Expected:</span>{" "}
@@ -407,7 +401,6 @@ const CodeEditor = ({
           }
         }}
         className="custom-modal"
-        getContainer={false}
         width={600}
         bodyStyle={{
           backgroundColor: "#f0fdf4",
