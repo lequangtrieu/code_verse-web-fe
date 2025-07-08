@@ -205,12 +205,12 @@ const ExerciseForm = ({ lessonId }) => {
     };
 
     const stringifyInputListToString = (list) => {
-        return list.map(val => `#${val}#`).join("");
+        return list.map(val => `#@ip!${val}#@ip!`).join("");
     };
 
     const parseInputStringToList = (inputString) => {
         if (!inputString) return [];
-        const matches = [...inputString.matchAll(/#(.*?)#/g)];
+        const matches = [...inputString.matchAll(/#@ip!(.*?)#@ip!/g)];
         return matches.map(m => m[1]);
     };
 
@@ -405,7 +405,7 @@ const ExerciseForm = ({ lessonId }) => {
                                                 <Input
                                                     placeholder={`Input ${index + 1}`}
                                                     onChange={(e) => {
-                                                        const sanitizedValue = e.target.value.replace(/#/g, "");
+                                                        const sanitizedValue = e.target.value.replace(/@/g, "");
                                                         const currentValues = testCaseForm.getFieldValue("inputList") || [];
                                                         currentValues[name] = sanitizedValue;
                                                         testCaseForm.setFieldsValue({ inputList: currentValues });

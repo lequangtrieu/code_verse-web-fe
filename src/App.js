@@ -128,7 +128,6 @@ function App() {
   }
 
   const handleMarkRead = async (notificationId) => {
-    const { username } = getAuthInfo();
     try {
       await axiosInstance.put(commonApi.markRead.url(notificationId));
       fetchNotifications();
