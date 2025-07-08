@@ -125,16 +125,27 @@
   .slider_section .detail-box h1 {
     font-size: 2rem;
   }
-  
+
   .slider_section .detail-box p {
     font-size: 1rem;
   }
-  
+
   .slider_container {
     padding: 20px;
   }
-  
+
   .slider_section .img-box {
     padding: 10px;
   }
+}
+
+.filter-collapse .ant-collapse-header {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937; /* Tailwind text-gray-800 */
+}
+
+.filter-collapse .ant-collapse-item {
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 0.5rem;
 }
