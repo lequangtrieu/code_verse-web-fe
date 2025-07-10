@@ -37,6 +37,7 @@ import RegisterPage from "../../components/Auth/RegisterPage";
 import LearnerDetailPage from "../../components/Admin/AdminAccount/LearnerDetailPage";
 import InstructorDetailPage from "../../components/Admin/AdminAccount/InstructorDetailPage";
 import AdminApproveInstructorPage from "../../components/Admin/AdminApproveInstructor/AdminApproveInstructorPage";
+import {ManageBalanceDashboard} from "../../components/Instructor/ManageBalance/ManageBalanceDashboard";
 
 const router = createBrowserRouter([
   {
@@ -166,6 +167,10 @@ const router = createBrowserRouter([
           {
             path: "courses/:id",
             element: <InstructorCourseDetailView />
+          },
+          {
+            path: "manageBalance",
+            element: <ManageBalanceDashboard />
           }
         ]
       },

@@ -10,7 +10,8 @@ import {
   BookOutlined,
   NotificationOutlined,
   SettingOutlined,
-  LogoutOutlined
+  LogoutOutlined,
+  DollarOutlined
 } from "@ant-design/icons";
 import ROLE from "../../../common/role";
 import { logoutUser } from "../../../config/store/userSlice";
@@ -100,6 +101,9 @@ const InstructorPanel = () => {
           </Menu.Item>
           <Menu.Item key="courses" icon={<BookOutlined />}>
             Management Courses
+          </Menu.Item>
+          <Menu.Item key="manageBalance" icon={<DollarOutlined  />}>
+            Manage Balance
           </Menu.Item>
 
           {!collapsed && (

@@ -245,6 +245,23 @@ const commonApi = {
     },
     deactivateInstructor: {
         url: (instructorId) => `${backendDomain}/api/users/${instructorId}/deactivate`
+    },
+
+    instructor: {
+        income: {
+            url: (instructorId) => `${backendDomain}/api/instructors/${instructorId}/income`
+        }
+    },
+
+    // withdrawal api
+    withdrawal: {
+        getMyRequests: {
+            url: (instructorId) => `${backendDomain}/api/instructors/${instructorId}/withdrawals`
+        },
+        cancelRequest: {
+            url: (instructorId, requestId) =>
+                `${backendDomain}/api/instructors/${instructorId}/withdrawals/${requestId}/cancel`
+        }
     }
 }
 
