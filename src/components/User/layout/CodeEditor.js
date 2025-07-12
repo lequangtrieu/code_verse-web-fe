@@ -17,6 +17,7 @@ const CodeEditor = ({
   exercise = [],
   onChangeLesson,
   allLessons = [],
+  onRefreshLessonData,
 }) => {
   const defaultCodeMap = useMemo(
     () => ({
@@ -49,12 +50,12 @@ const CodeEditor = ({
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const formatInputForAI = (rawInput) => {
-  return rawInput
-    ?.split("#@ip!")
-    .filter((line) => line.trim() !== "")
-    .join("\n")
-    .trim();
-};
+    return rawInput
+      ?.split("#@ip!")
+      .filter((line) => line.trim() !== "")
+      .join("\n")
+      .trim();
+  };
 
   const runTests = async () => {
     setIsRunning(true);
@@ -161,7 +162,7 @@ const CodeEditor = ({
           placement: "topLeft",
         });
       }
-      setShowSuccessModal(true);
+
       const userCode = editorRef.current.getValue();
       await axiosInstance.post(commonApi.submitCode.url(), {
         lessonId,
@@ -174,8 +175,22 @@ const CodeEditor = ({
         spread: 70,
         speed: 300,
       });
+
+      setShowSuccessModal(true);
     }
   };
+
+  useEffect(() => {
+    if (showSuccessModal) {
+      const timeout = setTimeout(() => {
+        if (typeof onRefreshLessonData === "function") {
+          onRefreshLessonData({ initialLoad: false });
+        }
+      }, 10000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [onRefreshLessonData, showSuccessModal]);
 
   useEffect(() => {
     if (!fixedLanguage) {
@@ -395,17 +410,27 @@ const CodeEditor = ({
       <Modal
         title="🎉 Congratulations!"
         open={showSuccessModal}
-        onCancel={() => setShowSuccessModal(false)}
+        onCancel={() => {
+          setShowSuccessModal(false);
+          if (typeof onRefreshLessonData === "function") {
+            onRefreshLessonData({ initialLoad: false });
+          }
+        }}
         centered
         okText="Next Lesson →"
         onOk={() => {
           setShowSuccessModal(false);
+
           if (typeof onChangeLesson === "function" && allLessons?.length > 0) {
             const currentIndex = allLessons.findIndex((l) => l.id === lessonId);
             const nextLesson = allLessons[currentIndex + 1];
             if (nextLesson) {
               onChangeLesson(nextLesson);
             }
+          }
+
+          if (typeof onRefreshLessonData === "function") {
+            onRefreshLessonData({ initialLoad: false });
           }
         }}
         className="custom-modal"
