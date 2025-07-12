@@ -6,7 +6,14 @@ import commonApi from "../../../common/api";
 
 const MIN_WITHDRAWAL = 50000;
 
-const RequestWithdrawalModal = ({ open, onClose, currentBalance, hasPending, instructorId }) => {
+const RequestWithdrawalModal = ({
+                                    open,
+                                    onClose,
+                                    onSuccess,
+                                    currentBalance,
+                                    hasPending,
+                                    instructorId
+                                }) => {
     const [form] = Form.useForm();
     const [submitting, setSubmitting] = useState(false);
 
@@ -20,6 +27,7 @@ const RequestWithdrawalModal = ({ open, onClose, currentBalance, hasPending, ins
             const values = await form.validateFields();
             setSubmitting(true);
 
+            // Gọi API mới theo structure RESTful: /api/instructors/{id}/withdrawals/create
             await axiosInstance.post(
                 commonApi.withdrawal.createRequest.url(instructorId),
                 { amount: values.amount }
@@ -28,8 +36,13 @@ const RequestWithdrawalModal = ({ open, onClose, currentBalance, hasPending, ins
             message.success("Your request has been submitted successfully.");
             form.resetFields();
             onClose();
+
+            // Gọi callback để refresh dữ liệu ở parent
+            if (onSuccess) onSuccess();
         } catch (err) {
-            message.error("Failed to create withdrawal request.");
+            console.error("❌ Create withdrawal failed:", err);
+            const msg = err?.response?.data?.message || "Failed to create withdrawal request.";
+            message.error(msg);
         } finally {
             setSubmitting(false);
         }
@@ -40,7 +53,13 @@ const RequestWithdrawalModal = ({ open, onClose, currentBalance, hasPending, ins
     }, [open]);
 
     return (
-        <Modal open={open} title="Request Withdrawal" onCancel={onClose} footer={null} destroyOnClose>
+        <Modal
+            open={open}
+            title="Request Withdrawal"
+            onCancel={onClose}
+            footer={null}
+            destroyOnClose
+        >
             {hasPending && (
                 <Alert
                     type="warning"
@@ -53,7 +72,9 @@ const RequestWithdrawalModal = ({ open, onClose, currentBalance, hasPending, ins
 
             <div className="text-sm mb-4 space-y-1">
                 <p>💰 <span className="font-medium">Current Balance:</span>{" "}
-                    <span className="font-semibold text-blue-600">{currentBalance.toLocaleString("vi-VN")} ₫</span>
+                    <span className="font-semibold text-blue-600">
+                        {currentBalance.toLocaleString("vi-VN")} ₫
+                    </span>
                 </p>
                 <p className="text-xs text-gray-500">
                     Minimum withdrawal amount: {MIN_WITHDRAWAL.toLocaleString("vi-VN")} ₫
@@ -69,8 +90,12 @@ const RequestWithdrawalModal = ({ open, onClose, currentBalance, hasPending, ins
                         {
                             validator: (_, value) => {
                                 if (!value) return Promise.resolve();
-                                if (value < MIN_WITHDRAWAL) return Promise.reject(`At least ${MIN_WITHDRAWAL.toLocaleString("vi-VN")} ₫`);
-                                if (value > currentBalance) return Promise.reject("Amount exceeds current balance");
+                                if (value < MIN_WITHDRAWAL) {
+                                    return Promise.reject(`At least ${MIN_WITHDRAWAL.toLocaleString("vi-VN")} ₫`);
+                                }
+                                if (value > currentBalance) {
+                                    return Promise.reject("Amount exceeds current balance");
+                                }
                                 return Promise.resolve();
                             }
                         }
@@ -87,7 +112,12 @@ const RequestWithdrawalModal = ({ open, onClose, currentBalance, hasPending, ins
                 </Form.Item>
 
                 <Form.Item className="text-right">
-                    <Button type="primary" onClick={handleManualSubmit} loading={submitting} disabled={hasPending}>
+                    <Button
+                        type="primary"
+                        onClick={handleManualSubmit}
+                        loading={submitting}
+                        disabled={hasPending}
+                    >
                         Submit Request
                     </Button>
                 </Form.Item>

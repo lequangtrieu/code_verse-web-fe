@@ -257,10 +257,12 @@ export function ManageBalanceDashboard() {
             <RequestWithdrawalModal
                 open={showModal}
                 onClose={() => setShowModal(false)}
+                onSuccess={fetchData}
                 currentBalance={currentBalance}
                 hasPending={hasPending}
                 instructorId={instructorId}
             />
+
         </div>
     );
 }
