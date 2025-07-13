@@ -76,6 +76,9 @@ const commonApi = {
     updateAvatar: {
         url: `${backendDomain}/api/users/updateAvatar`,
     },
+    updateQr: {
+        url: `${backendDomain}/api/users/updateQrCode`,
+    },
 
     /** Course api */
     course: {
@@ -268,6 +271,35 @@ const commonApi = {
     },
     updateReportStatus: {
         url: (id) => `${backendDomain}/api/user-reports/admin-review/${id}`
+    },
+
+    instructor: {
+        income: {
+            url: (instructorId) => `${backendDomain}/api/instructors/${instructorId}/income`
+        }
+    },
+
+    // withdrawal api
+    withdrawal: {
+        getMyRequests: {
+            url: (instructorId) => `${backendDomain}/api/instructors/${instructorId}/withdrawals`
+        },
+        cancelRequest: {
+            url: (instructorId, requestId) =>
+                `${backendDomain}/api/instructors/${instructorId}/withdrawals/${requestId}/cancel`
+        },
+        createRequest: {
+            url: (id) => `${backendDomain}/api/instructors/${id}/withdrawals/create`
+        }
+    },
+
+    // admin withdrawal api
+    admin: {
+        withdrawals: {
+            getAll: { url: `${backendDomain}/api/admin/withdrawals` },
+            approve: { url: (id) => `${backendDomain}/api/admin/withdrawals/${id}/approve` },
+            reject: { url: (id) => `${backendDomain}/api/admin/withdrawals/${id}/reject` }
+        }
     }
 }
 

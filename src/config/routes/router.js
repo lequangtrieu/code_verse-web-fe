@@ -9,7 +9,6 @@ import DashboardPage from "../../components/Admin/AdminDashBoard/DashboardPage";
 import AdminPanel from "../../components/Admin/layout/AdminPanel";
 import AdminCoursesPage from "../../components/Admin/AdminCourses/AdminCoursesPage";
 import AdminReviewPage from "../../components/Admin/AdminReview/AdminReviewPage";
-import AdminProfilePage from "../../components/Admin/AdminProfile/AdminProfilePage";
 import AdminUserReportsPage from "../../components/Admin/AdminViolationManagement/AdminUserReportsPage";
 import AdminAccountsPage from "../../components/Admin/AdminAccount/AdminAccountsPage";
 import UserPanel from "../../components/User/layout/UserPanel";
@@ -39,6 +38,8 @@ import LearnerDetailPage from "../../components/Admin/AdminAccount/LearnerDetail
 import InstructorDetailPage from "../../components/Admin/AdminAccount/InstructorDetailPage";
 import AdminApproveInstructorPage from "../../components/Admin/AdminApproveInstructor/AdminApproveInstructorPage";
 import AdminNotificationPage from "../../components/Admin/AdminNotification/AdminNotificationPage";
+import {ManageBalanceDashboard} from "../../components/Instructor/ManageBalance/ManageBalanceDashboard";
+import {WithdrawalRequestList} from "../../components/Admin/WithdrawalRequests/WithdrawalRequestList";
 
 const router = createBrowserRouter([
   {
@@ -172,6 +173,14 @@ const router = createBrowserRouter([
           {
             path: "notifications",
             element: <InstructorNotificationPage />
+          },
+          {
+            path: "manageBalance",
+            element: <ManageBalanceDashboard />
+          },
+          {
+            path: "profile",
+            element: <UserProfilePage />
           }
         ]
       },
@@ -183,7 +192,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: "profile",
-            element: <AdminProfilePage />,
+            element: <UserProfilePage />,
           },
           {
             path: "dashboard",
@@ -228,6 +237,10 @@ const router = createBrowserRouter([
           {
             path: "",
             element: <Navigate to="dashboard" />,
+          },
+          {
+            path: "withdrawalRequests",
+            element: <WithdrawalRequestList/>
           }
         ],
       },

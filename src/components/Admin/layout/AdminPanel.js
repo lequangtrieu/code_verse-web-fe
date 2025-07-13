@@ -12,7 +12,7 @@ import {
   SettingOutlined,
   LogoutOutlined,
   TeamOutlined,
-  NotificationOutlined
+  NotificationOutlined, DollarOutlined
 } from "@ant-design/icons";
 import ROLE from "../../../common/role";
 import { logoutUser } from "../../../config/store/userSlice";
@@ -89,6 +89,9 @@ const AdminPanel = () => {
           </Menu.Item>
           <Menu.Item key="sendNotifications" icon={<NotificationOutlined />}>
             Send Notifications
+          </Menu.Item>
+          <Menu.Item key="withdrawalRequests" icon={<DollarOutlined />}>
+            Withdrawal Requests
           </Menu.Item>
 
           {!collapsed && (
