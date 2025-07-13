@@ -1,4 +1,4 @@
-import {createBrowserRouter, Navigate} from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import App from "../../App";
 
 import Courses from "../../components/User/Courses/Courses";
@@ -9,8 +9,7 @@ import DashboardPage from "../../components/Admin/AdminDashBoard/DashboardPage";
 import AdminPanel from "../../components/Admin/layout/AdminPanel";
 import AdminCoursesPage from "../../components/Admin/AdminCourses/AdminCoursesPage";
 import AdminReviewPage from "../../components/Admin/AdminReview/AdminReviewPage";
-import AdminProfilePage from "../../components/Admin/AdminProfile/AdminProfilePage";
-import AdminQuizPage from "../../components/Admin/AdminQuiz/AdminQuizPage";
+import AdminUserReportsPage from "../../components/Admin/AdminViolationManagement/AdminUserReportsPage";
 import AdminAccountsPage from "../../components/Admin/AdminAccount/AdminAccountsPage";
 import UserPanel from "../../components/User/layout/UserPanel";
 import LessonLayout from "../../components/User/layout/LessonLayout";
@@ -33,10 +32,12 @@ import InstructorPanel from "../../components/Instructor/layout/InstructorPanel"
 import InstructorDashboardPage from "../../components/Instructor/InstructorDashboard/InstructorDashboardPage";
 import InstructorCoursesPage from "../../components/Instructor/InstructorCourses/InstructorCoursePage";
 import InstructorCourseDetailView from "../../components/Instructor/InstructorCourses/InstructorCourseDetail";
+import InstructorNotificationPage from "../../components/Instructor/InstructorNotifications/InstructorNotificationPage";
 import RegisterPage from "../../components/Auth/RegisterPage";
 import LearnerDetailPage from "../../components/Admin/AdminAccount/LearnerDetailPage";
 import InstructorDetailPage from "../../components/Admin/AdminAccount/InstructorDetailPage";
 import AdminApproveInstructorPage from "../../components/Admin/AdminApproveInstructor/AdminApproveInstructorPage";
+import AdminNotificationPage from "../../components/Admin/AdminNotification/AdminNotificationPage";
 import {ManageBalanceDashboard} from "../../components/Instructor/ManageBalance/ManageBalanceDashboard";
 import {WithdrawalRequestList} from "../../components/Admin/WithdrawalRequests/WithdrawalRequestList";
 
@@ -170,6 +171,10 @@ const router = createBrowserRouter([
             element: <InstructorCourseDetailView />
           },
           {
+            path: "notifications",
+            element: <InstructorNotificationPage />
+          },
+          {
             path: "manageBalance",
             element: <ManageBalanceDashboard />
           },
@@ -218,12 +223,16 @@ const router = createBrowserRouter([
             element: <AdminReviewPage />,
           },
           {
-            path: "quiz",
-            element: <AdminQuizPage />,
+            path: "violation",
+            element: <AdminUserReportsPage />,
           },
           {
             path: "settings",
             element: <DashboardPage />,
+          },
+          {
+            path: "sendNotifications",
+            element: <AdminNotificationPage />
           },
           {
             path: "",

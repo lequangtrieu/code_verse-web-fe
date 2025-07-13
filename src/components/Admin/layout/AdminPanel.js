@@ -84,6 +84,9 @@ const AdminPanel = () => {
           <Menu.Item key="financial" icon={<StarOutlined />}>
             Financial Management
           </Menu.Item>
+          <Menu.Item key="violation" icon={<TeamOutlined />}>
+            Violation Management
+          </Menu.Item>
           <Menu.Item key="sendNotifications" icon={<NotificationOutlined />}>
             Send Notifications
           </Menu.Item>
