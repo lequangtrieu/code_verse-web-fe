@@ -230,40 +230,68 @@ const Header = () => {
   };
 
   const notificationContent = (
-    <div style={{ width: 300, maxHeight: 400, overflowY: "auto" }}>
+    <>
       {notifications.length > 0 ? (
         <div>
-          <div className="flex justify-end pr-3 pt-2 pb-1">
-            <span
-              className="text-blue-500 text-sm hover:underline cursor-pointer"
-              onClick={
-                () => {
-                  if (notifications.some((n) => !n.read)) handleMarkAllAsRead();
+          <div className="flex justify-between pr-3 pt-2 pb-1">
+            <div>
+              <span
+                className="text-blue-500 text-sm hover:underline cursor-pointer"
+                onClick={
+                  () => {
+                    if (user?.role === ROLE.ADMIN) {
+                      navigate("/admin-panel/sendNotifications");
+                    } else if (user?.role === ROLE.LEARNER) {
+                      navigate("/user-panel/notifications");
+                    } else if (user?.role === ROLE.INSTRUCTOR) {
+                      navigate("/instructor-panel/notifications")
+                    }
+                  }
                 }
-              }
-            >
-              Mark all as read
-            </span>
+              >
+                See all
+              </span>
+            </div>
+            <div>
+              <span
+                className="text-blue-500 text-sm hover:underline cursor-pointer"
+                onClick={
+                  () => {
+                    if (notifications.some((n) => !n.read)) handleMarkAllAsRead();
+                  }
+                }
+              >
+                Mark all as read
+              </span>
+            </div>
           </div>
 
           <div className="divide-y">
-            {notifications.map((notif) => (
-              <div
-                key={notif.id}
-                className={`p-3 cursor-pointer hover:bg-gray-100 transition rounded ${notif.read ? "bg-white" : "bg-blue-50"
-                  }`}
-                onClick={() => {
-                  if (!notif.read) handleMarkRead(notif.id);
-                  setSelectedNotification(notif);
-                  setIsNotiModalOpen(true);
-                }}
-              >
-                <div className="font-medium text-sm text-gray-800">{notif.title}</div>
-                <div className="text-[11px] text-gray-400 mt-1">
-                  {new Date(notif.createdAt).toLocaleString()}
+            <div style={{ width: 300, maxHeight: 400, overflowY: "auto" }}>
+              {notifications.slice(0, 10).map((notif) => (
+                <div
+                  key={notif.id}
+                  className={`p-3 cursor-pointer hover:bg-gray-100 transition rounded ${notif.read ? "bg-white" : "bg-blue-50"
+                    }`}
+                  onClick={() => {
+                    if (!notif.read) handleMarkRead(notif.id);
+                    setSelectedNotification(notif);
+                    setIsNotiModalOpen(true);
+                  }}
+                >
+                  <div className="font-medium text-sm text-gray-800">{notif.title}</div>
+                  <div className="text-[11px] text-gray-400 mt-1">
+                    {new Date(notif.createdAt).toLocaleString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       ) : (
@@ -276,7 +304,7 @@ const Header = () => {
           <h2 className="text-gray-500 text-lg">No notification.</h2>
         </div>
       )}
-    </div>
+    </>
   );
 
   const cartContent = (

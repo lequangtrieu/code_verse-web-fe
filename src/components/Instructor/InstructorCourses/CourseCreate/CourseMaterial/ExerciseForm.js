@@ -34,6 +34,7 @@ const ExerciseForm = ({ lessonId }) => {
             setTestCases([]);
             fetchExercise();
         }
+        // eslint-disable-next-line
     }, [lessonId]);
 
     const fetchExercise = async () => {
@@ -315,7 +316,6 @@ const ExerciseForm = ({ lessonId }) => {
 
             {/* Test Cases */}
             <Card title="Test Cases" className="border p-4 rounded shadow">
-                <h3 className="font-semibold">Test Cases</h3>
                 <Button onClick={() => {
                     setIsTestCaseModalOpen(true);
                     setEditingTestCase(null);
@@ -334,6 +334,7 @@ const ExerciseForm = ({ lessonId }) => {
                                         type="link"
                                         icon={<EditOutlined />}
                                         onClick={() => {
+                                            console.log(item.input);
                                             setEditingTestCase(item);
                                             setIsTestCaseModalOpen(true);
 

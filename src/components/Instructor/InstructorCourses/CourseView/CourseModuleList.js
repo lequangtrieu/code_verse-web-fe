@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Collapse, Typography, Tabs } from 'antd';
-import { EditOutlined } from '@ant-design/icons';
 import axiosInstance from '../../../../config/axiosInstance';
 import commonApi from '../../../../common/api';
 import LoadingOverlay from '../../../../common/LoadingOverlay';
@@ -17,11 +16,9 @@ const CourseModuleList = ({ courseId }) => {
   const [selectedLesson, setSelectedLesson] = useState(null);
 
   useEffect(() => {
-    // Simulate API call — replace with real API later
     const fetchModules = async () => {
       setInitialLoading(true);
       try {
-        // Replace this with your real API
         const response = await axiosInstance.get(commonApi.getModules.url(courseId));
 
         setModules(response.data.result);

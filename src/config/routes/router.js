@@ -33,10 +33,12 @@ import InstructorPanel from "../../components/Instructor/layout/InstructorPanel"
 import InstructorDashboardPage from "../../components/Instructor/InstructorDashboard/InstructorDashboardPage";
 import InstructorCoursesPage from "../../components/Instructor/InstructorCourses/InstructorCoursePage";
 import InstructorCourseDetailView from "../../components/Instructor/InstructorCourses/InstructorCourseDetail";
+import InstructorNotificationPage from "../../components/Instructor/InstructorNotifications/InstructorNotificationPage";
 import RegisterPage from "../../components/Auth/RegisterPage";
 import LearnerDetailPage from "../../components/Admin/AdminAccount/LearnerDetailPage";
 import InstructorDetailPage from "../../components/Admin/AdminAccount/InstructorDetailPage";
 import AdminApproveInstructorPage from "../../components/Admin/AdminApproveInstructor/AdminApproveInstructorPage";
+import AdminNotificationPage from "../../components/Admin/AdminNotification/AdminNotificationPage";
 
 const router = createBrowserRouter([
   {
@@ -166,6 +168,10 @@ const router = createBrowserRouter([
           {
             path: "courses/:id",
             element: <InstructorCourseDetailView />
+          },
+          {
+            path: "notifications",
+            element: <InstructorNotificationPage />
           }
         ]
       },
@@ -214,6 +220,10 @@ const router = createBrowserRouter([
           {
             path: "settings",
             element: <DashboardPage />,
+          },
+          {
+            path: "sendNotifications",
+            element: <AdminNotificationPage />
           },
           {
             path: "",

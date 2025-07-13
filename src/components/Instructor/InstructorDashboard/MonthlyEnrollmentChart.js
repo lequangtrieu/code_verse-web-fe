@@ -24,6 +24,7 @@ const MonthlyEnrollmentChart = () => {
     const user = useSelector((state) => state?.user?.user);
     const [stats, setStats] = useState([]);
     const [selectedCourses, setSelectedCourses] = useState([]);
+    const [availableCourses, setAvailableCourses] = useState([]);
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [loading, setLoading] = useState(true);
 
@@ -104,6 +105,14 @@ const MonthlyEnrollmentChart = () => {
        }
     };
 
+    useEffect(() => {
+        const courses = getAvailableCourses();
+        setAvailableCourses(courses);
+    
+        const allCourseIds = courses.map(course => course.value);
+        setSelectedCourses(allCourseIds);
+      }, [stats]);
+
     return (
         <Card title="Enrollment Statistics" className="w-full shadow-md">
             {loading ? (
@@ -122,7 +131,7 @@ const MonthlyEnrollmentChart = () => {
                                 style={{ minWidth: 400 }}
                                 maxTagCount="responsive"
                                 dropdownStyle={{ maxHeight: 300, overflowY: "auto" }}
-                                options={getAvailableCourses()}
+                                options={availableCourses}
                             />
                         </div>
 
