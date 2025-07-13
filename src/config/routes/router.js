@@ -38,6 +38,7 @@ import LearnerDetailPage from "../../components/Admin/AdminAccount/LearnerDetail
 import InstructorDetailPage from "../../components/Admin/AdminAccount/InstructorDetailPage";
 import AdminApproveInstructorPage from "../../components/Admin/AdminApproveInstructor/AdminApproveInstructorPage";
 import {ManageBalanceDashboard} from "../../components/Instructor/ManageBalance/ManageBalanceDashboard";
+import {WithdrawalRequestList} from "../../components/Admin/WithdrawalRequests/WithdrawalRequestList";
 
 const router = createBrowserRouter([
   {
@@ -171,6 +172,10 @@ const router = createBrowserRouter([
           {
             path: "manageBalance",
             element: <ManageBalanceDashboard />
+          },
+          {
+            path: "profile",
+            element: <UserProfilePage />
           }
         ]
       },
@@ -182,7 +187,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: "profile",
-            element: <AdminProfilePage />,
+            element: <UserProfilePage />,
           },
           {
             path: "dashboard",
@@ -223,6 +228,10 @@ const router = createBrowserRouter([
           {
             path: "",
             element: <Navigate to="dashboard" />,
+          },
+          {
+            path: "withdrawalRequests",
+            element: <WithdrawalRequestList/>
           }
         ],
       },

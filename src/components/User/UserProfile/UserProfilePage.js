@@ -1,11 +1,12 @@
-import { useEffect, useState, useRef } from "react";
-import { Button, Avatar, Card, message, Modal, Upload } from "antd";
+import {useEffect, useRef, useState} from "react";
+import {Avatar, Button, Card, message, Modal} from "antd";
 import ProfileItem from "./ProfileItem";
 import UpdateProfileModal from "./UpdateProfileModal";
 import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
-import { useDispatch } from "react-redux";
-import { setAvatar } from "../../../config/store/userSlice";
+import {useDispatch} from "react-redux";
+import {setAvatar} from "../../../config/store/userSlice";
+import {formatDate} from "../../../common/helper";
 
 const UserProfilePage = () => {
   const [userData, setUserData] = useState(null);
@@ -14,8 +15,14 @@ const UserProfilePage = () => {
   const [isAvatarUpdating,setIsAvatarUpdating] = useState(false);
   const [isUpdateAvatarModalOpen, setIsUpdateAvatarModalOpen] = useState(false);
   const fileInputRef = useRef(null);
+  const fileQrInputRef = useRef(null);
+  const [isQrUpdating, setIsQrUpdating] = useState(false);
+  const [isCredentialsModalOpen, setIsCredentialsModalOpen] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 
   const dispatch = useDispatch();
+  const isInstructor = userData?.role === "INSTRUCTOR";
+  const safeText = (value) => value || "N/A";
 
   const getUserProfile = async () => {
     try {
@@ -102,7 +109,6 @@ const UserProfilePage = () => {
       message.error("An error occurred while updating avatar");
     } finally {
       setIsAvatarUpdating(false);
-      setIsUpdateAvatarModalOpen(false);
     }
   };
 
@@ -111,8 +117,54 @@ const UserProfilePage = () => {
   }
 
   const formattedDate = userData.createdAt
-    ? new Date(userData.createdAt).toLocaleString()
+    ? formatDate(userData.createdAt)
     : "";
+
+  const handleOpenCredentialsModal = () => {
+    setIsCredentialsModalOpen(true);
+  };
+
+  const handleCloseCredentialsModal = () => {
+    setIsCredentialsModalOpen(false);
+  };
+
+  const handleOpenQrModal = () => {
+    setIsQrModalOpen(true);
+  };
+
+  const handleCloseQrModal = () => {
+    setIsQrModalOpen(false);
+  };
+
+  const handleUpdateQrClick = () => {
+    if (fileQrInputRef.current) {
+      fileQrInputRef.current.click();
+    }
+  };
+
+  const handleQrUpdate = async (file) => {
+    setIsQrUpdating(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await axiosInstance.put(commonApi.updateQr.url, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      if (response.data && response.data.code === 1000 && response.data.result) {
+        setUserData(response.data.result);
+        message.success("QR Code updated successfully");
+      } else {
+        message.error("Failed to update QR Code");
+      }
+    } catch (error) {
+      console.error("Error updating QR Code:", error);
+      message.error("An error occurred while updating QR Code");
+    } finally {
+      setIsQrUpdating(false);
+    }
+  };
 
   return (
     <div className="w-full h-full pt-2">
@@ -137,10 +189,48 @@ const UserProfilePage = () => {
 
           <div className="space-y-2">
             <ProfileItem label="Email" value={userData.username} />
-            <ProfileItem label="Full Name" value={userData.name} />
-            <ProfileItem label="Phone Number" value={userData.phoneNumber} />
-            <ProfileItem label="Biography" value={userData.bio} />
-            <ProfileItem label="Registration Date" value={formattedDate} />
+            <ProfileItem label="Full Name" value={safeText(userData.name)} />
+            <ProfileItem label="Phone Number" value={safeText(userData.phoneNumber)} />
+            <ProfileItem label="Biography" value={safeText(userData.bio)} />
+            <ProfileItem label="Registration Date" value={safeText(formattedDate)} />
+
+            {isInstructor && (
+                <>
+                  <ProfileItem
+                      label="Teaching Credentials"
+                      value={
+                        userData.teachingCredentials ? (
+                            <button
+                                onClick={handleOpenCredentialsModal}
+                                className="text-blue-600 underline"
+                            >
+                              View Credentials
+                            </button>
+                        ) : (
+                            "N/A"
+                        )
+                      }
+                  />
+
+                  <ProfileItem label="Educational Background" value={safeText(userData.educationalBackground)} />
+
+                  <ProfileItem
+                      label="QR Code"
+                      value={
+                        userData.qrCodeUrl ? (
+                            <button
+                                onClick={handleOpenQrModal}
+                                className="text-blue-600 underline"
+                            >
+                              View QR Code
+                            </button>
+                        ) : (
+                            "N/A"
+                        )
+                      }
+                  />
+                </>
+            )}
           </div>
         </div>
       </Card>
@@ -158,6 +248,7 @@ const UserProfilePage = () => {
         <div className="flex justify-center mt-4">
           <Button
             type="primary"
+            loading={isAvatarUpdating}
             onClick={handleUpdateAvatarClick}
           >
             Update Avatar
@@ -178,6 +269,19 @@ const UserProfilePage = () => {
         style={{ display: "none" }}
       />
 
+      <input
+          type="file"
+          ref={fileQrInputRef}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              handleQrUpdate(file);
+            }
+          }}
+          accept="image/*"
+          style={{ display: "none" }}
+      />
+
       {/* Profile Update Modal */}
       <UpdateProfileModal
         visible={isModalOpen}
@@ -185,6 +289,48 @@ const UserProfilePage = () => {
         initialValues={userData}
         onSubmit={handleUpdateUser}
       />
+
+      <Modal
+          title="Teaching Credentials"
+          open={isCredentialsModalOpen}
+          onCancel={handleCloseCredentialsModal}
+          footer={null}
+          width="60vw"
+          centered
+      >
+        <div className="flex justify-center">
+          <img
+              src={userData.teachingCredentials}
+              alt="Teaching Credentials"
+              className="w-[85vw] h-auto max-h-[65vh] object-contain rounded shadow-md"
+          />
+        </div>
+      </Modal>
+
+      <Modal
+          title="Your QR Code"
+          open={isQrModalOpen}
+          onCancel={handleCloseQrModal}
+          footer={null}
+          centered
+      >
+        <div className="flex justify-center">
+          <img
+              src={userData.qrCodeUrl}
+              alt="QR Code"
+              className="w-[65vw] h-auto max-h-[65vh] object-contain rounded shadow-md"
+          />
+        </div>
+        <div className="flex justify-center mt-4">
+          <Button
+              type="primary"
+              loading={isQrUpdating}
+              onClick={handleUpdateQrClick}
+          >
+            Update QR Code
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 };
