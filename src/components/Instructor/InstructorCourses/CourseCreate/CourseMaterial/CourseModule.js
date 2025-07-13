@@ -36,6 +36,7 @@ const CourseModule = ({ courseId }) => {
 
     useEffect(() => {
         fetchModules();
+        // eslint-disable-next-line
     }, [courseId]);
 
     const fetchModules = async () => {

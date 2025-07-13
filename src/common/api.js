@@ -136,13 +136,19 @@ const commonApi = {
         url: `${backendDomain}/notifications/user/count`
     },
     getNotifications: {
-        url: `${backendDomain}/notifications/history`
+        url: `${backendDomain}/notifications/history/received`
+    },
+    getNotificationsSent: {
+        url: `${backendDomain}/notifications/history/sent`
     },
     markRead: {
         url: (notificationId) => `${backendDomain}/notifications/${notificationId}/user/read`
     },
     markAllAsRead: {
         url: `${backendDomain}/notifications/user/mark-all-as-read`
+    },
+    createNotification: {
+        url: `${backendDomain}/notifications`
     },
 
     /** Instructor api */
@@ -218,6 +224,9 @@ const commonApi = {
     },
     getAllUsers: {
         url: `${backendDomain}/api/users`
+    },
+    getActiveUsers: {
+        url: `${backendDomain}/api/users/active`
     },
     lockUser: {
         url: (id) => `${backendDomain}/api/users/${id}/lock`
