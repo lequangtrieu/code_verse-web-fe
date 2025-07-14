@@ -300,7 +300,22 @@ const commonApi = {
             approve: { url: (id) => `${backendDomain}/api/admin/withdrawals/${id}/approve` },
             reject: { url: (id) => `${backendDomain}/api/admin/withdrawals/${id}/reject` }
         }
-    }
+    },
+
+    /** dashboard api */
+    dashboardOverview: {
+        url: `${backendDomain}/api/admin/dashboard/overview`,
+    },
+    dashboardRevenueByYear: {
+        url: `${backendDomain}/api/admin/dashboard/revenue/yearly`,
+    },
+    dashboardRevenueByMonth: {
+        url: `${backendDomain}/api/admin/dashboard/revenue/monthly`,
+    },
+    dashboardRevenueByQuarter: {
+        url: `${backendDomain}/api/admin/dashboard/revenue/quarterly`,
+    },
+
 }
 
 export default commonApi
