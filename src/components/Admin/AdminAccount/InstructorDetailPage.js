@@ -17,6 +17,7 @@ const InstructorDetailPage = () => {
     useEffect(() => {
         fetchInstructorDetail();
         fetchInstructorCourses();
+        // eslint-disable-next-line
     }, [id]);
 
     const fetchInstructorDetail = async () => {

@@ -50,7 +50,6 @@ const CourseDetail = () => {
                 setCourseDetail(response.data.result);
             } catch (error) {
                 console.error("Failed to fetch course detail");
-                message.error("Failed to load course data");
             } finally {
                 setLoadingCourseDetail(false);
             }
@@ -137,6 +136,7 @@ const CourseDetail = () => {
                                 <CurriculumTabs
                                     curriculumData={courseDetail?.courseModuleMoreInfoDTOList}
                                     courseDetailData={courseDetail?.course}
+                                    enrollmentStatus={enrollmentStatus}
                                 />
                                 <AuthorCourses authorCourses={authorCourses} />
                             </div>
