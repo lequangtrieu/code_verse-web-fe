@@ -18,8 +18,10 @@ import useAddToCart from "../../../../hooks/useAddToCart";
 import LoadingOverlay from "../../../../common/LoadingOverlay";
 
 const CourseDetail = () => {
-    const [initialLoading, setInitialLoading] = useState(true);
     const {courseId} = useParams();
+    const [initialLoading, setInitialLoading] = useState(true);
+    const [loadingCourseDetail, setLoadingCourseDetail] = useState(false);
+
     const [courseDetail, setCourseDetail] = useState(null);
     const user = useSelector((state) => state?.user?.user);
     const [cartCourseIds, setCartCourseIds] = useState([]);
@@ -42,13 +44,14 @@ const CourseDetail = () => {
 
     useEffect(() => {
         const fetchData = async () => {
+            setLoadingCourseDetail(true);
             try {
                 const response = await axios.get(commonApi.courseDetail.url(courseId));
                 setCourseDetail(response.data.result);
             } catch (error) {
                 console.error("Failed to fetch course detail");
             } finally {
-                setInitialLoading(false);
+                setLoadingCourseDetail(false);
             }
         };
 
@@ -95,7 +98,7 @@ const CourseDetail = () => {
                 const popularRes = await axios.get(commonApi.popularCourses.url());
                 setPopularCourses(popularRes.data);
             } catch (err) {
-                message.error("Failed to load author or popular courses", err);
+                console.error("Failed to load author or popular courses", err);
             }
         };
 
@@ -104,20 +107,15 @@ const CourseDetail = () => {
 
     return (
         <>
-            {initialLoading ? (
-                <LoadingOverlay/>
-            ) : courseDetail ? (
+            {(initialLoading || loadingCourseDetail) && <LoadingOverlay />}
+
+            {courseDetail && (
                 <>
-                    <section
-                        className="relative bg-gradient-to-br from-[#eef2f7] to-[#fefefe] py-40 overflow-hidden shadow-inner">
-                        <FaBookOpen
-                            className="absolute bottom-4 left-20 text-pink-300 text-8xl opacity-30 rotate-[-10deg] animate-float-slow"/>
-                        <GiPlanetCore
-                            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-purple-300 text-[150px] opacity-10 animate-spin-slow"/>
-                        <HiOutlineLightBulb
-                            className="absolute top-6 right-40 text-yellow-300 text-7xl opacity-20 animate-pulse"/>
-                        <RiSendPlaneLine
-                            className="absolute bottom-10 right-10 text-blue-300 text-7xl opacity-20 rotate-12 animate-fly-slow"/>
+                    <section className="relative bg-gradient-to-br from-[#eef2f7] to-[#fefefe] py-40 overflow-hidden shadow-inner">
+                        <FaBookOpen className="absolute bottom-4 left-20 text-pink-300 text-8xl opacity-30 rotate-[-10deg] animate-float-slow" />
+                        <GiPlanetCore className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-purple-300 text-[150px] opacity-10 animate-spin-slow" />
+                        <HiOutlineLightBulb className="absolute top-6 right-40 text-yellow-300 text-7xl opacity-20 animate-pulse" />
+                        <RiSendPlaneLine className="absolute bottom-10 right-10 text-blue-300 text-7xl opacity-20 rotate-12 animate-fly-slow" />
                         <div className="relative z-10 text-center max-w-2xl mx-auto">
                             <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 leading-tight drop-shadow-sm font-heading tracking-tight">
                                 Course Details
@@ -127,31 +125,33 @@ const CourseDetail = () => {
                             </p>
                         </div>
                     </section>
+
                     <section className="bg-white py-10 text-black">
                         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-10">
                             <div className="lg:col-span-2">
-                                <CourseDetailInfo courseDetail={courseDetail}/>
-
-                                <CurriculumTabs curriculumData={courseDetail?.courseModuleMoreInfoDTOList}
-                                                courseDetailData={courseDetail?.course}/>
-                                <AuthorCourses authorCourses={authorCourses}/>
+                                <CourseDetailInfo
+                                    courseDetail={courseDetail}
+                                    enrollmentStatus={enrollmentStatus}
+                                />
+                                <CurriculumTabs
+                                    curriculumData={courseDetail?.courseModuleMoreInfoDTOList}
+                                    courseDetailData={courseDetail?.course}
+                                />
+                                <AuthorCourses authorCourses={authorCourses} />
                             </div>
 
-
                             <div>
-                                <CoursePurchaseInfo course={courseDetail}
-                                                    handleAddToCart={handleAddToCart}
-                                                    enrollmentStatus={enrollmentStatus}/>
-
-                                <PopularCourses popularCourses={popularCourses}/>
+                                <CoursePurchaseInfo
+                                    course={courseDetail}
+                                    handleAddToCart={handleAddToCart}
+                                    enrollmentStatus={enrollmentStatus}
+                                />
+                                <PopularCourses popularCourses={popularCourses} />
                             </div>
                         </div>
                     </section>
                 </>
-            ) : (
-                <div className="text-center text-red-500 py-12">Failed to load course details.</div>
-            )
-            }
+            )}
         </>
     );
 };

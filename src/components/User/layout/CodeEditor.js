@@ -14,10 +14,10 @@ const CodeEditor = ({
   defaultCode = "",
   testCases = [],
   language: fixedLanguage,
-  onRefreshLessonData,
   exercise = [],
   onChangeLesson,
   allLessons = [],
+  onRefreshLessonData,
 }) => {
   const defaultCodeMap = useMemo(
     () => ({
@@ -48,6 +48,14 @@ const CodeEditor = ({
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const formatInputForAI = (rawInput) => {
+    return rawInput
+      ?.split("#@ip!")
+      .filter((line) => line.trim() !== "")
+      .join("\n")
+      .trim();
+  };
 
   const runTests = async () => {
     setIsRunning(true);
@@ -116,7 +124,7 @@ const CodeEditor = ({
         const suggestion = await getAIFeedback({
           language,
           code: userCode,
-          input: firstFailed.input,
+          input: formatInputForAI(firstFailed.input),
           expected: firstFailed.expected,
           actual: firstFailed.actual,
           exerciseTitle: exercise?.title,
@@ -168,15 +176,21 @@ const CodeEditor = ({
         speed: 300,
       });
 
-      setTimeout(() => {
-        setShowSuccessModal(true);
-      }, 400);
-
-      if (typeof onRefreshLessonData === "function") {
-        onRefreshLessonData();
-      }
+      setShowSuccessModal(true);
     }
   };
+
+  useEffect(() => {
+    if (showSuccessModal) {
+      const timeout = setTimeout(() => {
+        if (typeof onRefreshLessonData === "function") {
+          onRefreshLessonData({ initialLoad: false });
+        }
+      }, 10000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [onRefreshLessonData, showSuccessModal]);
 
   useEffect(() => {
     if (!fixedLanguage) {
@@ -190,7 +204,7 @@ const CodeEditor = ({
 
   return (
     <div
-      style={{ overflow: "hidden" }}
+      style={{ overflow: "hidden", position: "relative" }}
       className="w-full p-4 bg-gray-900 rounded-lg shadow max-h-[850px] overflow-y-auto"
     >
       <div className="flex items-center justify-between mb-4 space-x-4">
@@ -310,10 +324,13 @@ const CodeEditor = ({
           {/* Right: Details of selected test */}
           <div className="flex-1 bg-[#1e1f33] rounded-lg p-4">
             {selectedIndex !== null && testCases[selectedIndex] && (
-              <div className="space-y-3 text-sm">
+              <div className="space-y-2 text-sm text-white">
                 <div>
                   <span className="text-gray-400">Input:</span>{" "}
-                  {testCases[selectedIndex].input}
+                  {testCases[selectedIndex].input
+                    .split("#@ip!")
+                    .filter((line) => line.trim() !== "")
+                    .join(" | ")}
                 </div>
                 <div>
                   <span className="text-gray-400">Expected:</span>{" "}
@@ -393,11 +410,17 @@ const CodeEditor = ({
       <Modal
         title="🎉 Congratulations!"
         open={showSuccessModal}
-        onCancel={() => setShowSuccessModal(false)}
+        onCancel={() => {
+          setShowSuccessModal(false);
+          if (typeof onRefreshLessonData === "function") {
+            onRefreshLessonData({ initialLoad: false });
+          }
+        }}
         centered
         okText="Next Lesson →"
         onOk={() => {
           setShowSuccessModal(false);
+
           if (typeof onChangeLesson === "function" && allLessons?.length > 0) {
             const currentIndex = allLessons.findIndex((l) => l.id === lessonId);
             const nextLesson = allLessons[currentIndex + 1];
@@ -405,9 +428,12 @@ const CodeEditor = ({
               onChangeLesson(nextLesson);
             }
           }
+
+          if (typeof onRefreshLessonData === "function") {
+            onRefreshLessonData({ initialLoad: false });
+          }
         }}
         className="custom-modal"
-        getContainer={false}
         width={600}
         bodyStyle={{
           backgroundColor: "#f0fdf4",

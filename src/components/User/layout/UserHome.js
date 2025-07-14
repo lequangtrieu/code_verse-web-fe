@@ -1,4 +1,4 @@
-import { Carousel, Avatar, Tabs, Button, Popover, notification } from "antd";
+import { Carousel, Avatar, Tabs, Button, Popover, notification, Progress } from "antd";
 import ReusableProgress from "../layout/ReusableProgress";
 import React, { useContext, useEffect, useState } from "react";
 import { Card, Pagination, Rate, Tag } from "antd";
@@ -614,9 +614,9 @@ const UserHome = () => {
                                     {course.category}
                                   </Tag>
 
-                                  <h3 className="text-lg font-semibold mb-2 line-clamp-2 hover:text-indigo-600 transition-colors duration-300">
-                                    {course.title}
-                                  </h3>
+                                    <h3 className="text-[16px] font-semibold mb-2 line-clamp-2 hover:text-indigo-600 transition-colors duration-300 min-h-[48px]">
+                                        {course.title}
+                                    </h3>
 
                                   <div className="flex items-center text-sm text-gray-600 mb-2">
                                     <span>{course.totalLessons} Lessons</span>
@@ -687,6 +687,30 @@ const UserHome = () => {
                                       ({course.ratingCount})
                                     </span>
                                   </div>
+                                  {/* ProgressBar cho tab In Progress */}
+                                    {selectedTab === "learning" && course.completionPercentage !== undefined && (
+                                        <div className="mt-2">
+                                            <div className="flex justify-between text-xs text-gray-600 mb-1 px-1">
+                                                <span>Progress</span>
+                                                <span>{Math.round(course.completionPercentage)}%</span>
+                                            </div>
+                                            <Progress
+                                                percent={Math.round(course.completionPercentage)}
+                                                size="small"
+                                                strokeColor={
+                                                    course.completionPercentage >= 80
+                                                        ? "#52c41a" // xanh lá
+                                                        : course.completionPercentage >= 50
+                                                            ? "#faad14" // cam
+                                                            : "#1890ff" // xanh dương
+                                                }
+                                                trailColor="#f0f0f0"
+                                                showInfo={false}
+                                                className="rounded-sm"
+                                            />
+                                        </div>
+                                    )}
+
                                 </div>
                               </Card>
                             </Popover>

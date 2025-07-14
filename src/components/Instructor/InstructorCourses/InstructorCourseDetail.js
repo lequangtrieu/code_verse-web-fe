@@ -4,12 +4,12 @@ import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
 import { formatCurrency } from "../../../common/helper";
 import LoadingOverlay from "../../../common/LoadingOverlay";
-import { Form, Card, Descriptions, Tag, Collapse, Typography, Divider, message, Button } from "antd";
+import { Form, Card, Descriptions, Tag, Typography, message, Button } from "antd";
 import CourseDescription from "./CourseCreate/CourseInfo";
 import CourseModule from "./CourseCreate/CourseMaterial/CourseModule";
 import CourseModuleList from "./CourseView/CourseModuleList";
 
-const { Title, Paragraph, Text } = Typography;
+const { Title, Paragraph } = Typography;
 
 const InstructorCourseDetailView = () => {
     const { id } = useParams();
@@ -175,12 +175,6 @@ const InstructorCourseDetailView = () => {
         }
     };
 
-    const renderModuleHeader = (mod) => (
-        <div className="flex justify-between items-center">
-            <span>{mod.title}</span>
-        </div>
-    );
-
     return (
         <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
             {initialLoading && <LoadingOverlay />}
@@ -202,8 +196,6 @@ const InstructorCourseDetailView = () => {
                         if (name === "courseDescription") {
                             // You can call a centralized save logic here
                             handleSaveDraft(values);
-                        } else if (name === "courseMaterial") {
-
                         }
                     }}
                 >
@@ -264,75 +256,9 @@ const InstructorCourseDetailView = () => {
 
             {/* Modules & Lessons */}
             <Card title="Course Modules" variant="outlined" className="shadow">
-                {/* {course.modules.length > 0 ? (
-                    <Collapse
-                        accordion
-                        items={course.modules.map((module, moduleIndex) => ({
-                            key: module.id.toString(),
-                            label: `Module ${moduleIndex + 1}: ${module.title}`,
-                            children: (
-                                <>
-                                    {module.lessons.length > 0 ? (
-                                        <>
-                                            {module.lessons.map((lesson, lessonIndex) => (
-                                                <div key={lesson.id} className="mb-6">
-                                                    <Title level={5}>Lesson {lessonIndex + 1}: {lesson.title}</Title>
-
-                                                    <div className="flex flex-col md:flex-row gap-6">
-                                                        {lesson.theory && (
-                                                            <Card
-                                                                title={<Text strong>Theory</Text>}
-                                                                variant="outlined"
-                                                                className="w-full md:w-1/2"
-                                                            >
-                                                                <p><Text type="secondary">Title:</Text> {lesson.theory.title}</p>
-                                                                <p><Text type="secondary">Content:</Text> {lesson.theory.content}</p>
-                                                            </Card>
-                                                        )}
-
-                                                        {lesson.exercise && (
-                                                            <Card
-                                                                title={<Text strong>Exercise</Text>}
-                                                                variant="outlined"
-                                                                className="w-full md:w-1/2"
-                                                            >
-                                                                <p><Text type="secondary">Title:</Text> {lesson.exercise.title}</p>
-                                                                <p><Text type="secondary">Instruction:</Text> {lesson.exercise.instruction}</p>
-                                                                <p><Text type="secondary">EXP Reward:</Text> {lesson.exercise.expReward}</p>
-                                                                <Divider plain orientation="left">Tasks</Divider>
-                                                                <ul className="list-disc pl-5">
-                                                                    {lesson.exercise.tasks.map((task) => (
-                                                                        <li key={task.id}>{task.description}</li>
-                                                                    ))}
-                                                                </ul>
-                                                            </Card>
-                                                        )}
-                                                    </div>
-                                                    <Divider />
-                                                </div>
-                                            ))}
-                                        </>
-                                    ) : (
-                                        <div className="text-center p-4 text-gray-500">
-                                            No lessons yet.
-                                        </div>
-                                    )}
-
-                                </>
-                            ),
-                        }))}
-                        className="shadow"
-                    />
-                ) : (
-                    <div className="text-center p-4 text-gray-500">
-                        No modules yet.
-                    </div>
-                )} */}
                 {course.status === "DRAFT" ? <CourseModule courseId={id} /> : (
                     <CourseModuleList courseId={id} />
                 )}
-
-
             </Card>
         </div>
     );
