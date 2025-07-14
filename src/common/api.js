@@ -259,7 +259,22 @@ const commonApi = {
     },
     updateReportStatus: {
         url: (id) => `${backendDomain}/api/user-reports/admin-review/${id}`
-    }
+    },
+
+    /** dashboard api */
+    dashboardOverview: {
+        url: `${backendDomain}/api/admin/dashboard/overview`,
+    },
+    dashboardRevenueByYear: {
+        url: `${backendDomain}/api/admin/dashboard/revenue/yearly`,
+    },
+    dashboardRevenueByMonth: {
+        url: `${backendDomain}/api/admin/dashboard/revenue/monthly`,
+    },
+    dashboardRevenueByQuarter: {
+        url: `${backendDomain}/api/admin/dashboard/revenue/quarterly`,
+    },
+
 }
 
 export default commonApi
