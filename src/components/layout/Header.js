@@ -42,6 +42,11 @@ const Header = () => {
     setActiveTab(tab);
     setIsModalOpen(true);
   };
+
+  useEffect(() => {
+    window.openLoginModal = () => openModal("login");
+  }, []);
+
   const handleCartClick = () => {
     scrollTop();
     navigate("/cart");

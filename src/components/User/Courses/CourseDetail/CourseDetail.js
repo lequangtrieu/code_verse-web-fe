@@ -136,6 +136,7 @@ const CourseDetail = () => {
                                 <CurriculumTabs
                                     curriculumData={courseDetail?.courseModuleMoreInfoDTOList}
                                     courseDetailData={courseDetail?.course}
+                                    enrollmentStatus={enrollmentStatus}
                                 />
                                 <AuthorCourses authorCourses={authorCourses} />
                             </div>

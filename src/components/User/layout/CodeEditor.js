@@ -30,6 +30,8 @@ const CodeEditor = ({
     []
   );
 
+  const [showCourseCompletionModal, setShowCourseCompletionModal] =
+    useState(false);
   const [showAIModal, setShowAIModal] = useState(false);
   const [aiSuggestion, setAISuggestion] = useState("");
   const languageList = ["javascript", "python", "java", "c", "cpp"];
@@ -164,19 +166,25 @@ const CodeEditor = ({
       }
 
       const userCode = editorRef.current.getValue();
-      await axiosInstance.post(commonApi.submitCode.url(), {
+      const response = await axiosInstance.post(commonApi.submitCode.url(), {
         lessonId,
         userId,
         code: userCode,
       });
 
-      party.confetti(document.body, {
-        count: 100,
-        spread: 70,
-        speed: 300,
-      });
+      const statusDone = response?.data?.message;
 
-      setShowSuccessModal(true);
+      if (statusDone === "completed") {
+        setShowCourseCompletionModal(true);
+      } else {
+        party.confetti(document.body, {
+          count: 100,
+          spread: 70,
+          speed: 300,
+        });
+
+        setShowSuccessModal(true);
+      }
     }
   };
 
@@ -450,6 +458,49 @@ const CodeEditor = ({
           </p>
           <p className="text-gray-700">
             Ready for the next challenge? Let’s keep going! 💪
+          </p>
+        </div>
+      </Modal>
+      <Modal
+        title={null}
+        open={showCourseCompletionModal}
+        onCancel={() => setShowCourseCompletionModal(false)}
+        centered
+        footer={[
+          <Button
+            key="close"
+            type="primary"
+            onClick={() => {
+              setShowCourseCompletionModal(false);
+              if (typeof onRefreshLessonData === "function") {
+                onRefreshLessonData({ initialLoad: true });
+              }
+            }}
+          >
+            Back to My Courses
+          </Button>,
+        ]}
+        className="custom-modal"
+        width={640}
+        bodyStyle={{
+          background: "linear-gradient(to right, #dbeafe, #f0fdf4)",
+          color: "#0f172a",
+          padding: "2rem",
+          borderRadius: "1rem",
+          textAlign: "center",
+          boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
+        }}
+      >
+        <div className="text-center">
+          <div className="text-6xl mb-4 animate-bounce">🎓</div>
+          <h2 className="text-2xl font-bold mb-2 text-green-700">
+            Congratulations!
+          </h2>
+          <p className="text-lg text-gray-800 mb-4">
+            You've successfully completed the entire course.
+          </p>
+          <p className="text-sm text-gray-600 italic">
+            We're proud of your progress. Keep learning and growing! 🚀
           </p>
         </div>
       </Modal>

@@ -90,6 +90,7 @@ export default function LessonLayout() {
               lessonId={selectedLesson?.id}
               userId={user?.id}
               onProgressUpdate={fetchCourseData}
+              onRefreshLessonData={(opts) => fetchCourseData(opts)}
             />
           ) : (
             <>
