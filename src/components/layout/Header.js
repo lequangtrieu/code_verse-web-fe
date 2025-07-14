@@ -1,6 +1,20 @@
 import { useContext, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Avatar, Badge, Button, Dropdown, Form, Input, Menu, message, Modal, notification, Popover, Tabs, Drawer } from "antd";
+import {
+  Avatar,
+  Badge,
+  Button,
+  Dropdown,
+  Form,
+  Input,
+  Menu,
+  message,
+  Modal,
+  notification,
+  Popover,
+  Tabs,
+  Drawer,
+} from "antd";
 import {
   DashboardOutlined,
   BellOutlined,
@@ -32,16 +46,28 @@ const Header = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
   const location = useLocation();
-  const { fetchUserDetails, cartDetailCount, cartItems, notificationCount, notifications, handleMarkAllAsRead, handleMarkRead } = useContext(Context);
+  const {
+    fetchUserDetails,
+    cartDetailCount,
+    cartItems,
+    notificationCount,
+    notifications,
+    handleMarkAllAsRead,
+    handleMarkRead,
+  } = useContext(Context);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [isNotiModalOpen, setIsNotiModalOpen] = useState(false);
-
 
   const openModal = (tab) => {
     setActiveTab(tab);
     setIsModalOpen(true);
   };
+
+  useEffect(() => {
+    window.openLoginModal = () => openModal("login");
+  }, []);
+
   const handleCartClick = () => {
     scrollTop();
     navigate("/cart");
@@ -202,7 +228,7 @@ const Header = () => {
         } else if (user?.role === ROLE.LEARNER) {
           navigate("/user-panel");
         } else if (user?.role === ROLE.INSTRUCTOR) {
-          navigate("/instructor-panel")
+          navigate("/instructor-panel");
         }
         break;
       case "my-profile":
@@ -236,11 +262,9 @@ const Header = () => {
           <div className="flex justify-end pr-3 pt-2 pb-1">
             <span
               className="text-blue-500 text-sm hover:underline cursor-pointer"
-              onClick={
-                () => {
-                  if (notifications.some((n) => !n.read)) handleMarkAllAsRead();
-                }
-              }
+              onClick={() => {
+                if (notifications.some((n) => !n.read)) handleMarkAllAsRead();
+              }}
             >
               Mark all as read
             </span>
@@ -250,15 +274,18 @@ const Header = () => {
             {notifications.map((notif) => (
               <div
                 key={notif.id}
-                className={`p-3 cursor-pointer hover:bg-gray-100 transition rounded ${notif.read ? "bg-white" : "bg-blue-50"
-                  }`}
+                className={`p-3 cursor-pointer hover:bg-gray-100 transition rounded ${
+                  notif.read ? "bg-white" : "bg-blue-50"
+                }`}
                 onClick={() => {
                   if (!notif.read) handleMarkRead(notif.id);
                   setSelectedNotification(notif);
                   setIsNotiModalOpen(true);
                 }}
               >
-                <div className="font-medium text-sm text-gray-800">{notif.title}</div>
+                <div className="font-medium text-sm text-gray-800">
+                  {notif.title}
+                </div>
                 <div className="text-[11px] text-gray-400 mt-1">
                   {new Date(notif.createdAt).toLocaleString()}
                 </div>
@@ -358,7 +385,11 @@ const Header = () => {
       <Menu.Divider />
 
       <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
-        {user?.role === ROLE.ADMIN ? "Admin Dashboard" : user?.role === ROLE.LEARNER ? "Student Dashboard" : "Instructor Dashboard"}
+        {user?.role === ROLE.ADMIN
+          ? "Admin Dashboard"
+          : user?.role === ROLE.LEARNER
+          ? "Student Dashboard"
+          : "Instructor Dashboard"}
       </Menu.Item>
 
       <Menu.Item key="my-profile" icon={<ProfileOutlined />}>
@@ -382,10 +413,13 @@ const Header = () => {
       ? "border-b-[#2c31cf] text-[#2c31cf]"
       : "border-transparent text-[#3b3c54]";
 
-  useEffect(() => { }, [user]);
+  useEffect(() => {}, [user]);
   return (
     <>
-      <div style={{ zIndex: 1031 }} className="header-content transition-all duration-300 justify-between flex items-center h-[82px] px-4 bg-white fixed top-0 left-0 right-0 shadow">
+      <div
+        style={{ zIndex: 1031 }}
+        className="header-content transition-all duration-300 justify-between flex items-center h-[82px] px-4 bg-white fixed top-0 left-0 right-0 shadow"
+      >
         <div className="flex items-center gap-x-[34px] h-full">
           <Link to="/">
             <img
@@ -445,7 +479,6 @@ const Header = () => {
               <Button
                 className="text-gray-700 border-full hover:bg-[#4d96ff] hover:text-white relative"
                 style={{ fontSize: "18px", verticalAlign: "middle" }}
-
               >
                 <BellOutlined />
                 <Badge
@@ -522,7 +555,10 @@ const Header = () => {
             </div>
           )}
           <div className="lg:hidden">
-            <MenuOutlined className="text-xl text-gray-700" onClick={() => setIsMobileMenuOpen(prev => !prev)} />
+            <MenuOutlined
+              className="text-xl text-gray-700"
+              onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+            />
             <Drawer
               placement="left"
               onClose={() => setIsMobileMenuOpen(false)}
@@ -565,25 +601,18 @@ const Header = () => {
                       {
                         key: "login",
                         label: (
-                          <div onClick={() => openModal("login")}>
-                            🔐 Login
-                          </div>
+                          <div onClick={() => openModal("login")}>🔐 Login</div>
                         ),
                       },
                       {
                         key: "register",
-                        label: (
-                          <Link to="/register">
-                            📝 Register
-                          </Link>
-                        ),
+                        label: <Link to="/register">📝 Register</Link>,
                       },
                     ],
                   },
                 ].filter(Boolean)}
               />
             </Drawer>
-
           </div>
         </div>
       </div>
