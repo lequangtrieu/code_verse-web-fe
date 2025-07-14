@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useNavigate } from "react-router-dom";
+import Context from "../../../config/context/context";
 import { Layout, Menu, Badge, message } from "antd";
 import {
   MenuUnfoldOutlined,
@@ -10,13 +11,11 @@ import {
   BookOutlined,
   NotificationOutlined,
   SettingOutlined,
-  LogoutOutlined
+  LogoutOutlined,
+  DollarOutlined
 } from "@ant-design/icons";
 import ROLE from "../../../common/role";
 import { logoutUser } from "../../../config/store/userSlice";
-import commonApi from "../../../common/api";
-import axiosInstance from "../../../config/axiosInstance";
-import LoadingOverlay from "../../../common/LoadingOverlay";
 
 const { Sider, Content } = Layout;
 
@@ -26,16 +25,13 @@ const InstructorPanel = () => {
   const dispatch = useDispatch();
 
   const [collapsed, setCollapsed] = useState(false);
-  const [notificationCount, setNotificationCount] = useState(0);
-  const [initialLoading, setInitialLoading] = useState(true);
+  const { notificationCount } = useContext(Context);
 
   useEffect(() => {
     if (user?.role !== ROLE.INSTRUCTOR) {
       message.error("You do not have permission to access the instructor panel.");
       navigate("/");
     }
-
-    fetchNotificationUnread();
     // eslint-disable-next-line
   }, [user]);
 
@@ -53,25 +49,8 @@ const InstructorPanel = () => {
     }
   };
 
-  const fetchNotificationUnread = async () => {
-    try {
-      const result = await axiosInstance.get(commonApi.notificationUreadCount.url, {
-        params: { username: user.username },
-      });
-      setNotificationCount(result.data.result);
-    } catch(error){
-      message.error("Fetch data error.");
-    } finally{
-      setTimeout(() => {
-        setInitialLoading(false);
-    }, 400);
-    }
-    
-  }
-
   return (
     <Layout className="min-h-screen">
-      {initialLoading && <LoadingOverlay />}
       <Sider
         width={265}
         collapsible
@@ -95,11 +74,14 @@ const InstructorPanel = () => {
           <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
             Dashboard
           </Menu.Item>
-          <Menu.Item key="notification" icon={<NotificationOutlined />}>
+          <Menu.Item key="notifications" icon={<NotificationOutlined />}>
             Notifications <Badge count={notificationCount} offset={[10, 0]} />
           </Menu.Item>
           <Menu.Item key="courses" icon={<BookOutlined />}>
             Management Courses
+          </Menu.Item>
+          <Menu.Item key="manageBalance" icon={<DollarOutlined  />}>
+            Manage Balance
           </Menu.Item>
 
           {!collapsed && (

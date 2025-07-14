@@ -4,13 +4,14 @@ import Context from "./config/context/context";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 import commonApi from "./common/api";
-import { message } from "antd";
+import { message, notification } from "antd";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserDetails } from "./config/store/userSlice";
 import { useCallback, useEffect, useState } from "react";
 import axiosInstance from "./config/axiosInstance";
 import getAuthInfo from "./config/getAuthInfo";
+import useNotificationSocket from "./config/notificationSocket";
 
 function App() {
   const dispatch = useDispatch();
@@ -102,6 +103,20 @@ function App() {
       }
     }
   };
+
+  useNotificationSocket((newNotif) => {
+    if (newNotif) {
+      notification.open({
+        message: newNotif.title,
+        description: newNotif.content,
+        duration: 5,
+        placement: "topLeft",
+      });
+
+      fetchNotifications();
+      fetchNotificationUnread();
+    }
+  });
 
   const fetchNotificationUnread = async () => {
     const { username } = getAuthInfo();

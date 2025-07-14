@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Checkbox, Radio, Space } from "antd";
+import { Card, Space } from "antd";
 import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
 import commonApi from "../../../../common/api";
 import axiosInstance from "../../../../config/axiosInstance";

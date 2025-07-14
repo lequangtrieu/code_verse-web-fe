@@ -76,6 +76,9 @@ const commonApi = {
     updateAvatar: {
         url: `${backendDomain}/api/users/updateAvatar`,
     },
+    updateQr: {
+        url: `${backendDomain}/api/users/updateQrCode`,
+    },
 
     /** Course api */
     course: {
@@ -144,13 +147,19 @@ const commonApi = {
         url: `${backendDomain}/notifications/user/count`
     },
     getNotifications: {
-        url: `${backendDomain}/notifications/history`
+        url: `${backendDomain}/notifications/history/received`
+    },
+    getNotificationsSent: {
+        url: `${backendDomain}/notifications/history/sent`
     },
     markRead: {
         url: (notificationId) => `${backendDomain}/notifications/${notificationId}/user/read`
     },
     markAllAsRead: {
         url: `${backendDomain}/notifications/user/mark-all-as-read`
+    },
+    createNotification: {
+        url: `${backendDomain}/notifications`
     },
 
     /** Instructor api */
@@ -227,6 +236,9 @@ const commonApi = {
     getAllUsers: {
         url: `${backendDomain}/api/users`
     },
+    getActiveUsers: {
+        url: `${backendDomain}/api/users/active`
+    },
     lockUser: {
         url: (id) => `${backendDomain}/api/users/${id}/lock`
     },
@@ -267,7 +279,51 @@ const commonApi = {
     },
     updateReportStatus: {
         url: (id) => `${backendDomain}/api/user-reports/admin-review/${id}`
-    }
+    },
+
+    instructor: {
+        income: {
+            url: (instructorId) => `${backendDomain}/api/instructors/${instructorId}/income`
+        }
+    },
+
+    // withdrawal api
+    withdrawal: {
+        getMyRequests: {
+            url: (instructorId) => `${backendDomain}/api/instructors/${instructorId}/withdrawals`
+        },
+        cancelRequest: {
+            url: (instructorId, requestId) =>
+                `${backendDomain}/api/instructors/${instructorId}/withdrawals/${requestId}/cancel`
+        },
+        createRequest: {
+            url: (id) => `${backendDomain}/api/instructors/${id}/withdrawals/create`
+        }
+    },
+
+    // admin withdrawal api
+    admin: {
+        withdrawals: {
+            getAll: { url: `${backendDomain}/api/admin/withdrawals` },
+            approve: { url: (id) => `${backendDomain}/api/admin/withdrawals/${id}/approve` },
+            reject: { url: (id) => `${backendDomain}/api/admin/withdrawals/${id}/reject` }
+        }
+    },
+
+    /** dashboard api */
+    dashboardOverview: {
+        url: `${backendDomain}/api/admin/dashboard/overview`,
+    },
+    dashboardRevenueByYear: {
+        url: `${backendDomain}/api/admin/dashboard/revenue/yearly`,
+    },
+    dashboardRevenueByMonth: {
+        url: `${backendDomain}/api/admin/dashboard/revenue/monthly`,
+    },
+    dashboardRevenueByQuarter: {
+        url: `${backendDomain}/api/admin/dashboard/revenue/quarterly`,
+    },
+
 }
 
 export default commonApi

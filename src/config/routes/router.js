@@ -9,7 +9,6 @@ import DashboardPage from "../../components/Admin/AdminDashBoard/DashboardPage";
 import AdminPanel from "../../components/Admin/layout/AdminPanel";
 import AdminCoursesPage from "../../components/Admin/AdminCourses/AdminCoursesPage";
 import AdminReviewPage from "../../components/Admin/AdminReview/AdminReviewPage";
-import AdminProfilePage from "../../components/Admin/AdminProfile/AdminProfilePage";
 import AdminUserReportsPage from "../../components/Admin/AdminViolationManagement/AdminUserReportsPage";
 import AdminAccountsPage from "../../components/Admin/AdminAccount/AdminAccountsPage";
 import UserPanel from "../../components/User/layout/UserPanel";
@@ -33,10 +32,14 @@ import InstructorPanel from "../../components/Instructor/layout/InstructorPanel"
 import InstructorDashboardPage from "../../components/Instructor/InstructorDashboard/InstructorDashboardPage";
 import InstructorCoursesPage from "../../components/Instructor/InstructorCourses/InstructorCoursePage";
 import InstructorCourseDetailView from "../../components/Instructor/InstructorCourses/InstructorCourseDetail";
+import InstructorNotificationPage from "../../components/Instructor/InstructorNotifications/InstructorNotificationPage";
 import RegisterPage from "../../components/Auth/RegisterPage";
 import LearnerDetailPage from "../../components/Admin/AdminAccount/LearnerDetailPage";
 import InstructorDetailPage from "../../components/Admin/AdminAccount/InstructorDetailPage";
 import AdminApproveInstructorPage from "../../components/Admin/AdminApproveInstructor/AdminApproveInstructorPage";
+import AdminNotificationPage from "../../components/Admin/AdminNotification/AdminNotificationPage";
+import {ManageBalanceDashboard} from "../../components/Instructor/ManageBalance/ManageBalanceDashboard";
+import {WithdrawalRequestList} from "../../components/Admin/WithdrawalRequests/WithdrawalRequestList";
 
 const router = createBrowserRouter([
   {
@@ -166,6 +169,18 @@ const router = createBrowserRouter([
           {
             path: "courses/:id",
             element: <InstructorCourseDetailView />
+          },
+          {
+            path: "notifications",
+            element: <InstructorNotificationPage />
+          },
+          {
+            path: "manageBalance",
+            element: <ManageBalanceDashboard />
+          },
+          {
+            path: "profile",
+            element: <UserProfilePage />
           }
         ]
       },
@@ -177,7 +192,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: "profile",
-            element: <AdminProfilePage />,
+            element: <UserProfilePage />,
           },
           {
             path: "dashboard",
@@ -216,8 +231,16 @@ const router = createBrowserRouter([
             element: <DashboardPage />,
           },
           {
+            path: "sendNotifications",
+            element: <AdminNotificationPage />
+          },
+          {
             path: "",
             element: <Navigate to="dashboard" />,
+          },
+          {
+            path: "withdrawalRequests",
+            element: <WithdrawalRequestList/>
           }
         ],
       },

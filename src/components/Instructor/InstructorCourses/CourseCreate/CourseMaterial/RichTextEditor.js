@@ -103,6 +103,7 @@ const RichTextEditor = forwardRef(({ content, onChange, lessonId }, editorRef) =
         if (editor && content !== editor.getHTML()) {
           editor.commands.setContent(content || "");
         }
+        // eslint-disable-next-line
       }, [content]);      
 
     return (
