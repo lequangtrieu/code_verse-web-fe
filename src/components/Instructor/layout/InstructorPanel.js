@@ -29,7 +29,7 @@ const InstructorPanel = () => {
 
   useEffect(() => {
     if (user?.role !== ROLE.INSTRUCTOR) {
-      message.error("You do not have permission to access the instructor panel.");
+      console.error("You do not have permission to access the instructor panel.");
       navigate("/");
     }
     // eslint-disable-next-line
