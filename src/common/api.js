@@ -315,7 +315,17 @@ const commonApi = {
     dashboardRevenueByQuarter: {
         url: `${backendDomain}/api/admin/dashboard/revenue/quarterly`,
     },
+    dashboardUserRole: {
+        url: `${backendDomain}/api/admin/dashboard/user-role-stats`,
+    },
 
+    /** ranking api */
+    ranking: {
+        userExp: {
+            url: (period = "ALL", limit = 100) =>
+                `${backendDomain}/api/ranking/user-exp?period=${period}&limit=${limit}`,
+        },
+    },
 }
 
 export default commonApi

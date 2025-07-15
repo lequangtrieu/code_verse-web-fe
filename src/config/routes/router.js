@@ -38,8 +38,9 @@ import LearnerDetailPage from "../../components/Admin/AdminAccount/LearnerDetail
 import InstructorDetailPage from "../../components/Admin/AdminAccount/InstructorDetailPage";
 import AdminApproveInstructorPage from "../../components/Admin/AdminApproveInstructor/AdminApproveInstructorPage";
 import AdminNotificationPage from "../../components/Admin/AdminNotification/AdminNotificationPage";
-import {ManageBalanceDashboard} from "../../components/Instructor/ManageBalance/ManageBalanceDashboard";
-import {WithdrawalRequestList} from "../../components/Admin/WithdrawalRequests/WithdrawalRequestList";
+import { ManageBalanceDashboard } from "../../components/Instructor/ManageBalance/ManageBalanceDashboard";
+import { WithdrawalRequestList } from "../../components/Admin/WithdrawalRequests/WithdrawalRequestList";
+import RankingPage from "../../components/layout/RankingPage";
 
 const router = createBrowserRouter([
   {
@@ -73,6 +74,10 @@ const router = createBrowserRouter([
       {
         path: "challenges",
         element: <Home />,
+      },
+      {
+        path: "ranking",
+        element: <RankingPage />,
       },
       {
         path: "register",
@@ -240,7 +245,7 @@ const router = createBrowserRouter([
           },
           {
             path: "withdrawalRequests",
-            element: <WithdrawalRequestList/>
+            element: <WithdrawalRequestList />
           }
         ],
       },
