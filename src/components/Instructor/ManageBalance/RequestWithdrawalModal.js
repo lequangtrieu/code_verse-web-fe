@@ -4,7 +4,7 @@ import { ExclamationCircleOutlined } from "@ant-design/icons";
 import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
 
-const MIN_WITHDRAWAL = 50000;
+const MIN_WITHDRAWAL = 20000;
 
 const RequestWithdrawalModal = ({
                                     open,
