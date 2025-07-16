@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Rate, Progress, Spin, message, Button, Form, Input } from "antd";
+import { Rate, Progress, Spin, message, Button } from "antd";
 import { format } from "date-fns";
 import commonApi from "../../../../common/api";
 import ReviewForm from "./ReviewForm";
+import EditableReviewForm from "./EditableReviewForm";
 import { useSelector } from "react-redux";
 import axiosInstance from "../../../../config/axiosInstance";
 
 const Reviews = ({ courseId, completionPercentage }) => {
   const [userReview, setUserReview] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [editingReviewId, setEditingReviewId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [ratingStats, setRatingStats] = useState({
     average: 0,
@@ -49,28 +50,28 @@ const Reviews = ({ courseId, completionPercentage }) => {
     if (completionPercentage === 100 && user?.id) {
       fetchUserReview();
     }
-  }, [courseId, user]);
+  }, [courseId, user, completionPercentage]);
 
   const handleReviewUpdated = async () => {
-    message.success("Review updated successfully!");
-    setIsEditing(false);
-    await fetchData();
+    setEditingReviewId(null);
     await fetchUserReview();
+    await fetchData();
   };
 
-  const handleReport = (review) => {};
+  const handleReport = (review) => {
+    message.info(`Reporting review by ${review.username}...`);
+  };
 
   if (loading) return <Spin className="mt-10" />;
 
   return (
     <div className="bg-white rounded-xl border p-6 mt-10 shadow-sm">
-      {/* Tổng quan đánh giá */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="text-center">
           <h2 className="text-5xl font-bold text-pink-600">
             {ratingStats.average.toFixed(1)}
           </h2>
-          <Rate disabled allowHalf defaultValue={ratingStats.average} />
+          <Rate disabled allowHalf value={ratingStats.average} />
           <p className="text-sm text-gray-500 mt-1">
             ({ratingStats.totalReviews} Reviews)
           </p>
@@ -101,117 +102,92 @@ const Reviews = ({ courseId, completionPercentage }) => {
         </div>
       </div>
 
-      {/* Customer Reviews */}
       <h3 className="text-lg font-semibold border-b mt-8 pb-2 text-pink-600">
         Customer Reviews
       </h3>
 
       <div className="mt-4 space-y-6">
-        {ratingStats.reviews.map((review, idx) => (
-          <div key={idx} className="flex gap-4 items-start border-b pb-4">
-            <div className="w-14 h-14 rounded-full overflow-hidden">
-              <img
-                src={review.userAvatar}
-                alt={review.username}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="flex-1">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="font-semibold">{review.username}</p>
-                  <Rate
-                    disabled
-                    defaultValue={review.rating}
-                    className="text-pink-500 text-sm"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs bg-gray-100 px-3 py-1 rounded-full text-gray-500 whitespace-nowrap">
-                    {format(new Date(review.createdAt), "MMMM d, yyyy")}
-                  </span>
+        {ratingStats.reviews.map((review) => {
+          const isOwnReview = review.username === user?.username;
+          const isEditing = editingReviewId === review.username;
 
-                  {user &&
-                    userReview?.id &&
-                    review.username === user.username && (
-                      <Button size="small" onClick={() => setIsEditing(true)}>
+          return (
+            <div
+              key={review.id}
+              className="flex gap-4 items-start border-b pb-4"
+            >
+              <div className="w-14 h-14 rounded-full overflow-hidden">
+                <img
+                  src={review.userAvatar}
+                  alt={review.username}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div className="flex-1">
+                <div className="flex justify-between items-start">
+                  <div className="w-full">
+                    <p className="font-semibold">{review.username}</p>
+
+                    <div className="w-full">
+                      {isEditing ? (
+                        <EditableReviewForm
+                          review={review}
+                          courseId={courseId}
+                          onCancel={() => setEditingReviewId(null)}
+                          onSuccess={handleReviewUpdated}
+                        />
+                      ) : (
+                        <Rate
+                          disabled
+                          value={review.rating}
+                          className="text-pink-500 text-sm"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs bg-gray-100 px-3 py-1 rounded-full text-gray-500 whitespace-nowrap">
+                      {format(new Date(review.createdAt), "MMMM d, yyyy")}
+                    </span>
+
+                    {isOwnReview && !isEditing && (
+                      <Button
+                        size="small"
+                        onClick={() => setEditingReviewId(review.username)}
+                      >
                         Edit
                       </Button>
                     )}
 
-                  {user && review.username !== user.username && (
-                    <Button
-                      danger
-                      size="small"
-                      onClick={() => handleReport(review)}
-                    >
-                      Report
-                    </Button>
-                  )}
+                    {!isOwnReview && (
+                      <Button
+                        danger
+                        size="small"
+                        onClick={() => handleReport(review)}
+                      >
+                        Report
+                      </Button>
+                    )}
+                  </div>
                 </div>
+
+                {!isEditing && (
+                  <p className="text-sm text-gray-600 mt-2">{review.comment}</p>
+                )}
               </div>
-              <p className="text-sm text-gray-600 mt-2">{review.comment}</p>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* Submit / Edit Form */}
-      {completionPercentage === 100 && (
+      {completionPercentage === 100 && !userReview && (
         <div className="mt-10 border-t pt-6">
           <h3 className="text-lg font-semibold text-pink-600 mb-4">
-            {isEditing
-              ? "Edit your review"
-              : userReview
-              ? "Your review"
-              : "Submit your review"}
+            Submit your review
           </h3>
-
-          {isEditing ? (
-            <Form
-              layout="vertical"
-              initialValues={{
-                rating: userReview?.rating,
-                comment: userReview?.comment,
-              }}
-              onFinish={async (values) => {
-                try {
-                  await axiosInstance.put(
-                    commonApi.courseRating.update(userReview.id),
-                    {
-                      courseId,
-                      rating: values.rating,
-                      comment: values.comment,
-                    }
-                  );
-                  handleReviewUpdated();
-                } catch (err) {
-                  message.error("Update failed");
-                }
-              }}
-            >
-              <Form.Item
-                name="rating"
-                label="Your Rating"
-                rules={[{ required: true, message: "Please rate the course" }]}
-              >
-                <Rate />
-              </Form.Item>
-              <Form.Item name="comment" label="Your Comment">
-                <Input.TextArea rows={4} />
-              </Form.Item>
-              <Form.Item>
-                <Button htmlType="submit" type="primary">
-                  Save
-                </Button>
-                <Button onClick={() => setIsEditing(false)} className="ml-2">
-                  Cancel
-                </Button>
-              </Form.Item>
-            </Form>
-          ) : !userReview ? (
-            <ReviewForm courseId={courseId} onSuccess={handleReviewUpdated} />
-          ) : null}
+          <ReviewForm courseId={courseId} onSuccess={handleReviewUpdated} />
         </div>
       )}
     </div>
