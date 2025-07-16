@@ -175,7 +175,6 @@ export default function CourseDescription({
                 <Space className="flex justify-end">
                     <Button type="default" onClick={onCancel}>Cancel</Button>
                     <Button type="primary" onClick={() => {
-                        console.log(activeForm.getFieldsValue());
                         onSave?.(activeForm);
                     }}>Save</Button>
                 </Space>
