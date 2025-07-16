@@ -67,7 +67,10 @@ const CourseModule = ({ courseId }) => {
                 });
 
                 setModules((prev) =>
-                    prev.map((m) => (m.id === editingModule.id ? res.data.result : m))
+                    prev.map((m) => (m.id === editingModule.id ? {
+                        ...res.data.result,
+                        lessons: m.lessons ?? []
+                    } : m))
                 );
 
                 message.success("Module updated successfully!");

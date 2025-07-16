@@ -33,7 +33,7 @@ const TheoryViewer = ({ lessonId }) => {
     return (
         <div className="prose max-w-none">
             <Title level={4}>{theory.title}</Title>
-            <div dangerouslySetInnerHTML={{ __html: theory.content }} />
+            <div className="prose" dangerouslySetInnerHTML={{ __html: theory.content }} />
         </div>
     );
 };

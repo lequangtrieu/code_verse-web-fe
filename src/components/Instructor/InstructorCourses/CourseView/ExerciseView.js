@@ -9,6 +9,12 @@ const ExerciseViewer = ({ lessonId }) => {
     const [loading, setLoading] = useState(true);
     const [exercise, setExercise] = useState(null);
 
+    const parseInputStringToList = (inputString) => {
+        if (!inputString) return [];
+        const matches = [...inputString.matchAll(/#@ip!(.*?)#@ip!/g)];
+        return matches.map(m => m[1]);
+    };
+
     useEffect(() => {
         const fetchExercise = async () => {
             setLoading(true);
@@ -63,7 +69,7 @@ const ExerciseViewer = ({ lessonId }) => {
                             <List.Item>
                                 <Space direction="vertical" className="w-full">
                                     <div>
-                                        <Text strong>Input:</Text> {test.input}
+                                        <Text strong>Input:</Text> {parseInputStringToList(test.input).join("\n")}
                                     </div>
                                     <div>
                                         <Text strong>Expected Output:</Text> {test.expectedOutput}

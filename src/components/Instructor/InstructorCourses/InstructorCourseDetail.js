@@ -106,8 +106,6 @@ const InstructorCourseDetailView = () => {
         window.scrollTo({ top: 0, behavior: "smooth" });
     }, [refreshKey]);
 
-    if (!course) return <p>Course not found.</p>;
-
     const buildCourseFormData = (courseDetail) => {
         const fData = new FormData();
 
@@ -180,7 +178,7 @@ const InstructorCourseDetailView = () => {
             {initialLoading && <LoadingOverlay />}
             {/* Course Overview */}
             <Card variant="outlined" className="shadow">
-                {!isEditing && course.status === "DRAFT" && (
+                {!isEditing && course?.status === "DRAFT" && (
                     <div className="flex justify-end gap-2 mb-4">
                         <Button type="primary" onClick={handleSubmitForApproval} loading={submitLoading}>
                             Submit
@@ -219,31 +217,31 @@ const InstructorCourseDetailView = () => {
                         <div className="flex flex-col md:flex-row gap-6">
 
                             <img
-                                src={course.thumbnailUrl || "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"}
+                                src={course?.thumbnailUrl || "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"}
                                 alt="Course Thumbnail"
                                 className="w-full md:w-60 h-auto object-cover rounded-lg border"
                             />
                             <div className="flex-1">
-                                <Title level={3}>{course.title}</Title>
-                                <Paragraph>{course.description}</Paragraph>
+                                <Title level={3}>{course?.title}</Title>
+                                <Paragraph>{course?.description}</Paragraph>
                                 <Descriptions column={1} size="small">
-                                    <Descriptions.Item label="Category">{course.category}</Descriptions.Item>
-                                    <Descriptions.Item label="Level">{course.level}</Descriptions.Item>
-                                    <Descriptions.Item label="Language">{course.language}</Descriptions.Item>
+                                    <Descriptions.Item label="Category">{course?.category}</Descriptions.Item>
+                                    <Descriptions.Item label="Level">{course?.level}</Descriptions.Item>
+                                    <Descriptions.Item label="Language">{course?.language}</Descriptions.Item>
                                     <Descriptions.Item label="Price">
-                                        {course.price > 0 ? `${formatCurrency(course.price)}` : <Tag color="green">Free</Tag>}
+                                        {course?.price > 0 ? `${formatCurrency(course?.price)}` : <Tag color="green">Free</Tag>}
                                     </Descriptions.Item>
                                     <Descriptions.Item label="Status">
-                                        {course.status === "PUBLISHED" && (
+                                        {course?.status === "PUBLISHED" && (
                                             <Tag color="green">Published</Tag>
                                         )}
-                                        {course.status === "DRAFT" && (
+                                        {course?.status === "DRAFT" && (
                                             <Tag color="blue">Draft</Tag>
                                         )}
-                                        {course.status === "PENDING" && (
+                                        {course?.status === "PENDING" && (
                                             <Tag color="orange">Pending</Tag>
                                         )}
-                                        {course.deleted && <Tag color="red">Deleted</Tag>}
+                                        {course?.deleted && <Tag color="red">Deleted</Tag>}
                                     </Descriptions.Item>
                                 </Descriptions>
                             </div>
@@ -256,7 +254,7 @@ const InstructorCourseDetailView = () => {
 
             {/* Modules & Lessons */}
             <Card title="Course Modules" variant="outlined" className="shadow">
-                {course.status === "DRAFT" ? <CourseModule courseId={id} /> : (
+                {course?.status === "DRAFT" ? <CourseModule courseId={id} /> : (
                     <CourseModuleList courseId={id} />
                 )}
             </Card>
