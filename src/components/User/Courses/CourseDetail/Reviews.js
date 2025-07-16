@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import commonApi from "../../../../common/api";
 import ReviewForm from "./ReviewForm";
 import { useSelector } from "react-redux";
+import axiosInstance from "../../../../config/axiosInstance";
 
 const Reviews = ({ courseId, completionPercentage }) => {
   const [userReview, setUserReview] = useState(null);
@@ -175,7 +176,7 @@ const Reviews = ({ courseId, completionPercentage }) => {
               }}
               onFinish={async (values) => {
                 try {
-                  await axios.put(
+                  await axiosInstance.put(
                     commonApi.courseRating.update(userReview.id),
                     {
                       courseId,
