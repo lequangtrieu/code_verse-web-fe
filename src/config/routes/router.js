@@ -186,6 +186,10 @@ const router = createBrowserRouter([
           {
             path: "profile",
             element: <UserProfilePage />
+          },
+          {
+            path: "settings",
+            element: <UserChangePassword />,
           }
         ]
       },
