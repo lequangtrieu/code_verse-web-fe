@@ -270,7 +270,7 @@ const LessonContent = ({ lesson }) => {
                 <h2 className="text-xl font-semibold mb-2">
                   {lesson.theory.title}
                 </h2>
-                <p className="text-gray-700 mb-4">{lesson.theory.content}</p>
+                <div className="text-gray-700 mb-4 prose" dangerouslySetInnerHTML={{__html: lesson.theory.content}}></div>
                 {lesson.theory.example && (
                   <pre className="bg-gray-100 p-2 rounded text-sm whitespace-pre-wrap">
                     {lesson.theory.example}
