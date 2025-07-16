@@ -235,7 +235,7 @@ const Header = () => {
   };
 
   const notificationContent = (
-    <>
+    <div style={{ width: 300 }}>
       {notifications.length > 0 ? (
         <div>
           <div className="flex justify-between pr-3 pt-2 pb-1">
@@ -309,7 +309,7 @@ const Header = () => {
           <h2 className="text-gray-500 text-lg">No notification.</h2>
         </div>
       )}
-    </>
+    </div>
   );
 
   const cartContent = (
