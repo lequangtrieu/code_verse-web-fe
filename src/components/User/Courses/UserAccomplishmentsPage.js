@@ -7,6 +7,8 @@ import CertificatePage from "../Certificate/CertificatePage";
 import dayjs from "dayjs";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { CopyOutlined, DownloadOutlined, EyeOutlined } from "@ant-design/icons";
+import { message } from "antd";
 
 const UserAccomplishmentsPage = () => {
   const [certificates, setCertificates] = useState([]);
@@ -154,17 +156,33 @@ const UserAccomplishmentsPage = () => {
                   </div>
                 </div>
 
-                {/* Right - Action button */}
                 <div className="flex gap-2">
                   <Button
-                    type="primary"
+                    icon={<EyeOutlined />}
                     onClick={() => openCertificateModal(course.courseId)}
+                    title="Preview Certificate"
+                  />
+                  <Button
+                    icon={<DownloadOutlined />}
+                    onClick={() => handleDownload(course.courseId)}
+                    title="Download PDF"
+                  />
+                  <Button
+                    icon={<CopyOutlined />}
+                    title="Copy Link"
+                    onClick={() => {
+                      const shareUrl = `https://code-verse-web-fe.vercel.app/certificate/${course.courseId}?userId=${user.id}`;
+                      navigator.clipboard.writeText(shareUrl);
+                      message.success("Certificate link copied to clipboard!");
+                    }}
+                  />
+                  <a
+                    href={`/certificate/${course.courseId}?userId=${user.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    View
-                  </Button>
-                  <Button onClick={() => handleDownload(course.courseId)}>
-                    Download
-                  </Button>
+                    <Button type="default">Open in Page</Button>
+                  </a>
                 </div>
               </div>
             ))}

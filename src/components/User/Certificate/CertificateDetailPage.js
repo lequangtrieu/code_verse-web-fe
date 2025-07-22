@@ -2,6 +2,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../../config/axiosInstance";
 import dayjs from "dayjs";
+import LoadingOverlay from "../../../common/LoadingOverlay";
 
 const CertificateDetailPage = () => {
   const { courseId } = useParams();
@@ -24,7 +25,7 @@ const CertificateDetailPage = () => {
     if (courseId && userId) fetchCertificate();
   }, [courseId, userId]);
 
-  if (!data) return <p className="text-center mt-10">Loading certificate...</p>;
+  if (!data) return <LoadingOverlay/>;
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100 p-4">
