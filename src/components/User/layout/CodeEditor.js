@@ -387,15 +387,17 @@ const CodeEditor = ({
         className="custom-modal"
         getContainer={false}
         width={800}
-        bodyStyle={{
-          maxHeight: "70vh",
-          overflowY: "auto",
-          backgroundColor: "#1e1f33",
-          color: "#e5e5e5",
-          fontFamily: "monospace",
-          whiteSpace: "pre-wrap",
-          padding: "1.5rem",
-          borderRadius: "0.5rem",
+        styles={{
+          body: {
+            maxHeight: "70vh",
+            overflowY: "auto",
+            backgroundColor: "#1e1f33",
+            color: "#e5e5e5",
+            fontFamily: "monospace",
+            whiteSpace: "pre-wrap",
+            padding: "1.5rem",
+            borderRadius: "0.5rem",
+          },
         }}
       >
         <div className="space-y-4">
@@ -443,12 +445,14 @@ const CodeEditor = ({
         }}
         className="custom-modal"
         width={600}
-        bodyStyle={{
-          backgroundColor: "#f0fdf4",
-          color: "#065f46",
-          padding: "2rem",
-          borderRadius: "0.75rem",
-          textAlign: "center",
+        styles={{
+          body: {
+            backgroundColor: "#f0fdf4",
+            color: "#065f46",
+            padding: "2rem",
+            borderRadius: "0.75rem",
+            textAlign: "center",
+          },
         }}
       >
         <div className="text-center">
@@ -482,13 +486,15 @@ const CodeEditor = ({
         ]}
         className="custom-modal"
         width={640}
-        bodyStyle={{
-          background: "linear-gradient(to right, #dbeafe, #f0fdf4)",
-          color: "#0f172a",
-          padding: "2rem",
-          borderRadius: "1rem",
-          textAlign: "center",
-          boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
+        styles={{
+          body: {
+            background: "linear-gradient(to right, #dbeafe, #f0fdf4)",
+            color: "#0f172a",
+            padding: "2rem",
+            borderRadius: "1rem",
+            textAlign: "center",
+            boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
+          },
         }}
       >
         <div className="text-center">
