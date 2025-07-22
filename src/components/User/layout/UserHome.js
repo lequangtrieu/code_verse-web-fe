@@ -1,7 +1,7 @@
 import { Carousel, Avatar, Tabs, Button, Popover, notification, Progress, message } from "antd";
 import ReusableProgress from "../layout/ReusableProgress";
 import React, { useContext, useEffect, useState } from "react";
-import { Card, Pagination, Rate, Tag } from "antd";
+import { Card, Pagination, Rate, Tag, Tooltip } from "antd";
 import { useNavigate } from "react-router-dom";
 import scrollTop from "../../../config/scrollTop";
 import LoadingOverlay from "../../../common/LoadingOverlay";
@@ -16,9 +16,18 @@ import { logoutUser } from "../../../config/store/userSlice";
 import useAddToCart from "../../../hooks/useAddToCart";
 
 const BADGES = {
-  NEW_LEARNER: { url: "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/badges%2Ficon_badge-02.png?alt=media&token=7d529d01-fa11-4b6c-9218-a99fb928daa8" },
-  FIRST_COURSE: { url: "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/badges%2Ficon_badge-04.png?alt=media&token=bfb25ca3-a85e-4c2c-b07a-c78430bf24d9" },
-  TEN_CODE: { url: "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/badges%2Ficon_badge-12.png?alt=media&token=99171cd5-db86-4762-8e5b-7d5f37fd2626" }
+  NEW_LEARNER: { 
+    title: "E-Learning Newbie",
+    content: "Register an account successfully.",
+    url: "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/badges%2Ficon_badge-02.png?alt=media&token=7d529d01-fa11-4b6c-9218-a99fb928daa8" },
+  FIRST_COURSE: { 
+    title: "First Course",
+    content: "Enroll your first course.",
+    url: "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/badges%2Ficon_badge-04.png?alt=media&token=bfb25ca3-a85e-4c2c-b07a-c78430bf24d9" },
+  TEN_CODE: { 
+    title: "Homework Master",
+    content: "Submit your first 10 coding assignments.",
+    url: "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/badges%2Ficon_badge-12.png?alt=media&token=99171cd5-db86-4762-8e5b-7d5f37fd2626" }
 };
 
 const SKILL_META = {
@@ -87,7 +96,7 @@ const UserHome = () => {
       const data = res.data.result;
       console.log(data);
       const achievements = data.badges
-        .map((badge) => BADGES[badge]?.url)
+        // .map((badge) => BADGES[badge]?.url)
         .filter(Boolean);
         setUserInfo({
           email: user?.username,
@@ -496,14 +505,29 @@ const UserHome = () => {
                   <div className="text-lg font-semibold">Your badges</div>
                 </div>
                 <div className="flex items-center mt-4 gap-4 overflow-x-auto">
-                  {userInfo?.achievements.map((badge, index) => (
+                  {userInfo?.achievements.map((badgeKey, index) => {
+                    const badge = BADGES[badgeKey];
+                    if (!badge) return null;
+
+                    return (
+                      <Tooltip
+                        key={index}
+                        title={
+                          <div>
+                            <strong>{badge.title}</strong>
+                            <br />
+                            <span>{badge.content}</span>
+                          </div>
+                        }
+                      >
                     <img
                       key={index}
-                      src={badge}
+                      src={badge.url}
                       alt="badge"
                       className="w-[90px] h-[90px] object-cover rounded-full"
                     />
-                  ))}
+                    </Tooltip>
+                  )})}
                 </div>
               </div>
             </div>
