@@ -507,13 +507,15 @@ const QuizComponent = ({
         ]}
         className="custom-modal"
         width={640}
-        bodyStyle={{
-          background: "linear-gradient(to right, #dbeafe, #f0fdf4)",
-          color: "#0f172a",
-          padding: "2rem",
-          borderRadius: "1rem",
-          textAlign: "center",
-          boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
+        styles={{
+          body: {
+            background: "linear-gradient(to right, #dbeafe, #f0fdf4)",
+            color: "#0f172a",
+            padding: "2rem",
+            borderRadius: "1rem",
+            textAlign: "center",
+            boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
+          },
         }}
       >
         <div className="text-center">

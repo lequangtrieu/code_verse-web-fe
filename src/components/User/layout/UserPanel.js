@@ -82,8 +82,8 @@ const UserPanel = () => {
           <Menu.Item key="messages" icon={<MessageOutlined />}>
             Messages <Badge count={12} offset={[10, 0]} />
           </Menu.Item>
-          <Menu.Item key="courses" icon={<BookOutlined />}>
-            Enrolled Courses
+          <Menu.Item key="accomplishments" icon={<BookOutlined />}>
+            Accomplishments
           </Menu.Item>
           <Menu.Item key="wishlist" icon={<BarsOutlined />}>
             Wishlist
