@@ -2,11 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
+import LoadingOverlay from "../../../common/LoadingOverlay";
 
 const CertificatePage = ({
   courseId: propCourseId,
   userId: propUserId,
-  isPopup = false,
 }) => {
   const { courseId: routeCourseId } = useParams();
   const [searchParams] = useSearchParams();
@@ -42,7 +42,7 @@ const CertificatePage = ({
     : "";
 
   if (!certificateData)
-    return <p className="text-center mt-10">Loading certificate...</p>;
+    return <LoadingOverlay/>;
 
   return (
     <div
