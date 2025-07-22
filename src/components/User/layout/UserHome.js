@@ -1,4 +1,12 @@
-import { Carousel, Avatar, Tabs, Button, Popover, notification, Progress } from "antd";
+import {
+  Carousel,
+  Avatar,
+  Tabs,
+  Button,
+  Popover,
+  notification,
+  Progress,
+} from "antd";
 import ReusableProgress from "../layout/ReusableProgress";
 import React, { useContext, useEffect, useState } from "react";
 import { Card, Pagination, Rate, Tag } from "antd";
@@ -197,7 +205,6 @@ const UserHome = () => {
     fetchCartItems,
   });
 
-
   const handleAddToCartFree = async (course) => {
     if (!user) {
       return notification.warning({
@@ -234,7 +241,6 @@ const UserHome = () => {
       });
 
       setFilteredCourses(data[0]);
-
     } catch (error) {
       notification.error({
         message: "Enrollment Failed",
@@ -299,6 +305,43 @@ const UserHome = () => {
             onClick={() => handleStartLearning(course.id)}
           >
             Start Learning Now
+          </Button>
+        </div>
+      );
+    }
+
+    if (selectedTab === "completed") {
+      return (
+        <div className="w-80 p-6 bg-gradient-to-br from-white via-indigo-50 to-white rounded-2xl border border-indigo-100 shadow-xl flex flex-col items-center text-center">
+          {/* Logo hình tròn không có nền ngoài */}
+          <img
+            src="../../logoCodeVerse.png"
+            alt="CodeVerse Logo"
+            className="w-20 h-20 object-contain rounded-full border-2 border-indigo-300 shadow-md mb-4"
+          />
+
+          {/* Tiêu đề nổi bật */}
+          <h3 className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 to-purple-600 mb-2">
+            You did it! 🎓
+          </h3>
+
+          {/* Mô tả truyền cảm hứng */}
+          <p className="text-sm text-gray-700 mb-4 px-2 leading-relaxed">
+            This course is completed. Celebrate your progress and check your
+            certificate now.
+          </p>
+
+          {/* Nút CTA */}
+          <Button
+            type="primary"
+            size="middle"
+            className="w-full rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold transition duration-200"
+            onClick={() => {
+              scrollTop();
+              navigate(`/user-panel/accomplishments`);
+            }}
+          >
+            View Your Accomplishments
           </Button>
         </div>
       );
@@ -614,9 +657,9 @@ const UserHome = () => {
                                     {course.category}
                                   </Tag>
 
-                                    <h3 className="text-[16px] font-semibold mb-2 line-clamp-2 hover:text-indigo-600 transition-colors duration-300 min-h-[48px]">
-                                        {course.title}
-                                    </h3>
+                                  <h3 className="text-[16px] font-semibold mb-2 line-clamp-2 hover:text-indigo-600 transition-colors duration-300 min-h-[48px]">
+                                    {course.title}
+                                  </h3>
 
                                   <div className="flex items-center text-sm text-gray-600 mb-2">
                                     <span>{course.totalLessons} Lessons</span>
@@ -688,29 +731,38 @@ const UserHome = () => {
                                     </span>
                                   </div>
                                   {/* ProgressBar cho tab In Progress */}
-                                    {selectedTab === "learning" && course.completionPercentage !== undefined && (
-                                        <div className="mt-2">
-                                            <div className="flex justify-between text-xs text-gray-600 mb-1 px-1">
-                                                <span>Progress</span>
-                                                <span>{Math.round(course.completionPercentage)}%</span>
-                                            </div>
-                                            <Progress
-                                                percent={Math.round(course.completionPercentage)}
-                                                size="small"
-                                                strokeColor={
-                                                    course.completionPercentage >= 80
-                                                        ? "#52c41a" // xanh lá
-                                                        : course.completionPercentage >= 50
-                                                            ? "#faad14" // cam
-                                                            : "#1890ff" // xanh dương
-                                                }
-                                                trailColor="#f0f0f0"
-                                                showInfo={false}
-                                                className="rounded-sm"
-                                            />
+                                  {selectedTab === "learning" &&
+                                    course.completionPercentage !==
+                                      undefined && (
+                                      <div className="mt-2">
+                                        <div className="flex justify-between text-xs text-gray-600 mb-1 px-1">
+                                          <span>Progress</span>
+                                          <span>
+                                            {Math.round(
+                                              course.completionPercentage
+                                            )}
+                                            %
+                                          </span>
                                         </div>
+                                        <Progress
+                                          percent={Math.round(
+                                            course.completionPercentage
+                                          )}
+                                          size="small"
+                                          strokeColor={
+                                            course.completionPercentage >= 80
+                                              ? "#52c41a" // xanh lá
+                                              : course.completionPercentage >=
+                                                50
+                                              ? "#faad14" // cam
+                                              : "#1890ff" // xanh dương
+                                          }
+                                          trailColor="#f0f0f0"
+                                          showInfo={false}
+                                          className="rounded-sm"
+                                        />
+                                      </div>
                                     )}
-
                                 </div>
                               </Card>
                             </Popover>
