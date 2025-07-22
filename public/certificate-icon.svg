@@ -1,0 +1,4 @@
+<!-- certificate-icon.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7H8m0 4h8m-8 4h6m6-9a2 2 0 00-2-2H6a2 2 0 00-2 2v13l4-2 4 2 4-2 4 2V6z" />
+</svg>

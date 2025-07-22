@@ -13,15 +13,14 @@ import AdminUserReportsPage from "../../components/Admin/AdminViolationManagemen
 import AdminAccountsPage from "../../components/Admin/AdminAccount/AdminAccountsPage";
 import UserPanel from "../../components/User/layout/UserPanel";
 import LessonLayout from "../../components/User/layout/LessonLayout";
-import UserDashboardPage from "../../components/User/UserDashBoard/UserDashboardPage"
+import UserDashboardPage from "../../components/User/UserDashBoard/UserDashboardPage";
 import UserProfilePage from "../../components/User/UserProfile/UserProfilePage";
 import UserMessagePage from "../../components/User/UserMessage/UserMessagePage";
 import UserReviewPage from "../../components/User/UserReview/UserReviewPage";
 import UserQuizPage from "../../components/User/UserQuiz/UserQuizPage";
-import UserCoursesPage from "../../components/User/Courses/UserCoursesPage";
 import UserWishlistPage from "../../components/User/UserWishlist/UserWishlistPage";
 import UserAssignmentPage from "../../components/User/UserAssignment/UserAssignmentPage";
-import UserHome from "../../components/User/layout/UserHome"
+import UserHome from "../../components/User/layout/UserHome";
 import CartPage from "../../components/User/Cart/CartPage";
 import CheckoutPage from "../../components/User/Cart/CheckoutPage";
 import HandlePaymentFailure from "../../components/User/Cart/HandlePaymentFailure";
@@ -41,12 +40,19 @@ import AdminNotificationPage from "../../components/Admin/AdminNotification/Admi
 import { ManageBalanceDashboard } from "../../components/Instructor/ManageBalance/ManageBalanceDashboard";
 import { WithdrawalRequestList } from "../../components/Admin/WithdrawalRequests/WithdrawalRequestList";
 import RankingPage from "../../components/layout/RankingPage";
+import UserAccomplishmentsPage from "../../components/User/Courses/UserAccomplishmentsPage";
+import CertificateDetailPage from "../../components/User/Certificate/CertificateDetailPage";
+import CertificatePage from "../../components/User/Certificate/CertificatePage";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
+      {
+        path: "certificate/:courseId",
+        element: <CertificatePage />,
+      },
       {
         path: "",
         element: <HomeRedirect />,
@@ -95,11 +101,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/payment-success",
-        element: <HandlePaymentSuccess />
+        element: <HandlePaymentSuccess />,
       },
       {
         path: "/payment-failed",
-        element: <HandlePaymentFailure />
+        element: <HandlePaymentFailure />,
       },
       {
         path: "checkout",
@@ -126,8 +132,8 @@ const router = createBrowserRouter([
             element: <UserMessagePage />,
           },
           {
-            path: "courses",
-            element: <UserCoursesPage />,
+            path: "accomplishments",
+            element: <UserAccomplishmentsPage />,
           },
           {
             path: "reviews",
@@ -149,6 +155,10 @@ const router = createBrowserRouter([
             path: "",
             element: <Navigate to="dashboard" />,
           },
+          {
+            path: "certificate/:courseId",
+            element: <CertificateDetailPage />,
+          },
         ],
       },
       {
@@ -161,7 +171,7 @@ const router = createBrowserRouter([
           },
           {
             path: "dashboard",
-            element: <InstructorDashboardPage />
+            element: <InstructorDashboardPage />,
           },
           {
             path: "courses",
@@ -169,29 +179,29 @@ const router = createBrowserRouter([
           },
           {
             path: "courses/create",
-            element: <CourseForm />
+            element: <CourseForm />,
           },
           {
             path: "courses/:id",
-            element: <InstructorCourseDetailView />
+            element: <InstructorCourseDetailView />,
           },
           {
             path: "notifications",
-            element: <InstructorNotificationPage />
+            element: <InstructorNotificationPage />,
           },
           {
             path: "manageBalance",
-            element: <ManageBalanceDashboard />
+            element: <ManageBalanceDashboard />,
           },
           {
             path: "profile",
-            element: <UserProfilePage />
+            element: <UserProfilePage />,
           },
           {
             path: "settings",
             element: <UserChangePassword />,
-          }
-        ]
+          },
+        ],
       },
 
       // ADMIN
@@ -213,11 +223,11 @@ const router = createBrowserRouter([
           },
           {
             path: "learner/:id",
-            element: <LearnerDetailPage />
+            element: <LearnerDetailPage />,
           },
           {
             path: "instructor/:id",
-            element: <InstructorDetailPage />
+            element: <InstructorDetailPage />,
           },
           {
             path: "approveInstructor",
@@ -241,7 +251,7 @@ const router = createBrowserRouter([
           },
           {
             path: "sendNotifications",
-            element: <AdminNotificationPage />
+            element: <AdminNotificationPage />,
           },
           {
             path: "",
@@ -249,8 +259,8 @@ const router = createBrowserRouter([
           },
           {
             path: "withdrawalRequests",
-            element: <WithdrawalRequestList />
-          }
+            element: <WithdrawalRequestList />,
+          },
         ],
       },
     ],
