@@ -1,12 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { Upload, Button, message, Table } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import axiosInstance from '../../../../../config/axiosInstance';
 import commonApi from '../../../../../common/api';
+import LoadingContainer from '../../../../../common/LoadingContainer';
 
 const QuizForm = ({ lessonId }) => {
     const [quizData, setQuizData] = useState([]);
+    const [initialLoading, setInitialLoading] = useState(false);
+
+    useEffect(() => {
+        if (lessonId) {
+            fetchQuizBank();
+        }
+        // eslint-disable-next-line
+    }, [lessonId]);
 
     const handleDownloadTemplate = () => {
         const sampleData = [
@@ -67,6 +76,31 @@ const QuizForm = ({ lessonId }) => {
         }));
     };
 
+    const fetchQuizBank = async () => {
+        setInitialLoading(true);
+        try {
+            const res = await axiosInstance.get(commonApi.createQuizBank.url(lessonId));
+            
+            const normalized = res.data.result.map((quiz) => ({
+                question: quiz.question,
+                quizType: quiz.quizType,
+                answers: quiz.answers.map((a) => ({
+                  answer: a.answer,
+                  correct: a.isCorrect,
+                })),
+              }));
+              
+              setQuizData(normalized);
+
+        } catch (error) {
+            message.error("Failed to get quiz bank.");
+        } finally {
+            setTimeout(() => {
+                setInitialLoading(false);
+            }, 400);
+        }
+    };
+
     const handleSubmit = async () => {
         try {
             await axiosInstance.post(commonApi.createQuizBank.url(lessonId), quizData);
@@ -106,6 +140,7 @@ const QuizForm = ({ lessonId }) => {
 
     return (
         <div className="p-6 bg-white rounded-xl shadow space-y-6">
+            {initialLoading && <LoadingContainer />}
             <h2 className="text-xl font-bold">Import Quiz via Excel</h2>
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -128,6 +163,7 @@ const QuizForm = ({ lessonId }) => {
                         dataSource={quizData}
                         columns={columns}
                         rowKey={(record) => record.question}
+                        scroll={{ y: 500 }}
                         pagination={false}
                     />
 
