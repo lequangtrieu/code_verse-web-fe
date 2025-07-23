@@ -80,6 +80,17 @@ const commonApi = {
         url: `${backendDomain}/api/users/updateQrCode`,
     },
 
+    certificate: {
+    getCompletedCourses: {
+      url: (userId) =>
+        `${backendDomain}/api/enrollment/completed?userId=${userId}`,
+    },
+    getCertificate: {
+      url: (userId, courseId) =>
+        `${backendDomain}/api/enrollment/certificate?userId=${userId}&courseId=${courseId}`,
+    },
+    },
+
     /** Course api */
     course: {
         url: `${backendDomain}/course`,
