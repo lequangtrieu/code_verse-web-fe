@@ -234,6 +234,9 @@ const commonApi = {
     getMonthlyStats: {
         url: `${backendDomain}/course/monthly-stats/instructor`
     },
+    getCourseRatingStats: {
+        url: `${backendDomain}/api/ratings/statistics`
+    },
     getCoursesByUser: (userId) => `${backendDomain}/course/user/${userId}`,
     getInProgressCourses: (userId) => `${backendDomain}/course/user/${userId}/in-progress`,
     getCompletedCourses: (userId) => `${backendDomain}/course/user/${userId}/completed`,

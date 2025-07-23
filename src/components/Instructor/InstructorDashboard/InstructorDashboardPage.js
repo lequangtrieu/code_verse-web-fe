@@ -1,4 +1,4 @@
-import MonthlyEnrollmentChart from "./MonthlyEnrollmentChart";
+import ChartDashboard from "./ChartDashboard";
 
 const InstructorDashboardPage = () => {
   return (
@@ -7,7 +7,7 @@ const InstructorDashboardPage = () => {
       <div className="w-16 h-[2px] bg-pink-500 mb-6 rounded">
 
       </div>
-      <MonthlyEnrollmentChart />
+      <ChartDashboard />
     </div>
   );
 };

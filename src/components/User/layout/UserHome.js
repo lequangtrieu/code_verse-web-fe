@@ -6,10 +6,11 @@ import {
   Popover,
   notification,
   Progress,
+  message
 } from "antd";
 import ReusableProgress from "../layout/ReusableProgress";
 import React, { useContext, useEffect, useState } from "react";
-import { Card, Pagination, Rate, Tag } from "antd";
+import { Card, Pagination, Rate, Tag, Tooltip } from "antd";
 import { useNavigate } from "react-router-dom";
 import scrollTop from "../../../config/scrollTop";
 import LoadingOverlay from "../../../common/LoadingOverlay";
@@ -22,6 +23,21 @@ import Context from "../../../config/context/context";
 import axiosInstance from "../../../config/axiosInstance";
 import { logoutUser } from "../../../config/store/userSlice";
 import useAddToCart from "../../../hooks/useAddToCart";
+
+const BADGES = {
+  NEW_LEARNER: { 
+    title: "E-Learning Newbie",
+    content: "Register an account successfully.",
+    url: "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/badges%2Ficon_badge-02.png?alt=media&token=7d529d01-fa11-4b6c-9218-a99fb928daa8" },
+  FIRST_COURSE: { 
+    title: "First Course",
+    content: "Enroll your first course.",
+    url: "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/badges%2Ficon_badge-04.png?alt=media&token=bfb25ca3-a85e-4c2c-b07a-c78430bf24d9" },
+  TEN_CODE: { 
+    title: "Homework Master",
+    content: "Submit your first 10 coding assignments.",
+    url: "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/badges%2Ficon_badge-12.png?alt=media&token=99171cd5-db86-4762-8e5b-7d5f37fd2626" }
+};
 
 const SKILL_META = {
   C: { iconSrc: "/icons/c.png", name: "C" },
@@ -57,22 +73,6 @@ const activityData = [
   { date: "2025-05-08", level: 1 },
 ];
 
-const userInfo = {
-  email: "tientnmde170657@fpt.edu.vn",
-  avatar: "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg",
-  courseProgress: "562/801",
-  certificates: "2",
-  achievements: [
-    "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
-    "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
-    "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
-    "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
-    "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
-    "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
-    "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
-    "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
-  ],
-};
 const banners = [
   { id: 1, image: "banner1.png", link: "/home" },
   { id: 2, image: "banner2.png", link: "/home" },
@@ -91,12 +91,37 @@ const UserHome = () => {
   const [allCourses, setAllCourses] = useState({}); // Store data for all tabs here
   const [initialLoading, setInitialLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState("learning");
+  const [userInfo, setUserInfo] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const user = useSelector((state) => state?.user?.user);
   const { fetchCartDetail, fetchCartItems } = useContext(Context);
   const userId = user?.id;
+
+  const fetchUserboard = async () => {
+    try {
+      const res = await axiosInstance.get(commonApi.viewProfile.url);
+      const data = res.data.result;
+      console.log(data);
+      const achievements = data.badges
+        // .map((badge) => BADGES[badge]?.url)
+        .filter(Boolean);
+        setUserInfo({
+          email: user?.username,
+          avatar: data.avatar,
+          courseProgress: "562/801",
+          certificates: "2",
+          achievements
+        })
+    } catch (error){
+      message.error("Fetch data error;");
+    } finally {
+      setTimeout(() => {
+        setLoading(false);
+      }, 400);
+    }
+  };
 
   // Fetch data for all tabs at once
   const fetchCourses = async () => {
@@ -129,6 +154,7 @@ const UserHome = () => {
   };
 
   useEffect(() => {
+    fetchUserboard();
     fetchCourses(); // Fetch all data on initial load
   }, [userId]);
 
@@ -429,7 +455,7 @@ const UserHome = () => {
           {/* Meeting */}
           <div className="mb-4 text-lg">
             <span>Hello </span>
-            <span className="text-red-500">{userInfo.email}</span>
+            <span className="text-red-500">{userInfo?.email}</span>
             <span>
               . Welcome you to CodeVerse. Let's start to explore more!
             </span>
@@ -444,11 +470,11 @@ const UserHome = () => {
                 <div>
                   <Avatar
                     size={80}
-                    src={userInfo.avatar || "https://via.placeholder.com/80"}
+                    src={userInfo?.avatar || "https://via.placeholder.com/80"}
                     className="border-2 border-yellow-400"
                   />
                 </div>
-                <div className="text-xl truncate">{userInfo.email}</div>
+                <div className="text-xl truncate">{userInfo?.email}</div>
               </div>
 
               {/* Progress bar */}
@@ -472,7 +498,7 @@ const UserHome = () => {
                       4/39
                     </div>
                     <div className="text-sm mt-1">
-                      {userInfo.certificates} certificates
+                      {userInfo?.certificates} certificates
                     </div>
                   </div>
 
@@ -523,14 +549,29 @@ const UserHome = () => {
                   <div className="text-lg font-semibold">Your badges</div>
                 </div>
                 <div className="flex items-center mt-4 gap-4 overflow-x-auto">
-                  {userInfo.achievements.map((badge, index) => (
+                  {userInfo?.achievements.map((badgeKey, index) => {
+                    const badge = BADGES[badgeKey];
+                    if (!badge) return null;
+
+                    return (
+                      <Tooltip
+                        key={index}
+                        title={
+                          <div>
+                            <strong>{badge.title}</strong>
+                            <br />
+                            <span>{badge.content}</span>
+                          </div>
+                        }
+                      >
                     <img
                       key={index}
-                      src={badge}
+                      src={badge.url}
                       alt="badge"
-                      className="w-12 h-12 object-cover rounded-full"
+                      className="w-[90px] h-[90px] object-cover rounded-full"
                     />
-                  ))}
+                    </Tooltip>
+                  )})}
                 </div>
               </div>
             </div>

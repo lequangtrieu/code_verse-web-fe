@@ -48,16 +48,19 @@ const InstructorCoursesPage = () => {
                     style={{ objectFit: "cover", borderRadius: 8 }}
                 />
             ),
+            width: "10%"
         },
         {
             title: "Title",
             dataIndex: "title",
             key: "title",
+            width: "30%"
         },
         {
             title: "Category",
             dataIndex: "category",
             key: "category",
+            width: "19%"
         },
         {
             title: "Price",
@@ -65,6 +68,7 @@ const InstructorCoursesPage = () => {
             key: "price",
             align: "center",
             render: (price) => price === 0 ? <Tag color="green">Free</Tag> : formatCurrency(price),
+            width: "10%"
         },
         {
             title: "Status",
@@ -81,31 +85,33 @@ const InstructorCoursesPage = () => {
                     </Tag>
                 );
             },
+            width: "10%"
         },
         {
             title: "Actions",
             key: "actions",
             render: (_, record) => (
-                <div className="space-x-2">
-                    <Button
-                        type="primary"
-                        className="bg-yellow-400 hover:bg-yellow-500"
-                        onClick={() => handleViewDetail(record.id)}
-                    >
-                        View Detail
-                    </Button>
-                    <Button
-                        type="primary"
-                        className="bg-yellow-400 hover:bg-yellow-500"
-                        onClick={() => {
-                            setSelectedCourse(record);
-                            handleViewLearners(record.id);
-                        }}
-                    >
-                        View Learners
-                    </Button>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="primary"
+                    className="bg-yellow-400 hover:bg-yellow-500 flex-1 min-w-[100px]"
+                    onClick={() => handleViewDetail(record.id)}
+                  >
+                    View Detail
+                  </Button>
+                  <Button
+                    type="primary"
+                    className="bg-yellow-400 hover:bg-yellow-500 flex-1 min-w-[100px]"
+                    onClick={() => {
+                      setSelectedCourse(record);
+                      handleViewLearners(record.id);
+                    }}
+                  >
+                    View Learners
+                  </Button>
                 </div>
-            ),
+              ),              
+            width: "21%"
         },
     ];
 
