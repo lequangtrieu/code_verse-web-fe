@@ -116,6 +116,10 @@ const UserAccomplishmentsPage = () => {
     }
   };
 
+  const selectedCertificate = certificates.find(
+    (c) => c.courseId === selectedCourseId
+  );
+
   return (
     <div className="w-full h-full pt-2">
       <Card className="w-full shadow-lg" title="My Specializations">
@@ -201,12 +205,8 @@ const UserAccomplishmentsPage = () => {
           getContainer={false}
           styles={{ body: { padding: 0 } }}
         >
-          {selectedCourseId && (
-            <CertificatePage
-              courseId={selectedCourseId}
-              userId={user.id}
-              isPopup
-            />
+          {modalVisible && selectedCertificate && (
+            <CertificatePage certificateData={selectedCertificate} isPopup />
           )}
         </Modal>
       </Card>
