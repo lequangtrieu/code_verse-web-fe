@@ -1,20 +1,12 @@
-import { Button, Carousel, Avatar, Form, Input, Modal, notification, Tabs } from "antd";
-import { FaArrowRight } from "react-icons/fa";
-import { useContext, useState } from "react";
-import {
-  FaQuoteLeft,
-} from "react-icons/fa";
-
-import { message } from "antd";
-import {
-  GithubOutlined,
-} from "@ant-design/icons";
-import { GoogleLogin } from "@react-oauth/google";
+import {Avatar, Button, Carousel, Form, Input, message, Modal, notification, Tabs} from "antd";
+import {FaArrowRight, FaQuoteLeft} from "react-icons/fa";
+import {useContext, useState} from "react";
+import {GoogleLogin} from "@react-oauth/google";
 import commonApi from "../../common/api";
 import axios from "axios";
 import Context from "../../config/context/context";
-import { useDispatch, useSelector } from "react-redux";
-import { logoutUser } from "../../config/store/userSlice";
+import {useDispatch} from "react-redux";
+import {logoutUser} from "../../config/store/userSlice";
 import setAuthInfo from "../../config/setAuthInfo";
 import FeatureSection from './Molecule/FeaturesSection';
 import WhyCard from './Molecule/WhyCard';
@@ -22,6 +14,7 @@ import CounterCard from '../layout/Molecule/CounterCard';
 import Marquee from "react-fast-marquee";
 import ScrollFadeIn from "../layout/Molecule/ScrollFadeIn";
 import {Link} from "react-router-dom";
+
 const { TabPane } = Tabs;
 
 const reviews = [
@@ -362,13 +355,6 @@ const Home = () => {
                       }}
                     />
                   </div>
-
-                  <Button
-                    icon={<GithubOutlined />}
-                    className="flex items-center justify-center gap-2 border hover:border-[#4d96ff] min-w-[150px] h-[40px]"
-                  >
-                    GitHub
-                  </Button>
                 </div>
 
                 <div className="mt-4 text-sm text-center">
@@ -447,13 +433,6 @@ const Home = () => {
                       }}
                     />
                   </div>
-
-                  <Button
-                    icon={<GithubOutlined />}
-                    className="flex items-center justify-center gap-2 border hover:border-[#4d96ff] min-w-[150px] h-[40px]"
-                  >
-                    GitHub
-                  </Button>
                 </div>
               </div>
             </TabPane>
