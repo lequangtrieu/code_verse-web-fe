@@ -79,7 +79,9 @@ const commonApi = {
     updateQr: {
         url: `${backendDomain}/api/users/updateQrCode`,
     },
-
+    checkEnrollment: {
+        url: (courseId) => `${backendDomain}/api/enrollment/is-enrolled?courseId=${courseId}`,
+    },
     certificate: {
     getCompletedCourses: {
       url: (userId) =>
