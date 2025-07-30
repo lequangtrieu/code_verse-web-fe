@@ -236,7 +236,7 @@ const QuizComponent = ({
             if (typeof onProgressUpdate === "function") {
               onProgressUpdate();
             }
-            navigate("/user-panel/courses");
+            navigate("/user-panel/accomplishments");
           }, 2500);
         } else {
           notification.success({
@@ -260,9 +260,6 @@ const QuizComponent = ({
         await checkQuizProgress();
         setMode("info");
         setTimeLeft(0);
-        if (typeof onProgressUpdate === "function") {
-          onProgressUpdate();
-        }
       }
     } catch (error) {
       console.error("Error submitting quiz:", error);
