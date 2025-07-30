@@ -8,6 +8,7 @@ import axiosInstance from "../../../config/axiosInstance";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import LoadingOverlay from "../../../common/LoadingOverlay";
+import ResizableSplitLayout from "../../../common/ResizableSplitLayout";
 import { notification } from "antd";
 import { useNavigate } from "react-router-dom";
 
@@ -142,18 +143,20 @@ export default function LessonLayout() {
             />
           ) : (
             <>
-              <LessonContent lesson={selectedLesson} />
-              <CodeEditor
-                key={selectedLesson?.id}
-                lessonId={selectedLesson?.id}
-                userId={user?.id}
-                defaultCode={selectedLesson.code || selectedLesson.defaultCode}
-                testCases={selectedLesson.testCases || []}
-                language={language === "all" ? null : language}
-                onRefreshLessonData={(opts) => fetchCourseData(opts)}
-                exercise={selectedLesson?.exercise}
-                allLessons={lessonData.flatMap((m) => m.subLessons || [])}
-                onChangeLesson={handleSelectLesson}
+              <ResizableSplitLayout
+                leftComponent={<LessonContent lesson={selectedLesson} />}
+                rightComponent={<CodeEditor
+                  key={selectedLesson?.id}
+                  lessonId={selectedLesson?.id}
+                  userId={user?.id}
+                  defaultCode={selectedLesson.code || selectedLesson.defaultCode}
+                  testCases={selectedLesson.testCases || []}
+                  language={language === "all" ? null : language}
+                  onRefreshLessonData={(opts) => fetchCourseData(opts)}
+                  exercise={selectedLesson?.exercise}
+                  allLessons={lessonData.flatMap((m) => m.subLessons || [])}
+                  onChangeLesson={handleSelectLesson}
+                />}
               />
             </>
           )}

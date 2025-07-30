@@ -182,11 +182,17 @@ const commonApi = {
     instructorCourses: {
         url: `${backendDomain}/course/instructor`
     },
+    instructorTrainings: {
+        url: `${backendDomain}/course/training/instructor`
+    },
     getExerciseByLessonId: {
         url: (lessonId) => `${backendDomain}/exercise/lesson/${lessonId}`
     },
     createCourse: {
         url: `${backendDomain}/course`
+    },
+    createTraining: {
+        url: `${backendDomain}/course/training`
     },
     getModules: {
         url: (courseId) => `${backendDomain}/module/course/${courseId}`
@@ -246,8 +252,14 @@ const commonApi = {
     instructorGetCourse: {
         url: (id) => `${backendDomain}/course/${id}/for-instructor`
     },
+    instructorGetTraining: {
+        url: (id) => `${backendDomain}/course/training/${id}/for-instructor`
+    },
     updateCourse: {
         url: (id) => `${backendDomain}/course/${id}`
+    },
+    updateTraining: {
+        url: (id) => `${backendDomain}/course/training/${id}`
     },
     getAllUsers: {
         url: `${backendDomain}/api/users`

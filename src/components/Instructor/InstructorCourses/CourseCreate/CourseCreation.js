@@ -95,7 +95,6 @@ export default function CourseForm() {
                 message.success("Course submitted for approval.");
                 navigate("/instructor-panel/courses");
             } else {
-                message.error("Course has validation issues:");
                 errors.forEach(err => {
                     message.error(err);
                 });

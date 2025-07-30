@@ -12,7 +12,8 @@ import {
   NotificationOutlined,
   SettingOutlined,
   LogoutOutlined,
-  DollarOutlined
+  DollarOutlined,
+  CodeOutlined
 } from "@ant-design/icons";
 import ROLE from "../../../common/role";
 import { logoutUser } from "../../../config/store/userSlice";
@@ -57,7 +58,7 @@ const InstructorPanel = () => {
         collapsed={collapsed}
         onCollapse={setCollapsed}
         trigger={null}
-        className="bg-white shadow-md flex flex-col justify-between"
+        className="bg-white shadow-md flex flex-col justify-between sticky top-0 h-screen z-40"
       >
         <div className="p-4 font-semibold uppercase text-gray-600 border-b">
           {!collapsed && `Welcome, ${user?.username}`}
@@ -79,6 +80,9 @@ const InstructorPanel = () => {
           </Menu.Item>
           <Menu.Item key="courses" icon={<BookOutlined />}>
             Management Courses
+          </Menu.Item>
+          <Menu.Item key="trainings" icon={<CodeOutlined />}>
+          Management Trainings
           </Menu.Item>
           <Menu.Item key="manageBalance" icon={<DollarOutlined  />}>
             Manage Balance
@@ -108,7 +112,7 @@ const InstructorPanel = () => {
       </Sider>
 
       <Layout>
-        <Content className="p-8 bg-[#fafafa]">
+        <Content className="p-8 bg-[#fafafa] min-h-screen">
           <Outlet />
         </Content>
       </Layout>
