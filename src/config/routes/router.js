@@ -32,6 +32,8 @@ import InstructorDashboardPage from "../../components/Instructor/InstructorDashb
 import InstructorCoursesPage from "../../components/Instructor/InstructorCourses/InstructorCoursePage";
 import InstructorCourseDetailView from "../../components/Instructor/InstructorCourses/InstructorCourseDetail";
 import InstructorNotificationPage from "../../components/Instructor/InstructorNotifications/InstructorNotificationPage";
+import InstructorTrainingsPage from "../../components/Instructor/InstructorTraining/InstructorTrainingPage";
+import TrainingCreation from "../../components/Instructor/InstructorTraining/TrainingCreation";
 import RegisterPage from "../../components/Auth/RegisterPage";
 import LearnerDetailPage from "../../components/Admin/AdminAccount/LearnerDetailPage";
 import InstructorDetailPage from "../../components/Admin/AdminAccount/InstructorDetailPage";
@@ -180,6 +182,18 @@ const router = createBrowserRouter([
           {
             path: "courses/create",
             element: <CourseForm />,
+          },
+          {
+            path: "trainings",
+            element: <InstructorTrainingsPage />,
+          },
+          {
+            path: "trainings/create",
+            element: <TrainingCreation />,
+          },
+          {
+            path: "trainings/:id",
+            element: <TrainingCreation />,
           },
           {
             path: "courses/:id",
