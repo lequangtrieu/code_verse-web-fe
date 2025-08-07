@@ -49,6 +49,16 @@ const CodeEditor = ({
   const [isRunning, setIsRunning] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
+  const canShowSubmitButton = useMemo(() => {
+    const currentCode = editorRef.current?.getValue() || "";
+    return (
+      testResults.length > 0 &&
+      testResults.every((r) => r.description === "Pass") &&
+      lastPassedCode &&
+      lastPassedCode === currentCode
+    );
+  }, [testResults, lastPassedCode]);
+
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const formatInputForAI = (rawInput) => {
@@ -101,6 +111,7 @@ const CodeEditor = ({
           description: "Error",
         });
       }
+
       if (i !== testCases.length - 1) await delay(1);
     }
 
@@ -113,32 +124,67 @@ const CodeEditor = ({
     );
 
     if (hasError) {
-      notification.error({
-        message: "Some test cases failed",
-        description: "Please check the result details.",
-        placement: "topLeft",
-      });
-
-      const firstFailed = results.find(
-        (r) => r.description === "Fail" || r.description === "Error"
+      setLastPassedCode(null);
+      const firstError = results.find(
+        (r) => r.description === "Error" || r.description === "Fail"
       );
-      if (firstFailed) {
+
+      if (firstError) {
         const suggestion = await getAIFeedback({
           language,
           code: userCode,
-          input: formatInputForAI(firstFailed.input),
-          expected: firstFailed.expected,
-          actual: firstFailed.actual,
+          input: formatInputForAI(firstError.input),
+          expected: firstError.expected,
+          actual: firstError.actual,
           exerciseTitle: exercise?.title,
           exerciseTasks: exercise?.tasks?.map((t) => `• ${t}`).join("\n"),
+          exerciseDescription: exercise?.instruction || "",
         });
+
         setAISuggestion(suggestion);
+
+        notification.info({
+          message: "💡 AI Feedback on Failed Test Case",
+          description: "See AI's explanation for why your code failed.",
+          placement: "topLeft",
+          duration: 5,
+        });
       }
+
+      return;
+    }
+
+    const aiInput = results[0];
+
+    const suggestion = await getAIFeedback({
+      language,
+      code: userCode,
+      input: formatInputForAI(aiInput.input),
+      expected: aiInput.expected,
+      actual: aiInput.actual,
+      exerciseTitle: exercise?.title,
+      exerciseTasks: exercise?.tasks?.map((t) => `• ${t}`).join("\n"),
+      exerciseDescription: exercise?.instruction || "",
+    });
+
+    setAISuggestion(suggestion);
+
+    const resultTag = suggestion.match(/\[RESULT\]:\s*(PASS|FAIL)/i);
+    const isHardcoded = resultTag?.[1]?.toUpperCase() === "FAIL";
+
+    if (isHardcoded) {
+      setLastPassedCode(null);
+      notification.warning({
+        message: "⚠️ AI detected hardcoded or invalid logic",
+        description:
+          "Your code passes the test cases, but appears to be hardcoded or not generalized. Please revise it before submitting.",
+        placement: "topLeft",
+      });
     } else {
       setLastPassedCode(userCode);
       notification.success({
-        message: "All test cases passed!",
-        description: "Great job, everything works perfectly!",
+        message: "All test cases passed and AI approved!",
+        description: "Great job, your code is valid and algorithmic!",
         placement: "topLeft",
       });
     }
@@ -149,8 +195,9 @@ const CodeEditor = ({
 
     if (currentCode !== lastPassedCode) {
       return notification.warning({
-        message: "Code has changed since last successful test",
-        description: "Please re-run the tests before submitting.",
+        message: "Cannot Submit",
+        description:
+          "Code has changed or failed AI verification. Please rerun tests.",
         placement: "topLeft",
       });
     }
@@ -206,10 +253,6 @@ const CodeEditor = ({
     }
   }, [selectedLanguage, fixedLanguage, defaultCodeMap]);
 
-  const isSubmitDisabled =
-    testResults.some((r) => r.description !== "Pass") ||
-    testResults.length === 0;
-
   return (
     <div
       style={{ overflow: "hidden", position: "relative" }}
@@ -259,17 +302,7 @@ const CodeEditor = ({
           >
             Run Test
           </Button>
-          {isSubmitDisabled ? (
-            <Tooltip title="Please pass all test cases before submitting">
-              <Button
-                type="primary"
-                disabled
-                className="bg-green-500 text-white opacity-60 border-none pointer-events-none"
-              >
-                Submit
-              </Button>
-            </Tooltip>
-          ) : (
+          {canShowSubmitButton && (
             <Button
               onClick={handleSubmit}
               type="primary"
