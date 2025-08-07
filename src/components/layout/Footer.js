@@ -49,7 +49,7 @@ const Footer = () => {
             <li><Link to="/learning">Learning</Link></li>
             <li><Link to="/training">Training</Link></li>
             <li><Link to="/fights">Fights</Link></li>
-            <li><Link to="/challenge">Challenge</Link></li>
+            <li><Link to="/trainings">Trainings</Link></li>
             <li><Link to="/leaders">Leaders</Link></li>
           </ul>
         </div>
