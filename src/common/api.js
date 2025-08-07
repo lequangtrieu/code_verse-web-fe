@@ -97,6 +97,9 @@ const commonApi = {
     course: {
         url: `${backendDomain}/course`,
     },
+    getPublishedTrainings: {
+        url: `${backendDomain}/course/training/published`
+    },
     getCourseDetails: {
         url: (courseId, userId) => `${backendDomain}/course/${userId}/${courseId}/lesson`,
     },

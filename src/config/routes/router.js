@@ -45,6 +45,7 @@ import RankingPage from "../../components/layout/RankingPage";
 import UserAccomplishmentsPage from "../../components/User/Courses/UserAccomplishmentsPage";
 import CertificateDetailPage from "../../components/User/Certificate/CertificateDetailPage";
 import CertificatePage from "../../components/User/Certificate/CertificatePage";
+import Trainings from "../../components/User/training/trainings";
 
 const router = createBrowserRouter([
   {
@@ -80,8 +81,8 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "challenges",
-        element: <Home />,
+        path: "trainings",
+        element: <Trainings />,
       },
       {
         path: "ranking",

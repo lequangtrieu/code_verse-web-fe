@@ -447,13 +447,13 @@ const Header = () => {
               Compete
             </Link>
             <Link
-              to="/challenges"
+              to="/trainings"
               onClick={scrollTop}
               className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(
-                "/challenges"
+                "/trainings"
               )} hover:text-[#2c31cf] hover:border-b-[#2c31cf]`}
             >
-              Challenges
+              Trainings
             </Link>
 
             <Link
@@ -584,8 +584,8 @@ const Header = () => {
                     label: <Link to="/fights">⚔️ Compete</Link>,
                   },
                   {
-                    key: "challenges",
-                    label: <Link to="/challenges">🏆 Challenges</Link>,
+                    key: "trainings",
+                    label: <Link to="/trainings">🏆 Trainings</Link>,
                   },
                   {
                     key: "ranking",
