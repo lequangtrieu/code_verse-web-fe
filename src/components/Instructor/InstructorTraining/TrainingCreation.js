@@ -39,7 +39,7 @@ export default function TrainingCreation() {
       setInitialValues({
         title: data.title,
         levelId: data.level,
-        language: data.language,
+        language: data.language === "null" ? "ALL" : data.language,
         expReward: data.expReward,
       });
       setCourseId(data.courseId);
@@ -58,16 +58,12 @@ export default function TrainingCreation() {
       const formData = new FormData();
       formData.append("title", values.title);
       formData.append("level", values.levelId);
-      formData.append("language", values.language);
+      formData.append("language", values.language == "ALL" ? "" : values.language);
       formData.append("expReward", values.expReward ?? 0);
       formData.append("status", "TRAINING_DRAFT");
       formData.append("categoryId", 1);
       formData.append("instructor", "");
       formData.append("price", "0");
-
-      for (const pair of formData.entries()) {
-        console.log(`${pair[0]}: ${pair[1]}`);
-      }
 
       let response;
 

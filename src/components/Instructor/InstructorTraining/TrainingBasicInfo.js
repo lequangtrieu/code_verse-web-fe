@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Form, Input, Select, Button, Space } from "antd";
+import { Form, Input, InputNumber, Select, Button, Space } from "antd";
 
 const { Option } = Select;
 
@@ -10,6 +10,7 @@ const levels = [
 ];
 
 const languages = [
+  { language: "ALL", name: "All" },
   { language: "JAVA", name: "Java" },
   { language: "PYTHON", name: "Python" },
   { language: "C", name: "C" },
@@ -61,7 +62,7 @@ const TrainingBasicInfo = ({ onSave, initialValues }) => {
       <Form.Item
         name="language"
         label="Language"
-        // rules={[{ required: true, message: "Please select language" }]}
+        rules={[{ required: true, message: "Please select language" }]}
       >
         <Select placeholder="Select language">
           {languages.map((lang) => (
@@ -72,8 +73,11 @@ const TrainingBasicInfo = ({ onSave, initialValues }) => {
         </Select>
       </Form.Item>
 
-      <Form.Item name="expReward" label="EXP Reward">
-        <Input type="number" min={0} placeholder="e.g., 100" />
+      <Form.Item name="expReward" label="EXP Reward"
+      rules={[{ required: true, message: "Please enter EXP Reward" },
+        { type: "number", min: 1, max: 100, message: "EXP must be between 1 and 100" }
+      ]}>
+        <InputNumber min={1} max={100} placeholder="e.g., 100" className="w-full" />
       </Form.Item>
 
       <Form.Item>
