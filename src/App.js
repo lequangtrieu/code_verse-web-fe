@@ -106,9 +106,22 @@ function App() {
 
   useNotificationSocket((newNotif) => {
     if (newNotif) {
+      function truncateHtml(html, maxLen) {
+        const div = document.createElement("div");
+        div.innerHTML = html;
+        const text = div.textContent || div.innerText || "";
+        const shortText = text.length > maxLen ? text.slice(0, maxLen) + "..." : text;
+        return shortText.replace(/\n/g, "<br>");
+      }
+
       notification.open({
         message: newNotif.title,
-        description: newNotif.content,
+        description: (
+          <div
+            dangerouslySetInnerHTML={{ __html: truncateHtml(newNotif.content, 150) }}
+            style={{ maxHeight: 100, overflow: "hidden" }}
+          />
+        ),
         duration: 5,
         placement: "topLeft",
       });
