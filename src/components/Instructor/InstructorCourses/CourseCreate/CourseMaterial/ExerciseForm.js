@@ -238,7 +238,13 @@ const ExerciseForm = ({ lessonId }) => {
                 </Card>
 
                 {/* Exercise Tasks */}
-                <Card title="Exercise Tasks" className="flex-1">
+                <Card
+                    title={
+                        <span>
+                            Exercise Tasks<span className="text-red-500 ml-1">*</span>
+                        </span>
+                    }
+                    className="flex-1">
                     {!isAddingTask ? (
                         <Button type="dashed" onClick={() => setIsAddingTask(true)}>
                             + Add Task
@@ -315,7 +321,13 @@ const ExerciseForm = ({ lessonId }) => {
             </div>
 
             {/* Test Cases */}
-            <Card title="Test Cases" className="border p-4 rounded shadow">
+            <Card
+                title={
+                    <span>
+                        Test Cases<span className="text-red-500 ml-1">*</span>
+                    </span>
+                }
+                className="border p-4 rounded shadow">
                 <Button onClick={() => {
                     setIsTestCaseModalOpen(true);
                     setEditingTestCase(null);
@@ -334,7 +346,6 @@ const ExerciseForm = ({ lessonId }) => {
                                         type="link"
                                         icon={<EditOutlined />}
                                         onClick={() => {
-                                            console.log(item.input);
                                             setEditingTestCase(item);
                                             setIsTestCaseModalOpen(true);
 

@@ -61,7 +61,7 @@ const TrainingBasicInfo = ({ onSave, initialValues }) => {
       <Form.Item
         name="language"
         label="Language"
-        rules={[{ required: true, message: "Please select language" }]}
+        // rules={[{ required: true, message: "Please select language" }]}
       >
         <Select placeholder="Select language">
           {languages.map((lang) => (

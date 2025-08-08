@@ -724,8 +724,9 @@ const Header = () => {
         title={selectedNotification?.title}
         onCancel={() => setIsNotiModalOpen(false)}
         footer={null}
+        bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
       >
-        <p className="whitespace-pre-wrap">{selectedNotification?.content}</p>
+        <div className="whitespace-pre-wrap prose max-w-none" dangerouslySetInnerHTML={{__html: selectedNotification?.content}}></div>
         <p className="text-xs text-gray-400 mt-4">
           {selectedNotification &&
             new Date(selectedNotification.createdAt).toLocaleString()}
