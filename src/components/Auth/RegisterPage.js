@@ -6,8 +6,10 @@ import axios from "axios";
 import commonApi from "../../common/api";
 import {useDispatch} from "react-redux";
 import UploadImage from "../../common/UploadImage";
+import useDocumentTitle from '../../common/useDocumentTitle';
 
 const RegisterPage = () => {
+    useDocumentTitle("Register - CodeVerse");
     const [userType, setUserType] = useState('learner');
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(false);

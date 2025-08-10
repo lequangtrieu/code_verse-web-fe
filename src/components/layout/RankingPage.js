@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Card, Select, Table, Avatar, message } from "antd";
 import commonApi from "../../common/api";
+import useDocumentTitle from "../../common/useDocumentTitle";
 
 const { Option } = Select;
 
@@ -12,6 +13,7 @@ const RankingPage = () => {
     const [period, setPeriod] = useState("ALL");
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    useDocumentTitle("Ranking - CodeVerse");
     const fetchRanking = async () => {
         try {
             setLoading(true);
