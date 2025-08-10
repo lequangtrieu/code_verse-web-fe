@@ -41,7 +41,7 @@ import AdminNotificationPage from "../../components/Admin/AdminNotification/Admi
 import { ManageBalanceDashboard } from "../../components/Instructor/ManageBalance/ManageBalanceDashboard";
 import { WithdrawalRequestList } from "../../components/Admin/WithdrawalRequests/WithdrawalRequestList";
 import RankingPage from "../../components/layout/RankingPage";
-
+import AdminCourseDetailPage from "../../components/Admin/AdminCourses/AdminCourseDetailPage"
 const router = createBrowserRouter([
   {
     path: "/",
@@ -222,6 +222,10 @@ const router = createBrowserRouter([
           {
             path: "courses",
             element: <AdminCoursesPage />,
+          },
+          {
+            path: "courses/:id",
+            element: <AdminCourseDetailPage />
           },
           {
             path: "reviews",
