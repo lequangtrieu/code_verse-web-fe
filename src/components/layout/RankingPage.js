@@ -3,6 +3,7 @@ import axios from "axios";
 import { Card, Select, Table, Avatar, message } from "antd";
 import commonApi from "../../common/api";
 import useDocumentTitle from "../../common/useDocumentTitle";
+import { UserOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
@@ -38,13 +39,13 @@ const RankingPage = () => {
             dataIndex: "rank",
             render: (_, __, index) =>
                 (currentPage - 1) * pageSize + index + 4,
-        },
+                   },
         {
             title: "User",
             dataIndex: "username",
             render: (text, record) => (
                 <div className="flex items-center gap-2">
-                    <Avatar src={record.avatar} />
+                    <Avatar src={record.avatar} icon={<UserOutlined />}/>
                     <span>{text}</span>
                 </div>
             ),
