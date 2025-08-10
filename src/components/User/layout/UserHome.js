@@ -710,6 +710,7 @@ const UserHome = () => {
                                     </span>
                                   </div>
 
+                                  {selectedTab === "suggested" && 
                                   <div className="flex items-center justify-between mb-2">
                                     <div>
                                       {getDiscountedPrice(
@@ -738,7 +739,7 @@ const UserHome = () => {
                                         </>
                                       )}
                                     </div>
-                                  </div>
+                                  </div>}
 
                                   <div className="flex items-center justify-between text-sm text-gray-500">
                                     <div className="flex items-center">

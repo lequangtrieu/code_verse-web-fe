@@ -4,6 +4,7 @@ import {LockOutlined, MailOutlined, PhoneOutlined, UserOutlined} from '@ant-desi
 import {logoutUser} from "../../config/store/userSlice";
 import axios from "axios";
 import commonApi from "../../common/api";
+import { useNavigate } from 'react-router-dom';
 import {useDispatch} from "react-redux";
 import UploadImage from "../../common/UploadImage";
 import useDocumentTitle from '../../common/useDocumentTitle';
@@ -14,6 +15,8 @@ const RegisterPage = () => {
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(false);
     const [form] = Form.useForm();
+
+    const navigate = useNavigate();
 
     const coverFileList = Form.useWatch("teachingCredentials", form) || [];
 
@@ -59,6 +62,7 @@ const RegisterPage = () => {
                             "Your account has been created successfully. Please check your email to verify your account before logging in.",
                         placement: "topLeft",
                     });
+                    navigate("/");
                 }, 1000);
             }
         } catch (error) {

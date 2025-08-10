@@ -79,7 +79,7 @@ const SidebarFilter = ({
                             return (
                                 <Checkbox
                                     key={r}
-                                    checked={selectedRatings.includes(r)}
+                                    checked={selectedRatings === r}
                                     onChange={() => onRatingChange(r)}
                                     className="text-sm flex items-center"
                                 >
@@ -168,7 +168,7 @@ const SidebarFilter = ({
                             return (
                                 <Checkbox
                                     key={lvl}
-                                    checked={selectedLevels.includes(lvl)}
+                                    checked={selectedLevels === lvl}
                                     onChange={() => onLevelChange(lvl)}
                                     className="text-sm capitalize"
                                 >
@@ -188,7 +188,7 @@ const SidebarFilter = ({
                             return (
                                 <Checkbox
                                     key={lang}
-                                    checked={selectedLanguages.includes(lang)}
+                                    checked={selectedLanguages === lang}
                                     onChange={() => onLanguageChange(lang)}
                                     className="text-sm capitalize"
                                 >

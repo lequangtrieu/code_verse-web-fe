@@ -104,7 +104,7 @@ const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus }) => {
       );
     }
 
-    if (completionPercentage < 100) {
+    // if (completionPercentage < 100) {
       return (
         <button
           className="mt-3 w-full bg-green-600 text-white py-2 rounded"
@@ -113,16 +113,16 @@ const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus }) => {
           Learning Now
         </button>
       );
-    }
+    // }
 
-    return (
-      <button
-        className="mt-3 w-full bg-gray-400 text-white py-2 rounded cursor-not-allowed"
-        disabled
-      >
-        Completed
-      </button>
-    );
+    // return (
+    //   <button
+    //     className="mt-3 w-full bg-gray-400 text-white py-2 rounded cursor-not-allowed"
+    //     disabled
+    //   >
+    //     Completed
+    //   </button>
+    // );
   };
 
   return (
@@ -140,7 +140,11 @@ const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus }) => {
           <FaPlay />
         </button>
       </div>
+      {enrolled ? 
       <div className="mt-4">
+        <span className="text-green-600 font-semibold text-lg">Enrolled</span>
+      </div>
+       : <div className="mt-4">
         {getDiscountedPrice(course?.course.price, course?.course.discount) ===
         0 ? (
           <span className="text-green-600 font-semibold text-lg">Free</span>
@@ -163,7 +167,7 @@ const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus }) => {
             </p>
           </>
         )}
-      </div>
+      </div>}
 
       {renderActionButton()}
 
@@ -178,7 +182,7 @@ const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus }) => {
           Total Duration:{" "}
           {formatDuration(course?.courseMoreInfo.totalDurations)}
         </p>
-        <p>Enrolled: Enrolled</p>
+        {/* <p>Enrolled: Enrolled</p> */}
         <p>Skill Level: {course?.course.level}</p>
         <p>Language: {course?.course.language}</p>
         {/*<p>Quiz: {course.quiz ? "Yes" : "No"}</p>*/}
