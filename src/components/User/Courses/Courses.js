@@ -1,24 +1,24 @@
-import React, {useContext, useEffect, useMemo, useState} from "react";
-import {Button, Input, message, notification, Pagination, Select, Tag,} from "antd";
-import {useNavigate} from "react-router-dom";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import { Button, Input, message, notification, Pagination, Select, Tag, } from "antd";
+import { useNavigate } from "react-router-dom";
 import scrollTop from "../../../config/scrollTop";
 import LoadingOverlay from "../../../common/LoadingOverlay";
 import axios from "axios";
 import commonApi from "../../../common/api";
-import {useDispatch, useSelector} from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../../config/axiosInstance";
 import Context from "../../../config/context/context";
 import "../Courses/Courses.css";
-import {formatDuration, getDiscountedPrice} from "../../../common/helper";
-import {logoutUser} from "../../../config/store/userSlice";
+import { formatDuration, getDiscountedPrice } from "../../../common/helper";
+import { logoutUser } from "../../../config/store/userSlice";
 import CourseCarousel from "./CourseCarousel";
 import CourseList from "./CourseList";
 import SidebarFilter from "./SidebarFilter";
-import {SearchOutlined} from "@ant-design/icons";
+import { SearchOutlined } from "@ant-design/icons";
 import useDocumentTitle from "../../../common/useDocumentTitle";
 
-const {Search} = Input;
-const {Option} = Select;
+const { Search } = Input;
+const { Option } = Select;
 
 const Courses = () => {
     const [loading, setLoading] = useState(false);
@@ -33,17 +33,17 @@ const Courses = () => {
     const [cartCourseIds, setCartCourseIds] = useState([]);
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const [selectedRatings, setSelectedRatings] = useState([]);
+    const [selectedRatings, setSelectedRatings] = useState(null);
     const [selectedDuration, setSelectedDuration] = useState(null);
-    const [selectedLevels, setSelectedLevels] = useState([]);
-    const [selectedLanguages, setSelectedLanguages] = useState([]);
+    const [selectedLevels, setSelectedLevels] = useState(null);
+    const [selectedLanguages, setSelectedLanguages] = useState(null);
     const [selectedPrice, setSelectedPrice] = useState(null);
     const [sortByPrice, setSortByPrice] = useState("none");
     const [sortByRating, setSortByRating] = useState("none");
     const [tempSearchQuery, setTempSearchQuery] = useState("");
 
     const user = useSelector((state) => state?.user?.user);
-    const {fetchCartDetail, fetchCartItems} = useContext(Context);
+    const { fetchCartDetail, fetchCartItems } = useContext(Context);
 
     useDocumentTitle("Courses - CodeVerse");
 
@@ -82,9 +82,9 @@ const Courses = () => {
             results = results.filter((course) => course.category === selectedCategory);
         }
 
-        if (selectedRatings.length > 0) {
-            results = results.filter((course) =>
-                selectedRatings.some((r) => course.rating >= r)
+        if (selectedRatings) {
+            results = results.filter((course) => course.rating >= selectedRatings
+                // selectedRatings.some((r) => course.rating >= r)
             );
         }
 
@@ -92,19 +92,20 @@ const Courses = () => {
             results = results.filter((course) => {
                 const duration = course.totalDurations || 0;
                 if (selectedDuration === "lt2") return duration < 120;
-                if (selectedDuration === "2to10") return duration >= 120 && duration <= 600;
-                if (selectedDuration === "gt10") return duration > 600;
+                if (selectedDuration === "2to6") return duration >= 120 && duration <= 60 * 6;
+                if (selectedDuration === "6to12") return duration > 60 * 6 && duration <= 60 * 12;
+                if (selectedDuration === "gt12") return duration > 60 * 12;
                 return true;
             });
         }
 
-        if (selectedLevels.length > 0) {
-            results = results.filter((course) => selectedLevels.includes(course.level));
+        if (selectedLevels) {
+            results = results.filter((course) => selectedLevels === course.level);
         }
 
-        if (selectedLanguages.length > 0) {
+        if (selectedLanguages) {
             results = results.filter((course) =>
-                selectedLanguages.includes(course.language)
+                selectedLanguages === course.language
             );
         }
 
@@ -144,7 +145,7 @@ const Courses = () => {
         }
 
         return sorted.slice(startIndex, endIndex);
-    },  [filteredCourses, sortByPrice, sortByRating]);
+    }, [filteredCourses, sortByPrice, sortByRating, currentPage]);
 
 
     const handlePriceChange = (value) => {
@@ -152,8 +153,8 @@ const Courses = () => {
     };
 
     const handleRatingChange = (rating) => {
-        setSelectedRatings((prev) =>
-            prev.includes(rating) ? prev.filter((r) => r !== rating) : [...prev, rating]
+        setSelectedRatings((prev) => (prev === rating ? null : rating)
+            // prev.includes(rating) ? prev.filter((r) => r !== rating) : [...prev, rating]
         );
     };
 
@@ -162,14 +163,14 @@ const Courses = () => {
     };
 
     const handleLevelChange = (level) => {
-        setSelectedLevels((prev) =>
-            prev.includes(level) ? prev.filter((lvl) => lvl !== level) : [...prev, level]
+        setSelectedLevels((prev) => (prev === level ? null : level)
+            // prev.includes(level) ? prev.filter((lvl) => lvl !== level) : [...prev, level]
         );
     };
 
     const handleLanguageChange = (language) => {
-        setSelectedLanguages((prev) =>
-            prev.includes(language) ? prev.filter((l) => l !== language) : [...prev, language]
+        setSelectedLanguages((prev) => (prev === language ? null : language)
+            // prev.includes(language) ? prev.filter((l) => l !== language) : [...prev, language]
         );
     };
 
@@ -190,7 +191,7 @@ const Courses = () => {
             const courseSection = document.getElementById("course-section");
             if (courseSection) {
                 const offset = courseSection.offsetTop - 80;
-                window.scrollTo({top: offset, behavior: "smooth"});
+                window.scrollTo({ top: offset, behavior: "smooth" });
             }
             setCurrentPage(page);
         }, 400);
@@ -347,9 +348,9 @@ const Courses = () => {
                 </div>
                 <div className="w-px h-4 bg-gray-300 mx-2"></div>
                 <div className="flex items-center gap-1">
-            <span className="font-medium">
-              {formatDuration(course.totalDurations)}
-            </span>
+                    <span className="font-medium">
+                        {formatDuration(course.totalDurations)}
+                    </span>
                 </div>
                 <div className="w-px h-4 bg-gray-300 mx-2"></div>
                 <div className="flex items-center gap-1">
@@ -431,7 +432,7 @@ const Courses = () => {
                                             placeholder="Search courses..."
                                             enterButton={<SearchOutlined />}
                                             value={tempSearchQuery}
-                                            onChange={(e) => setTempSearchQuery(e.target.value)}r
+                                            onChange={(e) => setTempSearchQuery(e.target.value)}
                                             onSearch={handleSearch}
                                             className="w-full lg:w-[40%]"
                                         />
