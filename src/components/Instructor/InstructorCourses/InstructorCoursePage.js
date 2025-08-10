@@ -99,7 +99,7 @@ const InstructorCoursesPage = () => {
                   >
                     View Detail
                   </Button>
-                  <Button
+                  {record.status === "PUBLISHED" && <Button
                     type="primary"
                     className="bg-yellow-400 hover:bg-yellow-500 flex-1 min-w-[100px]"
                     onClick={() => {
@@ -108,7 +108,7 @@ const InstructorCoursesPage = () => {
                     }}
                   >
                     View Learners
-                  </Button>
+                  </Button>}
                 </div>
               ),              
             width: "21%"

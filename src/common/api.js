@@ -242,6 +242,9 @@ const commonApi = {
     updateCourseStatus: {
         url: (courseId) => `${backendDomain}/course/${courseId}/status`
     },
+    updateCourseDiscount: {
+        url: (courseId, discount) => `${backendDomain}/course/${courseId}/discount/${discount}`
+    },
     getMonthlyStats: {
         url: `${backendDomain}/course/monthly-stats/instructor`
     },

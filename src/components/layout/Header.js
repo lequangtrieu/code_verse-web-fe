@@ -64,6 +64,7 @@ const Header = () => {
           token: response.data.result.token,
           refreshToken: response.data.result.refreshToken,
         });
+        navigate("/");
 
         notification.success({
           message: "Login Successful",
@@ -119,6 +120,7 @@ const Header = () => {
           token: res.data.result.token,
           refreshToken: res.data.result.refreshToken,
         });
+        navigate("/");
 
         notification.success({
           message: "Login Successful",
