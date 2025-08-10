@@ -22,10 +22,11 @@ const TheoryForm = ({ lessonId }) => {
     try {
       const res = await axiosInstance.get(commonApi.getTheory.url(lessonId));
       form.setFieldsValue({
-        title: res.data.result.title,
+        title: res.data?.result?.title,
       });
-      setEditorContent(res.data.result.content || "");
+      setEditorContent(res.data?.result?.content || "");
     } catch (error) {
+      console.log(error);
       message.error("Error fetching theory.");
     } finally {
       setTimeout(() => {

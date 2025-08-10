@@ -60,7 +60,9 @@ const LessonContent = ({ lesson }) => {
 
   if (!lesson) {
     return (
-      <div className="max-h-[850px] min-w-[400px] w-1/2 p-4 bg-white overflow-y-auto">
+      <div className=
+      // "max-h-[850px] min-w-[400px] w-1/2
+      "w-full p-4 bg-white overflow-y-auto">
         Select a lesson to view the content.
       </div>
     );
@@ -261,16 +263,16 @@ const LessonContent = ({ lesson }) => {
   };
 
   return (
-    <div className="max-h-[850px] min-w-[400px] w-1/2 p-4 bg-white overflow-y-auto">
+    <div className="h-[calc(100vh-85px)] min-w-[400px] w-full p-4 bg-white">
       <Tabs defaultActiveKey="1" size="large">
         <TabPane tab="Theory" key="1">
-          <Card bordered={false}>
+          <Card bordered={false} className="max-h-[calc(100vh-190px)] overflow-y-auto">
             {lesson.theory ? (
               <>
                 <h2 className="text-xl font-semibold mb-2">
                   {lesson.theory.title}
                 </h2>
-                <p className="text-gray-700 mb-4">{lesson.theory.content}</p>
+                <div className="text-gray-700 mb-4 prose max-w-none" dangerouslySetInnerHTML={{__html: lesson.theory.content}}></div>
                 {lesson.theory.example && (
                   <pre className="bg-gray-100 p-2 rounded text-sm whitespace-pre-wrap">
                     {lesson.theory.example}
@@ -284,7 +286,7 @@ const LessonContent = ({ lesson }) => {
         </TabPane>
 
         <TabPane tab="Exercise" key="2">
-          <Card bordered={false}>
+          <Card bordered={false} className="max-h-[calc(100vh-190px)] overflow-y-auto">
             {lesson.exercise ? (
               <>
                 <h2 className="text-xl font-semibold mb-2">
@@ -306,7 +308,7 @@ const LessonContent = ({ lesson }) => {
         </TabPane>
 
         <TabPane tab="Discussion" key="3">
-          <Card bordered={false}>
+          <Card bordered={false} className="max-h-[calc(100vh-190px)] overflow-y-auto">
             <h2 className="text-xl font-semibold mb-4">Discussion</h2>
 
             <TextArea

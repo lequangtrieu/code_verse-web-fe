@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Card, Radio, Checkbox, Button, notification } from "antd";
+import { Card, Radio, Checkbox, Button, notification, Modal } from "antd";
 import axiosInstance from "../../../../config/axiosInstance";
 import commonApi from "../../../../common/api";
+import { useNavigate } from "react-router-dom";
 
 const QuizComponent = ({
   quiz,
   lessonId = null,
   userId = null,
   onProgressUpdate,
+  onRefreshLessonData,
 }) => {
+  const navigate = useNavigate();
+  const [showCourseCompletionModal, setShowCourseCompletionModal] =
+    useState(false);
   const [mode, setMode] = useState("info");
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
@@ -38,25 +43,35 @@ const QuizComponent = ({
         setTimeLeft((prev) => {
           if (prev <= 1) {
             clearInterval(timer);
-            axiosInstance
-              .put(commonApi.submitQuiz.url(userId, lessonId))
-              .then(async () => {
+
+            (async () => {
+              try {
+                const res = await axiosInstance.put(
+                  commonApi.submitQuiz.url(userId, lessonId)
+                );
+
                 setTimeLeft(0);
                 setMode("info");
-                notification.warning({
-                  message: "Time's up",
-                  description: "Your time to complete the quiz has expired.",
-                });
+
+                const statusDone = res?.data?.result?.statusDone;
+                if (statusDone) {
+                  setShowCourseCompletionModal(true);
+                } else {
+                  notification.warning({
+                    message: "Time's up",
+                    description: "Your time to complete the quiz has expired.",
+                  });
+                }
+
                 await checkQuizProgress();
-              })
-              .catch(() => {
+              } catch (err) {
                 notification.error({
                   message: "Error",
                   description: "Failed to submit quiz after timeout.",
                 });
-              });
+              }
+            })();
 
-            setMode("info");
             return 0;
           }
           return prev - 1;
@@ -94,7 +109,19 @@ const QuizComponent = ({
         );
         const timeLeft = 30 * 60 - timeElapsed;
         if (timeLeft <= 0) {
-          await axiosInstance.put(commonApi.submitQuiz.url(userId, lessonId));
+          const res = await axiosInstance.put(
+            commonApi.submitQuiz.url(userId, lessonId)
+          );
+          const statusDone = res?.data?.result?.statusDone;
+
+          if (statusDone) {
+            setShowCourseCompletionModal(true);
+          } else {
+            notification.warning({
+              message: "Time's up",
+              description: "Your time to complete the quiz has expired.",
+            });
+          }
           await checkQuizProgress();
           notification.warning({
             message: "Time's up",
@@ -192,28 +219,47 @@ const QuizComponent = ({
     const passScore = quiz.passScore || 80;
 
     try {
-      await axiosInstance.put(commonApi.submitQuizPer.url(userId, lessonId), {
-        score: scorePercent,
-      });
+      const response = await axiosInstance.put(
+        commonApi.submitQuizPer.url(userId, lessonId),
+        {
+          score: scorePercent,
+        }
+      );
+
+      const statusDone = response?.data?.result?.statusDone;
 
       if (scorePercent >= passScore) {
-        notification.success({
-          message: "Quiz Submitted",
-          description: `You passed with ${correctCount}/${totalQuestions} correct (${scorePercent}%)`,
-        });
+        if (statusDone) {
+          setShowCourseCompletionModal(true);
+
+          setTimeout(() => {
+            if (typeof onProgressUpdate === "function") {
+              onProgressUpdate();
+            }
+            navigate("/user-panel/accomplishments");
+          }, 2500);
+        } else {
+          notification.success({
+            message: "Quiz Submitted",
+            description: `You passed with ${correctCount}/${totalQuestions} correct (${scorePercent}%)`,
+          });
+
+          await checkQuizProgress();
+          setMode("info");
+          setTimeLeft(0);
+          if (typeof onProgressUpdate === "function") {
+            onProgressUpdate();
+          }
+        }
       } else {
         notification.warning({
           message: "Quiz Submitted",
           description: `You did not pass. Only ${correctCount}/${totalQuestions} correct (${scorePercent}%)`,
         });
-      }
 
-      await checkQuizProgress();
-      setMode("info");
-      setTimeLeft(0);
-
-      if (typeof onProgressUpdate === "function") {
-        onProgressUpdate();
+        await checkQuizProgress();
+        setMode("info");
+        setTimeLeft(0);
       }
     } catch (error) {
       console.error("Error submitting quiz:", error);
@@ -437,6 +483,51 @@ const QuizComponent = ({
           Back
         </Button>
       </div> */}
+      <Modal
+        title={null}
+        open={showCourseCompletionModal}
+        onCancel={() => setShowCourseCompletionModal(false)}
+        centered
+        footer={[
+          <Button
+            key="close"
+            type="primary"
+            onClick={() => {
+              setShowCourseCompletionModal(false);
+              if (typeof onRefreshLessonData === "function") {
+                onRefreshLessonData({ initialLoad: true });
+              }
+            }}
+          >
+            Back to My Courses
+          </Button>,
+        ]}
+        className="custom-modal"
+        width={640}
+        styles={{
+          body: {
+            background: "linear-gradient(to right, #dbeafe, #f0fdf4)",
+            color: "#0f172a",
+            padding: "2rem",
+            borderRadius: "1rem",
+            textAlign: "center",
+            boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
+          },
+        }}
+      >
+        <div className="text-center">
+          <div className="text-6xl mb-4 animate-bounce">🎓</div>
+          <h2 className="text-2xl font-bold mb-2 text-green-700">
+            Congratulations!
+          </h2>
+          <p className="text-lg text-gray-800 mb-4">
+            You've successfully completed the entire course.
+          </p>
+          <p className="text-sm text-gray-600 italic">
+            We're proud of your progress. Keep learning and growing! 🚀
+          </p>
+        </div>
+      </Modal>
     </div>
   );
 };

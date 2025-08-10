@@ -1,7 +1,16 @@
 import axiosInstance from "../config/axiosInstance";
 import commonApi from "./api";
 
-export const getAIFeedback = async ({ language, code, input, expected, actual }) => {
+export const getAIFeedback = async ({
+  language,
+  code,
+  input,
+  expected,
+  actual,
+  exerciseTitle,
+  exerciseTasks,
+  exerciseDescription,
+}) => {
   try {
     const response = await axiosInstance.post(commonApi.aiFeedback.url, {
       language,
@@ -9,7 +18,11 @@ export const getAIFeedback = async ({ language, code, input, expected, actual })
       input,
       expected,
       actual,
+      exerciseTitle,
+      exerciseTasks,
+      exerciseDescription,
     });
+
     return response.data.suggestion || "No suggestion received.";
   } catch (err) {
     console.error("AI Feedback Error:", err);

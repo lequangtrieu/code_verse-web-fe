@@ -30,6 +30,8 @@ const CodeEditor = ({
     []
   );
 
+  const [showCourseCompletionModal, setShowCourseCompletionModal] =
+    useState(false);
   const [showAIModal, setShowAIModal] = useState(false);
   const [aiSuggestion, setAISuggestion] = useState("");
   const languageList = ["javascript", "python", "java", "c", "cpp"];
@@ -46,6 +48,16 @@ const CodeEditor = ({
   const [lastPassedCode, setLastPassedCode] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const canShowSubmitButton = useMemo(() => {
+    const currentCode = editorRef.current?.getValue() || "";
+    return (
+      testResults.length > 0 &&
+      testResults.every((r) => r.description === "Pass") &&
+      lastPassedCode &&
+      lastPassedCode === currentCode
+    );
+  }, [testResults, lastPassedCode]);
 
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -99,6 +111,7 @@ const CodeEditor = ({
           description: "Error",
         });
       }
+
       if (i !== testCases.length - 1) await delay(1);
     }
 
@@ -111,32 +124,67 @@ const CodeEditor = ({
     );
 
     if (hasError) {
-      notification.error({
-        message: "Some test cases failed",
-        description: "Please check the result details.",
-        placement: "topLeft",
-      });
-
-      const firstFailed = results.find(
-        (r) => r.description === "Fail" || r.description === "Error"
+      setLastPassedCode(null);
+      const firstError = results.find(
+        (r) => r.description === "Error" || r.description === "Fail"
       );
-      if (firstFailed) {
+
+      if (firstError) {
         const suggestion = await getAIFeedback({
           language,
           code: userCode,
-          input: formatInputForAI(firstFailed.input),
-          expected: firstFailed.expected,
-          actual: firstFailed.actual,
+          input: formatInputForAI(firstError.input),
+          expected: firstError.expected,
+          actual: firstError.actual,
           exerciseTitle: exercise?.title,
           exerciseTasks: exercise?.tasks?.map((t) => `• ${t}`).join("\n"),
+          exerciseDescription: exercise?.instruction || "",
         });
+
         setAISuggestion(suggestion);
+
+        notification.info({
+          message: "💡 AI Feedback on Failed Test Case",
+          description: "See AI's explanation for why your code failed.",
+          placement: "topLeft",
+          duration: 5,
+        });
       }
+
+      return;
+    }
+
+    const aiInput = results[0];
+
+    const suggestion = await getAIFeedback({
+      language,
+      code: userCode,
+      input: formatInputForAI(aiInput.input),
+      expected: aiInput.expected,
+      actual: aiInput.actual,
+      exerciseTitle: exercise?.title,
+      exerciseTasks: exercise?.tasks?.map((t) => `• ${t}`).join("\n"),
+      exerciseDescription: exercise?.instruction || "",
+    });
+
+    setAISuggestion(suggestion);
+
+    const resultTag = suggestion.match(/\[RESULT\]:\s*(PASS|FAIL)/i);
+    const isHardcoded = resultTag?.[1]?.toUpperCase() === "FAIL";
+
+    if (isHardcoded) {
+      setLastPassedCode(null);
+      notification.warning({
+        message: "⚠️ AI detected hardcoded or invalid logic",
+        description:
+          "Your code passes the test cases, but appears to be hardcoded or not generalized. Please revise it before submitting.",
+        placement: "topLeft",
+      });
     } else {
       setLastPassedCode(userCode);
       notification.success({
-        message: "All test cases passed!",
-        description: "Great job, everything works perfectly!",
+        message: "All test cases passed and AI approved!",
+        description: "Great job, your code is valid and algorithmic!",
         placement: "topLeft",
       });
     }
@@ -147,8 +195,9 @@ const CodeEditor = ({
 
     if (currentCode !== lastPassedCode) {
       return notification.warning({
-        message: "Code has changed since last successful test",
-        description: "Please re-run the tests before submitting.",
+        message: "Cannot Submit",
+        description:
+          "Code has changed or failed AI verification. Please rerun tests.",
         placement: "topLeft",
       });
     }
@@ -164,19 +213,25 @@ const CodeEditor = ({
       }
 
       const userCode = editorRef.current.getValue();
-      await axiosInstance.post(commonApi.submitCode.url(), {
+      const response = await axiosInstance.post(commonApi.submitCode.url(), {
         lessonId,
         userId,
         code: userCode,
       });
 
-      party.confetti(document.body, {
-        count: 100,
-        spread: 70,
-        speed: 300,
-      });
+      const statusDone = response?.data?.message;
 
-      setShowSuccessModal(true);
+      if (statusDone === "completed") {
+        setShowCourseCompletionModal(true);
+      } else {
+        party.confetti(document.body, {
+          count: 100,
+          spread: 70,
+          speed: 300,
+        });
+
+        setShowSuccessModal(true);
+      }
     }
   };
 
@@ -197,10 +252,6 @@ const CodeEditor = ({
       setCode(defaultCodeMap[selectedLanguage] || "");
     }
   }, [selectedLanguage, fixedLanguage, defaultCodeMap]);
-
-  const isSubmitDisabled =
-    testResults.some((r) => r.description !== "Pass") ||
-    testResults.length === 0;
 
   return (
     <div
@@ -251,17 +302,7 @@ const CodeEditor = ({
           >
             Run Test
           </Button>
-          {isSubmitDisabled ? (
-            <Tooltip title="Please pass all test cases before submitting">
-              <Button
-                type="primary"
-                disabled
-                className="bg-green-500 text-white opacity-60 border-none pointer-events-none"
-              >
-                Submit
-              </Button>
-            </Tooltip>
-          ) : (
+          {canShowSubmitButton && (
             <Button
               onClick={handleSubmit}
               type="primary"
@@ -379,15 +420,17 @@ const CodeEditor = ({
         className="custom-modal"
         getContainer={false}
         width={800}
-        bodyStyle={{
-          maxHeight: "70vh",
-          overflowY: "auto",
-          backgroundColor: "#1e1f33",
-          color: "#e5e5e5",
-          fontFamily: "monospace",
-          whiteSpace: "pre-wrap",
-          padding: "1.5rem",
-          borderRadius: "0.5rem",
+        styles={{
+          body: {
+            maxHeight: "70vh",
+            overflowY: "auto",
+            backgroundColor: "#1e1f33",
+            color: "#e5e5e5",
+            fontFamily: "monospace",
+            whiteSpace: "pre-wrap",
+            padding: "1.5rem",
+            borderRadius: "0.5rem",
+          },
         }}
       >
         <div className="space-y-4">
@@ -435,12 +478,14 @@ const CodeEditor = ({
         }}
         className="custom-modal"
         width={600}
-        bodyStyle={{
-          backgroundColor: "#f0fdf4",
-          color: "#065f46",
-          padding: "2rem",
-          borderRadius: "0.75rem",
-          textAlign: "center",
+        styles={{
+          body: {
+            backgroundColor: "#f0fdf4",
+            color: "#065f46",
+            padding: "2rem",
+            borderRadius: "0.75rem",
+            textAlign: "center",
+          },
         }}
       >
         <div className="text-center">
@@ -450,6 +495,51 @@ const CodeEditor = ({
           </p>
           <p className="text-gray-700">
             Ready for the next challenge? Let’s keep going! 💪
+          </p>
+        </div>
+      </Modal>
+      <Modal
+        title={null}
+        open={showCourseCompletionModal}
+        onCancel={() => setShowCourseCompletionModal(false)}
+        centered
+        footer={[
+          <Button
+            key="close"
+            type="primary"
+            onClick={() => {
+              setShowCourseCompletionModal(false);
+              if (typeof onRefreshLessonData === "function") {
+                onRefreshLessonData({ initialLoad: true });
+              }
+            }}
+          >
+            Back to My Courses
+          </Button>,
+        ]}
+        className="custom-modal"
+        width={640}
+        styles={{
+          body: {
+            background: "linear-gradient(to right, #dbeafe, #f0fdf4)",
+            color: "#0f172a",
+            padding: "2rem",
+            borderRadius: "1rem",
+            textAlign: "center",
+            boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
+          },
+        }}
+      >
+        <div className="text-center">
+          <div className="text-6xl mb-4 animate-bounce">🎓</div>
+          <h2 className="text-2xl font-bold mb-2 text-green-700">
+            Congratulations!
+          </h2>
+          <p className="text-lg text-gray-800 mb-4">
+            You've successfully completed the entire course.
+          </p>
+          <p className="text-sm text-gray-600 italic">
+            We're proud of your progress. Keep learning and growing! 🚀
           </p>
         </div>
       </Modal>

@@ -79,10 +79,26 @@ const commonApi = {
     updateQr: {
         url: `${backendDomain}/api/users/updateQrCode`,
     },
+    checkEnrollment: {
+        url: (courseId) => `${backendDomain}/api/enrollment/is-enrolled?courseId=${courseId}`,
+    },
+    certificate: {
+    getCompletedCourses: {
+      url: (userId) =>
+        `${backendDomain}/api/enrollment/completed?userId=${userId}`,
+    },
+    getCertificate: {
+      url: (userId, courseId) =>
+        `${backendDomain}/api/enrollment/certificate?userId=${userId}&courseId=${courseId}`,
+    },
+    },
 
     /** Course api */
     course: {
         url: `${backendDomain}/course`,
+    },
+    getPublishedTrainings: {
+        url: `${backendDomain}/course/training/published`
     },
     getCourseDetails: {
         url: (courseId, userId) => `${backendDomain}/course/${userId}/${courseId}/lesson`,
@@ -90,6 +106,14 @@ const commonApi = {
     submitCode: {
         url: () => `${backendDomain}/course/submitCode`,
     },
+
+    courseRating: {
+    submit: `${backendDomain}/api/ratings/submit`,
+    getByCourse: (courseId) => `${backendDomain}/api/ratings/course/${courseId}`,
+    getByUser: (courseId, userId) => `${backendDomain}/api/ratings/course/${courseId}/user/${userId}`,
+    update: (ratingId) => `${backendDomain}/api/ratings/${ratingId}`
+    },
+
     /** Category api */
     category: {
         url: `${backendDomain}/category`,
@@ -161,11 +185,17 @@ const commonApi = {
     instructorCourses: {
         url: `${backendDomain}/course/instructor`
     },
+    instructorTrainings: {
+        url: `${backendDomain}/course/training/instructor`
+    },
     getExerciseByLessonId: {
         url: (lessonId) => `${backendDomain}/exercise/lesson/${lessonId}`
     },
     createCourse: {
         url: `${backendDomain}/course`
+    },
+    createTraining: {
+        url: `${backendDomain}/course/training`
     },
     getModules: {
         url: (courseId) => `${backendDomain}/module/course/${courseId}`
@@ -215,6 +245,9 @@ const commonApi = {
     getMonthlyStats: {
         url: `${backendDomain}/course/monthly-stats/instructor`
     },
+    getCourseRatingStats: {
+        url: `${backendDomain}/api/ratings/statistics`
+    },
     getCoursesByUser: (userId) => `${backendDomain}/course/user/${userId}`,
     getInProgressCourses: (userId) => `${backendDomain}/course/user/${userId}/in-progress`,
     getCompletedCourses: (userId) => `${backendDomain}/course/user/${userId}/completed`,
@@ -222,8 +255,14 @@ const commonApi = {
     instructorGetCourse: {
         url: (id) => `${backendDomain}/course/${id}/for-instructor`
     },
+    instructorGetTraining: {
+        url: (id) => `${backendDomain}/course/training/${id}/for-instructor`
+    },
     updateCourse: {
         url: (id) => `${backendDomain}/course/${id}`
+    },
+    updateTraining: {
+        url: (id) => `${backendDomain}/course/training/${id}`
     },
     getAllUsers: {
         url: `${backendDomain}/api/users`

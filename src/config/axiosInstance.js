@@ -7,7 +7,7 @@ import getAuthInfo from "./getAuthInfo";
 import setAuthInfo from "./setAuthInfo";
 
 const axiosInstance = axios.create({
-  baseURL: commonApi.default,
+  baseURL: commonApi.default.url,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",

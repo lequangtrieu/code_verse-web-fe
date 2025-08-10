@@ -13,15 +13,14 @@ import AdminUserReportsPage from "../../components/Admin/AdminViolationManagemen
 import AdminAccountsPage from "../../components/Admin/AdminAccount/AdminAccountsPage";
 import UserPanel from "../../components/User/layout/UserPanel";
 import LessonLayout from "../../components/User/layout/LessonLayout";
-import UserDashboardPage from "../../components/User/UserDashBoard/UserDashboardPage"
+import UserDashboardPage from "../../components/User/UserDashBoard/UserDashboardPage";
 import UserProfilePage from "../../components/User/UserProfile/UserProfilePage";
 import UserMessagePage from "../../components/User/UserMessage/UserMessagePage";
 import UserReviewPage from "../../components/User/UserReview/UserReviewPage";
 import UserQuizPage from "../../components/User/UserQuiz/UserQuizPage";
-import UserCoursesPage from "../../components/User/Courses/UserCoursesPage";
 import UserWishlistPage from "../../components/User/UserWishlist/UserWishlistPage";
 import UserAssignmentPage from "../../components/User/UserAssignment/UserAssignmentPage";
-import UserHome from "../../components/User/layout/UserHome"
+import UserHome from "../../components/User/layout/UserHome";
 import CartPage from "../../components/User/Cart/CartPage";
 import CheckoutPage from "../../components/User/Cart/CheckoutPage";
 import HandlePaymentFailure from "../../components/User/Cart/HandlePaymentFailure";
@@ -33,6 +32,8 @@ import InstructorDashboardPage from "../../components/Instructor/InstructorDashb
 import InstructorCoursesPage from "../../components/Instructor/InstructorCourses/InstructorCoursePage";
 import InstructorCourseDetailView from "../../components/Instructor/InstructorCourses/InstructorCourseDetail";
 import InstructorNotificationPage from "../../components/Instructor/InstructorNotifications/InstructorNotificationPage";
+import InstructorTrainingsPage from "../../components/Instructor/InstructorTraining/InstructorTrainingPage";
+import TrainingCreation from "../../components/Instructor/InstructorTraining/TrainingCreation";
 import RegisterPage from "../../components/Auth/RegisterPage";
 import LearnerDetailPage from "../../components/Admin/AdminAccount/LearnerDetailPage";
 import InstructorDetailPage from "../../components/Admin/AdminAccount/InstructorDetailPage";
@@ -41,12 +42,21 @@ import AdminNotificationPage from "../../components/Admin/AdminNotification/Admi
 import { ManageBalanceDashboard } from "../../components/Instructor/ManageBalance/ManageBalanceDashboard";
 import { WithdrawalRequestList } from "../../components/Admin/WithdrawalRequests/WithdrawalRequestList";
 import RankingPage from "../../components/layout/RankingPage";
-import AdminCourseDetailPage from "../../components/Admin/AdminCourses/AdminCourseDetailPage"
+import UserAccomplishmentsPage from "../../components/User/Courses/UserAccomplishmentsPage";
+import CertificateDetailPage from "../../components/User/Certificate/CertificateDetailPage";
+import CertificatePage from "../../components/User/Certificate/CertificatePage";
+import Trainings from "../../components/User/training/trainings";
+import AdminCourseDetailPage from "../../components/Admin/AdminCourses/AdminCourseDetailPage";
+
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
+      {
+        path: "certificate/:courseId",
+        element: <CertificatePage />,
+      },
       {
         path: "",
         element: <HomeRedirect />,
@@ -72,8 +82,8 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "challenges",
-        element: <Home />,
+        path: "trainings",
+        element: <Trainings />,
       },
       {
         path: "ranking",
@@ -95,11 +105,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/payment-success",
-        element: <HandlePaymentSuccess />
+        element: <HandlePaymentSuccess />,
       },
       {
         path: "/payment-failed",
-        element: <HandlePaymentFailure />
+        element: <HandlePaymentFailure />,
       },
       {
         path: "checkout",
@@ -126,8 +136,8 @@ const router = createBrowserRouter([
             element: <UserMessagePage />,
           },
           {
-            path: "courses",
-            element: <UserCoursesPage />,
+            path: "accomplishments",
+            element: <UserAccomplishmentsPage />,
           },
           {
             path: "reviews",
@@ -149,6 +159,10 @@ const router = createBrowserRouter([
             path: "",
             element: <Navigate to="dashboard" />,
           },
+          {
+            path: "certificate/:courseId",
+            element: <CertificateDetailPage />,
+          },
         ],
       },
       {
@@ -161,7 +175,7 @@ const router = createBrowserRouter([
           },
           {
             path: "dashboard",
-            element: <InstructorDashboardPage />
+            element: <InstructorDashboardPage />,
           },
           {
             path: "courses",
@@ -169,25 +183,41 @@ const router = createBrowserRouter([
           },
           {
             path: "courses/create",
-            element: <CourseForm />
+            element: <CourseForm />,
+          },
+          {
+            path: "trainings",
+            element: <InstructorTrainingsPage />,
+          },
+          {
+            path: "trainings/create",
+            element: <TrainingCreation />,
+          },
+          {
+            path: "trainings/:id",
+            element: <TrainingCreation />,
           },
           {
             path: "courses/:id",
-            element: <InstructorCourseDetailView />
+            element: <InstructorCourseDetailView />,
           },
           {
             path: "notifications",
-            element: <InstructorNotificationPage />
+            element: <InstructorNotificationPage />,
           },
           {
             path: "manageBalance",
-            element: <ManageBalanceDashboard />
+            element: <ManageBalanceDashboard />,
           },
           {
             path: "profile",
-            element: <UserProfilePage />
-          }
-        ]
+            element: <UserProfilePage />,
+          },
+          {
+            path: "settings",
+            element: <UserChangePassword />,
+          },
+        ],
       },
 
       // ADMIN
@@ -209,11 +239,11 @@ const router = createBrowserRouter([
           },
           {
             path: "learner/:id",
-            element: <LearnerDetailPage />
+            element: <LearnerDetailPage />,
           },
           {
             path: "instructor/:id",
-            element: <InstructorDetailPage />
+            element: <InstructorDetailPage />,
           },
           {
             path: "approveInstructor",
@@ -241,7 +271,7 @@ const router = createBrowserRouter([
           },
           {
             path: "sendNotifications",
-            element: <AdminNotificationPage />
+            element: <AdminNotificationPage />,
           },
           {
             path: "",
@@ -249,8 +279,8 @@ const router = createBrowserRouter([
           },
           {
             path: "withdrawalRequests",
-            element: <WithdrawalRequestList />
-          }
+            element: <WithdrawalRequestList />,
+          },
         ],
       },
     ],

@@ -1,9 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+const userFromStorage = localStorage.getItem("user");
+const token = localStorage.getItem("token");
+const refreshToken = localStorage.getItem("refreshToken");
+
 const initialState = {
-  user: null,
-  token: null,
-  refreshToken: null,
+  user: userFromStorage ? JSON.parse(userFromStorage) : null,
+  token: token || null,
+  refreshToken: refreshToken || null,
 };
 
 export const userSlice = createSlice({
@@ -13,6 +17,10 @@ export const userSlice = createSlice({
     setUserDetails: (state, action) => {
       const { user, token, refreshToken } = action.payload || {};
       if (user) {
+        localStorage.setItem("user", JSON.stringify(user));
+        if (token) localStorage.setItem("token", token);
+        if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
+
         state.user = user;
         state.token = token || null;
         state.refreshToken = refreshToken || null;
@@ -32,7 +40,7 @@ export const userSlice = createSlice({
       if (state.user) {
         state.user.avatar = action.payload;
       }
-    }
+    },
   },
 });
 

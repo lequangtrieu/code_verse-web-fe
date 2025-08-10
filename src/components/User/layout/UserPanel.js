@@ -20,6 +20,7 @@ import {
 import ROLE from "../../../common/role";
 import { logoutUser } from "../../../config/store/userSlice";
 import { useLocation } from "react-router-dom";
+import LoadingOverlay from "../../../common/LoadingOverlay";
 
 const { Sider, Content } = Layout;
 
@@ -30,6 +31,7 @@ const UserPanel = () => {
   const user = useSelector((state) => state?.user?.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [initialLoading, setInitialLoading] = useState(true);
 
   const [collapsed, setCollapsed] = useState(false);
 
@@ -38,6 +40,9 @@ const UserPanel = () => {
       message.error("You do not have permission to access the student panel.");
       navigate("/");
     }
+    setTimeout(() => {
+      setInitialLoading(false);
+    }, 350);
   }, [user]);
 
   const handleLogout = () => {
@@ -56,6 +61,7 @@ const UserPanel = () => {
 
   return (
     <Layout className="min-h-screen">
+      {initialLoading && <LoadingOverlay />}
       <Sider
         width={265}
         collapsible
@@ -82,8 +88,8 @@ const UserPanel = () => {
           <Menu.Item key="messages" icon={<MessageOutlined />}>
             Messages <Badge count={12} offset={[10, 0]} />
           </Menu.Item>
-          <Menu.Item key="courses" icon={<BookOutlined />}>
-            Enrolled Courses
+          <Menu.Item key="accomplishments" icon={<BookOutlined />}>
+            Accomplishments
           </Menu.Item>
           <Menu.Item key="wishlist" icon={<BarsOutlined />}>
             Wishlist

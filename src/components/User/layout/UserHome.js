@@ -1,7 +1,16 @@
-import { Carousel, Avatar, Tabs, Button, Popover, notification, Progress } from "antd";
+import {
+  Carousel,
+  Avatar,
+  Tabs,
+  Button,
+  Popover,
+  notification,
+  Progress,
+  message
+} from "antd";
 import ReusableProgress from "../layout/ReusableProgress";
 import React, { useContext, useEffect, useState } from "react";
-import { Card, Pagination, Rate, Tag } from "antd";
+import { Card, Pagination, Rate, Tag, Tooltip } from "antd";
 import { useNavigate } from "react-router-dom";
 import scrollTop from "../../../config/scrollTop";
 import LoadingOverlay from "../../../common/LoadingOverlay";
@@ -14,6 +23,21 @@ import Context from "../../../config/context/context";
 import axiosInstance from "../../../config/axiosInstance";
 import { logoutUser } from "../../../config/store/userSlice";
 import useAddToCart from "../../../hooks/useAddToCart";
+
+const BADGES = {
+  NEW_LEARNER: { 
+    title: "E-Learning Newbie",
+    content: "Register an account successfully.",
+    url: "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/badges%2Ficon_badge-02.png?alt=media&token=7d529d01-fa11-4b6c-9218-a99fb928daa8" },
+  FIRST_COURSE: { 
+    title: "First Course",
+    content: "Enroll your first course.",
+    url: "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/badges%2Ficon_badge-04.png?alt=media&token=bfb25ca3-a85e-4c2c-b07a-c78430bf24d9" },
+  TEN_CODE: { 
+    title: "Homework Master",
+    content: "Submit your first 10 coding assignments.",
+    url: "https://firebasestorage.googleapis.com/v0/b/codeverse-7830f.firebasestorage.app/o/badges%2Ficon_badge-12.png?alt=media&token=99171cd5-db86-4762-8e5b-7d5f37fd2626" }
+};
 
 const SKILL_META = {
   C: { iconSrc: "/icons/c.png", name: "C" },
@@ -49,22 +73,6 @@ const activityData = [
   { date: "2025-05-08", level: 1 },
 ];
 
-const userInfo = {
-  email: "tientnmde170657@fpt.edu.vn",
-  avatar: "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg",
-  courseProgress: "562/801",
-  certificates: "2",
-  achievements: [
-    "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
-    "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
-    "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
-    "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
-    "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
-    "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
-    "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
-    "https://i.pinimg.com/736x/7a/3d/11/7a3d11956b3814d4f90df0ea28ebf07d.jpg",
-  ],
-};
 const banners = [
   { id: 1, image: "banner1.png", link: "/home" },
   { id: 2, image: "banner2.png", link: "/home" },
@@ -83,12 +91,37 @@ const UserHome = () => {
   const [allCourses, setAllCourses] = useState({}); // Store data for all tabs here
   const [initialLoading, setInitialLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState("learning");
+  const [userInfo, setUserInfo] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const user = useSelector((state) => state?.user?.user);
   const { fetchCartDetail, fetchCartItems } = useContext(Context);
   const userId = user?.id;
+
+  const fetchUserboard = async () => {
+    try {
+      const res = await axiosInstance.get(commonApi.viewProfile.url);
+      const data = res.data.result;
+      console.log(data);
+      const achievements = data.badges
+        // .map((badge) => BADGES[badge]?.url)
+        .filter(Boolean);
+        setUserInfo({
+          email: user?.username,
+          avatar: data.avatar,
+          courseProgress: "562/801",
+          certificates: "2",
+          achievements
+        })
+    } catch (error){
+      message.error("Fetch data error;");
+    } finally {
+      setTimeout(() => {
+        setLoading(false);
+      }, 400);
+    }
+  };
 
   // Fetch data for all tabs at once
   const fetchCourses = async () => {
@@ -121,6 +154,7 @@ const UserHome = () => {
   };
 
   useEffect(() => {
+    fetchUserboard();
     fetchCourses(); // Fetch all data on initial load
   }, [userId]);
 
@@ -197,7 +231,6 @@ const UserHome = () => {
     fetchCartItems,
   });
 
-
   const handleAddToCartFree = async (course) => {
     if (!user) {
       return notification.warning({
@@ -234,7 +267,6 @@ const UserHome = () => {
       });
 
       setFilteredCourses(data[0]);
-
     } catch (error) {
       notification.error({
         message: "Enrollment Failed",
@@ -299,6 +331,43 @@ const UserHome = () => {
             onClick={() => handleStartLearning(course.id)}
           >
             Start Learning Now
+          </Button>
+        </div>
+      );
+    }
+
+    if (selectedTab === "completed") {
+      return (
+        <div className="w-80 p-6 bg-gradient-to-br from-white via-indigo-50 to-white rounded-2xl border border-indigo-100 shadow-xl flex flex-col items-center text-center">
+          {/* Logo hình tròn không có nền ngoài */}
+          <img
+            src="../../logoCodeVerse.png"
+            alt="CodeVerse Logo"
+            className="w-20 h-20 object-contain rounded-full border-2 border-indigo-300 shadow-md mb-4"
+          />
+
+          {/* Tiêu đề nổi bật */}
+          <h3 className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 to-purple-600 mb-2">
+            You did it! 🎓
+          </h3>
+
+          {/* Mô tả truyền cảm hứng */}
+          <p className="text-sm text-gray-700 mb-4 px-2 leading-relaxed">
+            This course is completed. Celebrate your progress and check your
+            certificate now.
+          </p>
+
+          {/* Nút CTA */}
+          <Button
+            type="primary"
+            size="middle"
+            className="w-full rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold transition duration-200"
+            onClick={() => {
+              scrollTop();
+              navigate(`/user-panel/accomplishments`);
+            }}
+          >
+            View Your Accomplishments
           </Button>
         </div>
       );
@@ -386,7 +455,7 @@ const UserHome = () => {
           {/* Meeting */}
           <div className="mb-4 text-lg">
             <span>Hello </span>
-            <span className="text-red-500">{userInfo.email}</span>
+            <span className="text-red-500">{userInfo?.email}</span>
             <span>
               . Welcome you to CodeVerse. Let's start to explore more!
             </span>
@@ -401,11 +470,11 @@ const UserHome = () => {
                 <div>
                   <Avatar
                     size={80}
-                    src={userInfo.avatar || "https://via.placeholder.com/80"}
+                    src={userInfo?.avatar || "https://via.placeholder.com/80"}
                     className="border-2 border-yellow-400"
                   />
                 </div>
-                <div className="text-xl truncate">{userInfo.email}</div>
+                <div className="text-xl truncate">{userInfo?.email}</div>
               </div>
 
               {/* Progress bar */}
@@ -429,7 +498,7 @@ const UserHome = () => {
                       4/39
                     </div>
                     <div className="text-sm mt-1">
-                      {userInfo.certificates} certificates
+                      {userInfo?.certificates} certificates
                     </div>
                   </div>
 
@@ -480,14 +549,29 @@ const UserHome = () => {
                   <div className="text-lg font-semibold">Your badges</div>
                 </div>
                 <div className="flex items-center mt-4 gap-4 overflow-x-auto">
-                  {userInfo.achievements.map((badge, index) => (
+                  {userInfo?.achievements.map((badgeKey, index) => {
+                    const badge = BADGES[badgeKey];
+                    if (!badge) return null;
+
+                    return (
+                      <Tooltip
+                        key={index}
+                        title={
+                          <div>
+                            <strong>{badge.title}</strong>
+                            <br />
+                            <span>{badge.content}</span>
+                          </div>
+                        }
+                      >
                     <img
                       key={index}
-                      src={badge}
+                      src={badge.url}
                       alt="badge"
-                      className="w-12 h-12 object-cover rounded-full"
+                      className="w-[90px] h-[90px] object-cover rounded-full"
                     />
-                  ))}
+                    </Tooltip>
+                  )})}
                 </div>
               </div>
             </div>
@@ -614,9 +698,9 @@ const UserHome = () => {
                                     {course.category}
                                   </Tag>
 
-                                    <h3 className="text-[16px] font-semibold mb-2 line-clamp-2 hover:text-indigo-600 transition-colors duration-300 min-h-[48px]">
-                                        {course.title}
-                                    </h3>
+                                  <h3 className="text-[16px] font-semibold mb-2 line-clamp-2 hover:text-indigo-600 transition-colors duration-300 min-h-[48px]">
+                                    {course.title}
+                                  </h3>
 
                                   <div className="flex items-center text-sm text-gray-600 mb-2">
                                     <span>{course.totalLessons} Lessons</span>
@@ -688,29 +772,38 @@ const UserHome = () => {
                                     </span>
                                   </div>
                                   {/* ProgressBar cho tab In Progress */}
-                                    {selectedTab === "learning" && course.completionPercentage !== undefined && (
-                                        <div className="mt-2">
-                                            <div className="flex justify-between text-xs text-gray-600 mb-1 px-1">
-                                                <span>Progress</span>
-                                                <span>{Math.round(course.completionPercentage)}%</span>
-                                            </div>
-                                            <Progress
-                                                percent={Math.round(course.completionPercentage)}
-                                                size="small"
-                                                strokeColor={
-                                                    course.completionPercentage >= 80
-                                                        ? "#52c41a" // xanh lá
-                                                        : course.completionPercentage >= 50
-                                                            ? "#faad14" // cam
-                                                            : "#1890ff" // xanh dương
-                                                }
-                                                trailColor="#f0f0f0"
-                                                showInfo={false}
-                                                className="rounded-sm"
-                                            />
+                                  {selectedTab === "learning" &&
+                                    course.completionPercentage !==
+                                      undefined && (
+                                      <div className="mt-2">
+                                        <div className="flex justify-between text-xs text-gray-600 mb-1 px-1">
+                                          <span>Progress</span>
+                                          <span>
+                                            {Math.round(
+                                              course.completionPercentage
+                                            )}
+                                            %
+                                          </span>
                                         </div>
+                                        <Progress
+                                          percent={Math.round(
+                                            course.completionPercentage
+                                          )}
+                                          size="small"
+                                          strokeColor={
+                                            course.completionPercentage >= 80
+                                              ? "#52c41a" // xanh lá
+                                              : course.completionPercentage >=
+                                                50
+                                              ? "#faad14" // cam
+                                              : "#1890ff" // xanh dương
+                                          }
+                                          trailColor="#f0f0f0"
+                                          showInfo={false}
+                                          className="rounded-sm"
+                                        />
+                                      </div>
                                     )}
-
                                 </div>
                               </Card>
                             </Popover>
