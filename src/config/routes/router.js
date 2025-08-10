@@ -46,6 +46,7 @@ import UserAccomplishmentsPage from "../../components/User/Courses/UserAccomplis
 import CertificateDetailPage from "../../components/User/Certificate/CertificateDetailPage";
 import CertificatePage from "../../components/User/Certificate/CertificatePage";
 import Trainings from "../../components/User/training/trainings";
+import AdminCourseDetailPage from "../../components/Admin/AdminCourses/AdminCourseDetailPage";
 
 const router = createBrowserRouter([
   {
@@ -251,6 +252,10 @@ const router = createBrowserRouter([
           {
             path: "courses",
             element: <AdminCoursesPage />,
+          },
+          {
+            path: "courses/:id",
+            element: <AdminCourseDetailPage />
           },
           {
             path: "reviews",

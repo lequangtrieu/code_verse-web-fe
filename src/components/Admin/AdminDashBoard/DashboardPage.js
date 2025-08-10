@@ -65,6 +65,9 @@ const DashboardPage = () => {
         data: data.map((d) => d.total),
       },
     ],
+    credits: {
+      enabled: false
+    }
   });
 
   const fetchUserRoleStats = async () => {
@@ -106,7 +109,10 @@ const DashboardPage = () => {
           y: d.count
         }))
       }
-    ]
+    ],
+    credits: {
+      enabled: false
+    }
   });
 
 
