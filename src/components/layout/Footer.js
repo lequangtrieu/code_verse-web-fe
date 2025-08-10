@@ -33,12 +33,12 @@ const Footer = () => {
         <div className="min-w-[195px]">
           <h4 className="font-semibold mb-2">Customer care</h4>
           <ul className="space-y-1 text-sm text-black">
-            <li><Link to="/payment">Payment instructions</Link></li>
-            <li><Link to="/terms">General transaction conditions</Link></li>
-            <li><Link to="/service">Service usage procedure</Link></li>
-            <li><Link to="/warranty">Warranty policy</Link></li>
-            <li><Link to="/returns">Return policy</Link></li>
-            <li><Link to="/privacy">Privacy policy</Link></li>
+            <li><Link to="/">Payment instructions</Link></li>
+            <li><Link to="/">General transaction conditions</Link></li>
+            <li><Link to="/">Service usage procedure</Link></li>
+            <li><Link to="/">Warranty policy</Link></li>
+            <li><Link to="/">Return policy</Link></li>
+            <li><Link to="/">Privacy policy</Link></li>
           </ul>
         </div>
 
@@ -46,11 +46,11 @@ const Footer = () => {
         <div className="min-w-[195px]">
           <h4 className="font-semibold mb-2">Feature</h4>
           <ul className="space-y-1 text-sm text-black">
-            <li><Link to="/learning">Learning</Link></li>
-            <li><Link to="/training">Training</Link></li>
-            <li><Link to="/fights">Fights</Link></li>
-            <li><Link to="/trainings">Trainings</Link></li>
-            <li><Link to="/leaders">Leaders</Link></li>
+            <li><Link to="/">Learning</Link></li>
+            <li><Link to="/">Training</Link></li>
+            <li><Link to="/">Fights</Link></li>
+            <li><Link to="/">Trainings</Link></li>
+            <li><Link to="/">Leaders</Link></li>
           </ul>
         </div>
 
@@ -58,9 +58,9 @@ const Footer = () => {
         <div className="min-w-[195px]">
           <h4 className="font-semibold mb-2">About Us</h4>
           <ul className="space-y-1 text-sm text-black">
-            <li><Link to="/introduce">Introduce</Link></li>
-            <li><Link to="/terms-of-use">Terms of Use</Link></li>
-            <li><Link to="/help">Help</Link></li>
+            <li><Link to="/">Introduce</Link></li>
+            <li><Link to="/">Terms of Use</Link></li>
+            <li><Link to="/">Help</Link></li>
           </ul>
         </div>
 
@@ -77,13 +77,13 @@ const Footer = () => {
             <li className="flex items-start gap-2">
               <FaPhoneAlt className="mt-1 " />
               <span>
-                <strong>1900.633.331</strong> or <strong>077.567.6116</strong><br />
+                <strong>0982009465</strong> or <strong>0976303651</strong><br />
                 (8:00 a.m. - 5:00 p.m. Mon - Fri)
               </span>
             </li>
             <li className="flex items-center gap-2">
               <FaEnvelope />
-              <a href="mailto:support@CodeVerse.io">support@CodeVerse.io</a>
+              <a href="mailto:codeverse.ad@gmail.com">codeverse.ad@gmail.com</a>
             </li>
           </ul>
         </div>

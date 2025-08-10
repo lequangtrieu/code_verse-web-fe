@@ -12,8 +12,10 @@ import { useCallback, useEffect, useState } from "react";
 import axiosInstance from "./config/axiosInstance";
 import getAuthInfo from "./config/getAuthInfo";
 import useNotificationSocket from "./config/notificationSocket";
+import useDocumentTitle from "./common/useDocumentTitle";
 
 function App() {
+  useDocumentTitle("CodeVerse");
   const dispatch = useDispatch();
   const [cartDetailCount, setCartDetailCount] = useState(0);
   const [cartItems, setCartItems] = useState([]);
