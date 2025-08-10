@@ -16,8 +16,10 @@ import {useSelector} from "react-redux";
 import Context from "../../../../config/context/context";
 import useAddToCart from "../../../../hooks/useAddToCart";
 import LoadingOverlay from "../../../../common/LoadingOverlay";
+import useDocumentTitle from "../../../../common/useDocumentTitle";
 
 const CourseDetail = () => {
+    useDocumentTitle("CourseDetail - CodeVerse");
     const {courseId} = useParams();
     const [initialLoading, setInitialLoading] = useState(true);
     const [loadingCourseDetail, setLoadingCourseDetail] = useState(false);

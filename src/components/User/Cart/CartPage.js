@@ -10,6 +10,7 @@ import scrollTop from "../../../config/scrollTop";
 import { useNavigate } from "react-router-dom";
 import { formatCurrency, getDiscountedPrice } from "../../../common/helper";
 import { logoutUser } from "../../../config/store/userSlice";
+import useDocumentTitle from "../../../common/useDocumentTitle";
 
 const CartPage = () => {
   const [initialLoading, setInitialLoading] = useState(true);
@@ -19,7 +20,7 @@ const CartPage = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state?.user?.user);
   const { fetchCartDetail, fetchCartItems } = useContext(Context);
-
+  useDocumentTitle("Cart - CodeVerse");
   const fetchCartInItems = async () => {
     if (!user?.username) return;
 

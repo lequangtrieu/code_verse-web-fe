@@ -15,6 +15,7 @@ import CourseCarousel from "./CourseCarousel";
 import CourseList from "./CourseList";
 import SidebarFilter from "./SidebarFilter";
 import {SearchOutlined} from "@ant-design/icons";
+import useDocumentTitle from "../../../common/useDocumentTitle";
 
 const {Search} = Input;
 const {Option} = Select;
@@ -43,6 +44,8 @@ const Courses = () => {
 
     const user = useSelector((state) => state?.user?.user);
     const {fetchCartDetail, fetchCartItems} = useContext(Context);
+
+    useDocumentTitle("Courses - CodeVerse");
 
     useEffect(() => {
         const fetchData = async () => {

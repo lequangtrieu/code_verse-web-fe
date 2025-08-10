@@ -8,8 +8,10 @@ import {
 } from "@ant-design/icons";
 import { Card } from "antd";
 import DashboardCard from "./DashboardCard";
+import useDocumentTitle from "../../../common/useDocumentTitle";
 
 const UserDashboardPage = () => {
+   useDocumentTitle("Profile - CodeVerse");
   return (
     <div className="w-full h-full pt-2">
       <Card className="w-full shadow-lg" title="Dashboard">

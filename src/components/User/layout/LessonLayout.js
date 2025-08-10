@@ -11,8 +11,10 @@ import LoadingOverlay from "../../../common/LoadingOverlay";
 import ResizableSplitLayout from "../../../common/ResizableSplitLayout";
 import { notification } from "antd";
 import { useNavigate } from "react-router-dom";
+import useDocumentTitle from "../../../common/useDocumentTitle";
 
 export default function LessonLayout() {
+   useDocumentTitle("Study - CodeVerse");
   const navigate = useNavigate();
   const { courseId } = useParams();
   const user = useSelector((state) => state?.user?.user);

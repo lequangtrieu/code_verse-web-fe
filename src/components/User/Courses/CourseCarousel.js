@@ -15,7 +15,7 @@ const carouselItems = [
             "Discover a world of programming knowledge with our comprehensive courses. Whether you're a beginner or an experienced developer, we have the perfect learning path for you.",
         image: "boy.png",
         buttonText: "Explore Courses",
-        buttonLink: "/courses",
+        buttonLink: "/course",
     },
     {
         title: "Learn from Industry Experts",
@@ -24,7 +24,7 @@ const carouselItems = [
             "Our courses are designed and taught by industry professionals. Get practical, real-world experience through our project-based learning approach.",
         image: "robot.png",
         buttonText: "View Instructors",
-        buttonLink: "/instructors",
+        buttonLink: "/course",
     },
     {
         title: "Join Our Community",
@@ -33,7 +33,7 @@ const carouselItems = [
             "Become part of our growing community of developers. Share knowledge, collaborate on projects, and grow together in your coding journey.",
         image: "robot.png",
         buttonText: "Join Community",
-        buttonLink: "/community",
+        buttonLink: "/course",
     },
 ];
 

@@ -16,10 +16,12 @@ import {
 } from "@ant-design/icons";
 import ROLE from "../../../common/role";
 import { logoutUser } from "../../../config/store/userSlice";
+import useDocumentTitle from "../../../common/useDocumentTitle";
 
 const { Sider, Content } = Layout;
 
 const AdminPanel = () => {
+  useDocumentTitle("PanelAdmin - CodeVerse");
   const user = useSelector((state) => state?.user?.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();

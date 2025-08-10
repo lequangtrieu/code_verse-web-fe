@@ -3,8 +3,10 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Home from "../../components/layout/Home";
 import ROLE from "../../common/role";
+import useDocumentTitle from "../../common/useDocumentTitle";
 
 const HomeRedirect = () => {
+    useDocumentTitle("CodeVerse");
     const user = useSelector((state) => state?.user?.user);
     const navigate = useNavigate();
 
