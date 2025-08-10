@@ -8,7 +8,6 @@ import {
   DashboardOutlined,
   UserOutlined,
   BookOutlined,
-  StarOutlined,
   SettingOutlined,
   LogoutOutlined,
   TeamOutlined,
@@ -82,9 +81,6 @@ const AdminPanel = () => {
           </Menu.Item>
           <Menu.Item key="courses" icon={<BookOutlined />}>
             Course Management
-          </Menu.Item>
-          <Menu.Item key="financial" icon={<StarOutlined />}>
-            Financial Management
           </Menu.Item>
           <Menu.Item key="violation" icon={<TeamOutlined />}>
             Violation Management

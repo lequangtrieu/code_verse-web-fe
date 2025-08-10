@@ -211,22 +211,6 @@ const AdminCoursesPage = () => {
                     )}
                   </td>
                   <td className="border p-2 space-x-2">
-                    {course.status === "PENDING" && (
-                      <>
-                        <button
-                          className="px-3 py-1 bg-green-500 text-white rounded"
-                          onClick={() => handleAccept(course.id)}
-                        >
-                          Accept
-                        </button>
-                        <button
-                          className="px-3 py-1 bg-red-500 text-white rounded"
-                          onClick={() => handleReject(course.id)}
-                        >
-                          Reject
-                        </button>
-                      </>
-                    )}
                     <button
                       className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded whitespace-nowrap min-w-[70px]"
                       onClick={() => handleViewDetail(course.id)}
