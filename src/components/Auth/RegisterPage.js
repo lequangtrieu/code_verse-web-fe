@@ -19,6 +19,7 @@ const RegisterPage = () => {
     const navigate = useNavigate();
 
     const coverFileList = Form.useWatch("teachingCredentials", form) || [];
+    const qrFileList = Form.useWatch("qrCodeUrl", form) || [];
 
     const handleUserTypeChange = (e) => {
         setUserType(e.target.value);
@@ -46,6 +47,12 @@ const RegisterPage = () => {
                     if (file) {
                         formData.append('teachingCredentials', file);
                     }
+                }
+
+                // qrCodeUrl
+                if (values.qrCodeUrl && values.qrCodeUrl.length > 0) {
+                    const qr = values.qrCodeUrl[0].originFileObj;
+                    if (qr) formData.append('qrCodeUrl', qr);
                 }
             }
 
@@ -96,15 +103,6 @@ const RegisterPage = () => {
     const validatePassword = (_, value) => {
         if (!value || value.length < 8) {
             return Promise.reject('Password must be at least 8 characters');
-        }
-        if (!/[A-Z]/.test(value)) {
-            return Promise.reject('Password must include at least one uppercase letter');
-        }
-        if (!/\d/.test(value)) {
-            return Promise.reject('Password must include at least one number');
-        }
-        if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
-            return Promise.reject('Password must include at least one special character');
         }
         return Promise.resolve();
     };
@@ -169,7 +167,13 @@ const RegisterPage = () => {
                         <Form.Item
                             name="phone"
                             label="Phone Number"
-                            rules={[{ required: true, message: 'Please input your phone number!' }]}
+                            rules={[
+                                { required: true, message: 'Please input your phone number!' },
+                                {
+                                    pattern: /^(?:\+84|0)[0-9]{9}$/,
+                                    message: 'Please enter a valid phone number!',
+                                },
+                            ]}
                         >
                             <Input prefix={<PhoneOutlined />} placeholder="Enter your phone number" className="rounded-lg" />
                         </Form.Item>
@@ -186,6 +190,21 @@ const RegisterPage = () => {
                                 maxCount={1}
                                 accept=".jpg,.jpeg,.png"
                                 value={coverFileList}
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            name="qrCodeUrl"
+                            label="QR Code"
+                            valuePropName="fileList"
+                            getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
+                            rules={[{ required: true, message: 'Please upload your QR code!' }]}
+                        >
+                            <UploadImage
+                                label="Upload Here"
+                                maxCount={1}
+                                accept=".jpg,.jpeg,.png"
+                                value={qrFileList}
                             />
                         </Form.Item>
 
