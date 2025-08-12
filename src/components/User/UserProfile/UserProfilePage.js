@@ -321,15 +321,6 @@ const UserProfilePage = () => {
               className="w-[65vw] h-auto max-h-[65vh] object-contain rounded shadow-md"
           />
         </div>
-        <div className="flex justify-center mt-4">
-          <Button
-              type="primary"
-              loading={isQrUpdating}
-              onClick={handleUpdateQrClick}
-          >
-            Update QR Code
-          </Button>
-        </div>
       </Modal>
     </div>
   );

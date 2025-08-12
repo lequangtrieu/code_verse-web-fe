@@ -254,6 +254,15 @@ const AdminApproveInstructorPage = () => {
                   />
                 ) : "N/A"}
               </p>
+              <p><b>QR Code:</b>
+                {instructorDetails.qrCodeUrl ? (
+                    <img
+                        src={instructorDetails.qrCodeUrl}
+                        alt="QR Code"
+                        style={{ maxWidth: "100%", height: "auto", marginTop: "10px" }}
+                    />
+                ) : "N/A"}
+              </p>
               <p><b>Educational Background:</b> {instructorDetails.educationalBackground || "N/A"}</p>
               <p><b>Account Created:</b> {new Date(instructorDetails.createdAt).toLocaleString()}</p>
               <p><b>Account Updated:</b> {new Date(instructorDetails.updatedAt).toLocaleString()}</p>
