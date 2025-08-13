@@ -305,9 +305,6 @@ const commonApi = {
     userReport: {
         url: `${backendDomain}/api/user-reports`,
     },
-    getReportReasons: {
-        url: `${backendDomain}/api/report-reasons`
-    },
     getAllReports: {
         url: `${backendDomain}/api/user-reports/list-report`
     },
@@ -380,6 +377,29 @@ const commonApi = {
                 `${backendDomain}/api/ranking/user-exp?period=${period}&limit=${limit}`,
         },
     },
+
+    /** admin report reason api */
+    adminReportReason: {
+        getAll: {
+            url: `${backendDomain}/api/report-reasons`
+        },
+        getActive: {
+            url: `${backendDomain}/api/report-reasons/active`
+        },
+        create: {
+            url: `${backendDomain}/api/report-reasons`
+        },
+        update: {
+            url: (id) => `${backendDomain}/api/report-reasons/${id}`
+        },
+        hide: {
+            url: (id) => `${backendDomain}/api/report-reasons/${id}/hide`
+        },
+        unhide: {
+            url: (id) => `${backendDomain}/api/report-reasons/${id}/unhide`
+        }
+    },
+
 }
 
 export default commonApi

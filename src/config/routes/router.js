@@ -48,6 +48,7 @@ import CertificatePage from "../../components/User/Certificate/CertificatePage";
 import Trainings from "../../components/User/training/trainings";
 import AdminCourseDetailPage from "../../components/Admin/AdminCourses/AdminCourseDetailPage";
 import InstructorRevenuePage from "../../components/Admin/AdminDashBoard/InstructorRevenuePage";
+import AdminReportReasonsPage from "../../components/Admin/AdminReportReasons/AdminReportReasonsPage";
 
 const router = createBrowserRouter([
   {
@@ -261,6 +262,10 @@ const router = createBrowserRouter([
           {
             path: "reviews",
             element: <AdminReviewPage />,
+          },
+          {
+            path: "reportReason",
+            element: <AdminReportReasonsPage />,
           },
           {
             path: "violation",

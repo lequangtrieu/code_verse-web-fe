@@ -18,7 +18,7 @@ const ReportCommentModal = ({ open, onClose, messageId, reportedUserId }) => {
     useEffect(() => {
         if (open) {
             axiosInstance
-                .get(commonApi.getReportReasons.url)
+                .get(commonApi.adminReportReason.getActive.url)
                 .then((res) => setReasons(res.data.result))
                 .catch(() => antdMsg.error("Failed to load report reasons"));
         }
