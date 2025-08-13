@@ -79,6 +79,9 @@ const AdminPanel = () => {
           <Menu.Item key="approveInstructor" icon={<UserOutlined />}>
             Approve Instructor Requests
           </Menu.Item>
+          <Menu.Item key="category" icon={<BookOutlined />}>
+            Category Management
+          </Menu.Item>
           <Menu.Item key="courses" icon={<BookOutlined />}>
             Course Management
           </Menu.Item>

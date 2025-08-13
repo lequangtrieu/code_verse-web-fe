@@ -400,6 +400,20 @@ const commonApi = {
         }
     },
 
+    adminCategory: {
+        getAll: {
+            url: `${backendDomain}/category`
+        },
+        create: {
+            url: `${backendDomain}/category`
+        },
+        update: {
+            url: (id) => `${backendDomain}/category/${id}`
+        },
+        delete: {
+            url: (id) => `${backendDomain}/category/${id}/delete`
+        }
+    }
 }
 
 export default commonApi

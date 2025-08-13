@@ -49,6 +49,7 @@ import Trainings from "../../components/User/training/trainings";
 import AdminCourseDetailPage from "../../components/Admin/AdminCourses/AdminCourseDetailPage";
 import InstructorRevenuePage from "../../components/Admin/AdminDashBoard/InstructorRevenuePage";
 import AdminReportReasonsPage from "../../components/Admin/AdminReportReasons/AdminReportReasonsPage";
+import AdminCategoryPage from "../../components/Admin/AdminCategory/AdminCategoryPage";
 
 const router = createBrowserRouter([
   {
@@ -250,6 +251,10 @@ const router = createBrowserRouter([
           {
             path: "approveInstructor",
             element: <AdminApproveInstructorPage />,
+          },
+          {
+            path: "category",
+            element: <AdminCategoryPage />,
           },
           {
             path: "courses",
