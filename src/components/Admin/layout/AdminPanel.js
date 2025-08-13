@@ -79,8 +79,14 @@ const AdminPanel = () => {
           <Menu.Item key="approveInstructor" icon={<UserOutlined />}>
             Approve Instructor Requests
           </Menu.Item>
+          <Menu.Item key="category" icon={<BookOutlined />}>
+            Category Management
+          </Menu.Item>
           <Menu.Item key="courses" icon={<BookOutlined />}>
             Course Management
+          </Menu.Item>
+          <Menu.Item key="reportReason" icon={<TeamOutlined />}>
+            Report Reason Management
           </Menu.Item>
           <Menu.Item key="violation" icon={<TeamOutlined />}>
             Violation Management
