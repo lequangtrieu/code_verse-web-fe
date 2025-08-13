@@ -3,6 +3,8 @@ import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
 import { message, Pagination, Input, Select, Tag, Modal } from "antd";
 import CustomModal from "../../../common/CustomModal";
+import { useNavigate } from "react-router-dom";
+
 const { Option } = Select;
 
 const AdminUserReportsPage = () => {
@@ -14,7 +16,7 @@ const AdminUserReportsPage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedReport, setSelectedReport] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const navigate = useNavigate();
   const pageSize = 10;
 
   useEffect(() => {

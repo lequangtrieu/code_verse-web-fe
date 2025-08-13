@@ -47,6 +47,9 @@ import CertificateDetailPage from "../../components/User/Certificate/Certificate
 import CertificatePage from "../../components/User/Certificate/CertificatePage";
 import Trainings from "../../components/User/training/trainings";
 import AdminCourseDetailPage from "../../components/Admin/AdminCourses/AdminCourseDetailPage";
+import InstructorRevenuePage from "../../components/Admin/AdminDashBoard/InstructorRevenuePage";
+import AdminReportReasonsPage from "../../components/Admin/AdminReportReasons/AdminReportReasonsPage";
+import AdminCategoryPage from "../../components/Admin/AdminCategory/AdminCategoryPage";
 
 const router = createBrowserRouter([
   {
@@ -250,6 +253,10 @@ const router = createBrowserRouter([
             element: <AdminApproveInstructorPage />,
           },
           {
+            path: "category",
+            element: <AdminCategoryPage />,
+          },
+          {
             path: "courses",
             element: <AdminCoursesPage />,
           },
@@ -260,6 +267,10 @@ const router = createBrowserRouter([
           {
             path: "reviews",
             element: <AdminReviewPage />,
+          },
+          {
+            path: "reportReason",
+            element: <AdminReportReasonsPage />,
           },
           {
             path: "violation",
@@ -281,6 +292,11 @@ const router = createBrowserRouter([
             path: "withdrawalRequests",
             element: <WithdrawalRequestList />,
           },
+          {
+            path: "revenue",
+            element: <InstructorRevenuePage />,
+          },
+
         ],
       },
     ],

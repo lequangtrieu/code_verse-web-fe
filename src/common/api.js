@@ -83,14 +83,14 @@ const commonApi = {
         url: (courseId) => `${backendDomain}/api/enrollment/is-enrolled?courseId=${courseId}`,
     },
     certificate: {
-    getCompletedCourses: {
-      url: (userId) =>
-        `${backendDomain}/api/enrollment/completed?userId=${userId}`,
-    },
-    getCertificate: {
-      url: (userId, courseId) =>
-        `${backendDomain}/api/enrollment/certificate?userId=${userId}&courseId=${courseId}`,
-    },
+        getCompletedCourses: {
+            url: (userId) =>
+                `${backendDomain}/api/enrollment/completed?userId=${userId}`,
+        },
+        getCertificate: {
+            url: (userId, courseId) =>
+                `${backendDomain}/api/enrollment/certificate?userId=${userId}&courseId=${courseId}`,
+        },
     },
 
     /** Course api */
@@ -108,10 +108,10 @@ const commonApi = {
     },
 
     courseRating: {
-    submit: `${backendDomain}/api/ratings/submit`,
-    getByCourse: (courseId) => `${backendDomain}/api/ratings/course/${courseId}`,
-    getByUser: (courseId, userId) => `${backendDomain}/api/ratings/course/${courseId}/user/${userId}`,
-    update: (ratingId) => `${backendDomain}/api/ratings/${ratingId}`
+        submit: `${backendDomain}/api/ratings/submit`,
+        getByCourse: (courseId) => `${backendDomain}/api/ratings/course/${courseId}`,
+        getByUser: (courseId, userId) => `${backendDomain}/api/ratings/course/${courseId}/user/${userId}`,
+        update: (ratingId) => `${backendDomain}/api/ratings/${ratingId}`
     },
 
     /** Category api */
@@ -305,9 +305,6 @@ const commonApi = {
     userReport: {
         url: `${backendDomain}/api/user-reports`,
     },
-    getReportReasons: {
-        url: `${backendDomain}/api/report-reasons`
-    },
     getAllReports: {
         url: `${backendDomain}/api/user-reports/list-report`
     },
@@ -361,6 +358,18 @@ const commonApi = {
         url: `${backendDomain}/api/admin/dashboard/user-role-stats`,
     },
 
+    adminRevenue: {
+        instructors: {
+            url: (params = "") =>
+                `${backendDomain}/api/admin/revenue/instructors${params ? `?${params}` : ""}`
+        },
+        instructorCourses: {
+            url: (instructorId) =>
+                `${backendDomain}/api/admin/revenue/instructors/${instructorId}/courses`
+        }
+    },
+
+
     /** ranking api */
     ranking: {
         userExp: {
@@ -368,6 +377,43 @@ const commonApi = {
                 `${backendDomain}/api/ranking/user-exp?period=${period}&limit=${limit}`,
         },
     },
+
+    /** admin report reason api */
+    adminReportReason: {
+        getAll: {
+            url: `${backendDomain}/api/report-reasons`
+        },
+        getActive: {
+            url: `${backendDomain}/api/report-reasons/active`
+        },
+        create: {
+            url: `${backendDomain}/api/report-reasons`
+        },
+        update: {
+            url: (id) => `${backendDomain}/api/report-reasons/${id}`
+        },
+        hide: {
+            url: (id) => `${backendDomain}/api/report-reasons/${id}/hide`
+        },
+        unhide: {
+            url: (id) => `${backendDomain}/api/report-reasons/${id}/unhide`
+        }
+    },
+
+    adminCategory: {
+        getAll: {
+            url: `${backendDomain}/category`
+        },
+        create: {
+            url: `${backendDomain}/category`
+        },
+        update: {
+            url: (id) => `${backendDomain}/category/${id}`
+        },
+        delete: {
+            url: (id) => `${backendDomain}/category/${id}/delete`
+        }
+    }
 }
 
 export default commonApi
