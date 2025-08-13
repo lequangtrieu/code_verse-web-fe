@@ -21,6 +21,7 @@
     "axios": "^1.8.4",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
+    "file-saver": "^2.0.5",
     "firebase": "^10.13.0",
     "framer-motion": "^12.10.0",
     "frontend": "file:",

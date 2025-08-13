@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   BookOutlined,
   UserOutlined,
@@ -21,6 +22,7 @@ const DashboardPage = () => {
   const [revenueMonth, setRevenueMonth] = useState([]);
   const [revenueQuarter, setRevenueQuarter] = useState([]);
   const [roleStats, setRoleStats] = useState([]);
+  const navigate = useNavigate();
 
   const fetchOverview = async () => {
     try {
@@ -40,35 +42,45 @@ const DashboardPage = () => {
         axiosInstance.get(commonApi.dashboardRevenueByMonth.url),
         axiosInstance.get(commonApi.dashboardRevenueByQuarter.url),
       ]);
-      setRevenueYear(yearRes.data);
-      setRevenueMonth(monthRes.data);
-      setRevenueQuarter(quarterRes.data);
+
+      setRevenueYear(yearRes.data.map(d => {
+        return {
+          ...d,
+          type: "year",
+          year: parseInt(d.label)
+        };
+      }));
+
+      setRevenueMonth(monthRes.data.map(d => {
+        const [month, year] = d.label.split("/").map(v => parseInt(v));
+        return {
+          ...d,
+          type: "month",
+          year,
+          month
+        };
+      }));
+
+      setRevenueQuarter(quarterRes.data.map(d => {
+        const [qPart, yearStr] = d.label.split("-");
+        return {
+          ...d,
+          type: "quarter",
+          year: parseInt(yearStr),
+          quarter: parseInt(qPart.replace("Q", ""))
+        };
+      }));
+
     } catch (err) {
       message.error("Failed to fetch revenue data.");
     }
   };
-
 
   useEffect(() => {
     fetchOverview();
     fetchRevenueData();
     fetchUserRoleStats();
   }, []);
-
-  const getChartOptions = (title, data) => ({
-    title: { text: title },
-    xAxis: { categories: data.map((d) => d.label) },
-    yAxis: { title: { text: "Revenue (VND)" } },
-    series: [
-      {
-        name: title,
-        data: data.map((d) => d.total),
-      },
-    ],
-    credits: {
-      enabled: false
-    }
-  });
 
   const fetchUserRoleStats = async () => {
     try {
@@ -79,16 +91,53 @@ const DashboardPage = () => {
     }
   };
 
+  const handleChartClick = (type, year, month, quarter) => {
+    const params = new URLSearchParams();
+    params.append("type", type);
+    if (year) params.append("year", year);
+    if (month) params.append("month", month);
+    if (quarter) params.append("quarter", quarter);
+    navigate(`/admin-panel/revenue?${params.toString()}`);
+  };
+
+  const getChartOptions = (title, data, type) => ({
+    chart: { type: "line" },
+    title: { text: title },
+    xAxis: { categories: data.map((d) => d.label) },
+    yAxis: { title: { text: "Revenue (VND)" } },
+    series: [
+      {
+        name: title,
+        data: data.map(d => ({
+          y: d.total,
+          year: d.year,
+          month: d.month,
+          quarter: d.quarter
+        }))
+      }
+    ],
+    plotOptions: {
+      series: {
+        cursor: "pointer",
+        point: {
+          events: {
+            click: function () {
+              handleChartClick(type, this.year, this.month, this.quarter);
+            }
+          }
+        }
+      }
+    },
+    credits: { enabled: false }
+  });
+
+
+
   const getPieChartOptions = (title, data) => ({
     chart: { type: "pie" },
     title: { text: title },
     tooltip: {
       pointFormat: "{series.name}: <b>{point.percentage:.1f}%</b> ({point.y} users)"
-    },
-    accessibility: {
-      point: {
-        valueSuffix: "%"
-      }
     },
     plotOptions: {
       pie: {
@@ -114,9 +163,6 @@ const DashboardPage = () => {
       enabled: false
     }
   });
-
-
-
 
   return (
     <div>
@@ -168,11 +214,19 @@ const DashboardPage = () => {
 
       <h3 className="text-xl font-semibold mt-12 mb-4">Revenue Analysis</h3>
       <div className="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <HighchartsReact highcharts={Highcharts} options={getChartOptions("Revenue by Year", revenueYear)} />
-        <HighchartsReact highcharts={Highcharts} options={getChartOptions("Revenue by Month", revenueMonth)} />
-        <HighchartsReact highcharts={Highcharts} options={getChartOptions("Revenue by Quarter", revenueQuarter)} />
+        <HighchartsReact
+          highcharts={Highcharts}
+          options={getChartOptions("Revenue by Year", revenueYear, "year")}
+        />
+        <HighchartsReact
+          highcharts={Highcharts}
+          options={getChartOptions("Revenue by Month", revenueMonth, "month")}
+        />
+        <HighchartsReact
+          highcharts={Highcharts}
+          options={getChartOptions("Revenue by Quarter", revenueQuarter, "quarter")}
+        />
       </div>
-
     </div>
   );
 };

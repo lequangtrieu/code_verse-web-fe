@@ -47,6 +47,7 @@ import CertificateDetailPage from "../../components/User/Certificate/Certificate
 import CertificatePage from "../../components/User/Certificate/CertificatePage";
 import Trainings from "../../components/User/training/trainings";
 import AdminCourseDetailPage from "../../components/Admin/AdminCourses/AdminCourseDetailPage";
+import InstructorRevenuePage from "../../components/Admin/AdminDashBoard/InstructorRevenuePage";
 
 const router = createBrowserRouter([
   {
@@ -281,6 +282,11 @@ const router = createBrowserRouter([
             path: "withdrawalRequests",
             element: <WithdrawalRequestList />,
           },
+          {
+            path: "revenue",
+            element: <InstructorRevenuePage />,
+          },
+
         ],
       },
     ],
