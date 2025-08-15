@@ -104,14 +104,15 @@ const UserHome = () => {
     try {
       const res = await axiosInstance.get(commonApi.viewProfile.url);
       const data = res.data.result;
+      console.log(data);
       const achievements = data.badges
         .filter(Boolean);
         setUserInfo({
           email: user?.username,
           avatar: data.avatar,
-          courseProgress: data?.lessonProgressStatus,
+          courseProgress: data?.lessonProgressStatus ?? "0/0",
           certificates: allCourses?.completed?.length ?? 0,
-          trainingStatus: data?.trainingStatus,
+          trainingStatus: data?.trainingStatus ?? "0/0",
           achievements
         })
     } catch (error){
@@ -483,12 +484,13 @@ const UserHome = () => {
               </div>
 
               {/* Progress bar */}
-              <ReusableProgress
+
+              {userInfo?.courseProgress !== "0/0" && <ReusableProgress
                 completed={userInfo?.courseProgress.split("/")[0]}
                 total={userInfo?.courseProgress.split("/")[1]}
                 showInfo={true}
                 alt="Lesson Progress"
-              />
+              />}
             </div>
 
             {/* Các chỉ số */}
@@ -521,7 +523,7 @@ const UserHome = () => {
                     Training
                   </h4>
                   <div className="lg:text-[32px] font-semibold text-yellow-300">
-                    {userInfo?.trainingStatus}
+                    {userInfo?.trainingStatus ?? "0/0"}
                   </div>
                   <ReusableProgress
                     completed={userInfo?.trainingStatus.split("/")[0]}
