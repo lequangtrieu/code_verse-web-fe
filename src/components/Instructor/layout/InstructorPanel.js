@@ -22,7 +22,7 @@ import useDocumentTitle from "../../../common/useDocumentTitle";
 const { Sider, Content } = Layout;
 
 const InstructorPanel = () => {
-  useDocumentTitle("PanelInstructor - CodeVerse");
+  useDocumentTitle("Instructor Panel - CodeVerse");
   const user = useSelector((state) => state?.user?.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();

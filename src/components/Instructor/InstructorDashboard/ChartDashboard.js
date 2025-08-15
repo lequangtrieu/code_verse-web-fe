@@ -117,6 +117,7 @@ const ChartDashboard = () => {
             stats={ratingStats}
             selectedCourses={selectedCourses}
             selectedYear={selectedYear}
+            availableCourses={availableCourses}
           />
         </>
       )}

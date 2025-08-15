@@ -5,7 +5,7 @@ import { Card } from "antd";
 
 const COLORS = ["#4caf50", "#2196f3"];
 
-const CourseRatingChart = ({ stats, selectedCourses, selectedYear }) => {
+const CourseRatingChart = ({ stats, selectedCourses, selectedYear, availableCourses }) => {
 
     const filteredStats = stats?.filter(
         s => s.year === selectedYear && selectedCourses?.includes(s.courseId)
@@ -16,7 +16,7 @@ const CourseRatingChart = ({ stats, selectedCourses, selectedYear }) => {
         courseMap[s.courseId] = s.courseTitle;
     });
 
-    const courseCategories = selectedCourses?.map(courseId => courseMap[courseId] || `Course ${courseId}`);
+    const courseCategories = selectedCourses?.map(courseId => courseMap[courseId] || availableCourses.find(c => c.value === courseId).label);
 
     const averageRatings = selectedCourses?.map(courseId => {
         const courseData = filteredStats?.find(s => s.courseId === courseId);

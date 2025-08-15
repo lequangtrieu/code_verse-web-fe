@@ -11,6 +11,7 @@ import {
 import ReusableProgress from "../layout/ReusableProgress";
 import React, { useContext, useEffect, useState } from "react";
 import { Card, Pagination, Rate, Tag, Tooltip } from "antd";
+import { UserOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import scrollTop from "../../../config/scrollTop";
 import LoadingOverlay from "../../../common/LoadingOverlay";
@@ -105,13 +106,13 @@ const UserHome = () => {
       const data = res.data.result;
       console.log(data);
       const achievements = data.badges
-        // .map((badge) => BADGES[badge]?.url)
         .filter(Boolean);
         setUserInfo({
           email: user?.username,
           avatar: data.avatar,
-          courseProgress: "562/801",
-          certificates: "2",
+          courseProgress: data?.lessonProgressStatus ?? "0/0",
+          certificates: allCourses?.completed?.length ?? 0,
+          trainingStatus: data?.trainingStatus ?? "0/0",
           achievements
         })
     } catch (error){
@@ -464,30 +465,37 @@ const UserHome = () => {
           {/*User Infor */}
           <div className="flex flex-col lg:flex-row items-center gap-6">
             {/* UserName Infor */}
-            <div className="bg-[#2c3667] p-6 rounded-lg w-full lg:w-2/5 text-center  lg:h-[220px]">
+            <div className="bg-[#2c3667] p-6 rounded-lg w-full lg:w-3/5 lg:h-[220px]">
               {/* avatar + username */}
               <div className="flex items-center gap-6 pb-6">
                 <div>
-                  <Avatar
-                    size={80}
-                    src={userInfo?.avatar || "https://via.placeholder.com/80"}
-                    className="border-2 border-yellow-400"
-                  />
+                <Avatar
+                  size={80}
+                  className="border-2 border-yellow-400 bg-gray-400 flex items-center justify-center"
+                  src={userInfo?.avatar}
+                >
+                  {!userInfo?.avatar && <UserOutlined style={{ fontSize: 40 }} />}
+                </Avatar>
                 </div>
-                <div className="text-xl truncate">{userInfo?.email}</div>
+                <div className="flex flex-col">
+                  <div className="text-xl font-semibold truncate">{user?.name}</div>
+                  <div className="text-lg truncate">{userInfo?.email}</div>
+                </div>
               </div>
 
               {/* Progress bar */}
-              <ReusableProgress
-                completed={completedLessons}
-                total={totalLessons}
+
+              {userInfo?.courseProgress !== "0/0" && <ReusableProgress
+                completed={userInfo?.courseProgress.split("/")[0]}
+                total={userInfo?.courseProgress.split("/")[1]}
                 showInfo={true}
-              />
+                alt="Lesson Progress"
+              />}
             </div>
 
             {/* Các chỉ số */}
             <div className=" w-full">
-              <div className="grid lg:gap-5 gap-3 grid-cols-3 max-w-full overflow-hidden">
+              <div className="grid lg:gap-5 gap-3 grid-cols-2 max-w-full overflow-hidden">
                 {/* Khóa học */}
                 <div>
                   <h4 className="my-0 font-semibold text-[13px] lg:text-base">
@@ -495,7 +503,7 @@ const UserHome = () => {
                   </h4>
                   <div className="flex gap-5 justify-between items-baseline">
                     <div className="lg:text-[32px] font-semibold text-yellow-300">
-                      4/39
+                      {allCourses?.learning?.length + allCourses?.completed?.length}/{allCourses?.learning?.length + allCourses?.completed?.length + allCourses?.suggested?.length}
                     </div>
                     <div className="text-sm mt-1">
                       {userInfo?.certificates} certificates
@@ -503,8 +511,8 @@ const UserHome = () => {
                   </div>
 
                   <ReusableProgress
-                    completed={completedLessons}
-                    total={totalLessons}
+                    completed={allCourses?.learning?.length + allCourses?.completed?.length}
+                    total={allCourses?.learning?.length + allCourses?.completed?.length + allCourses?.suggested?.length}
                     size={[, 8]}
                   />
                 </div>
@@ -515,17 +523,17 @@ const UserHome = () => {
                     Training
                   </h4>
                   <div className="lg:text-[32px] font-semibold text-yellow-300">
-                    0/1445
+                    {userInfo?.trainingStatus ?? "0/0"}
                   </div>
                   <ReusableProgress
-                    completed={completedLessons}
-                    total={totalLessons}
+                    completed={userInfo?.trainingStatus.split("/")[0]}
+                    total={userInfo?.trainingStatus.split("/")[1]}
                     size={[, 8]}
                   />
                 </div>
 
                 {/* Thứ hạng */}
-                <div>
+                {/* <div>
                   <h4 className="my-0 font-semibold text-[13px] lg:text-base">
                     Your best position
                   </h4>
@@ -541,7 +549,7 @@ const UserHome = () => {
                     total={totalLessons}
                     size={[, 8]}
                   />
-                </div>
+                </div> */}
               </div>
               {/* Thành tích */}
               <div className=" mx-auto mt-8">
@@ -828,7 +836,7 @@ const UserHome = () => {
           </>
         )}
       </section>
-      <section className="p-8 max-w-7xl w-full flex flex-wrap gap-10">
+      {/* <section className="p-8 max-w-7xl w-full flex flex-wrap gap-10">
         <div className="bg-[#f3f4f6] p-4 rounded-xl flex-1">
           <h2 className="text-xl font-bold text-[#2f2fce] mb-4">Your skills</h2>
           <div className="flex flex-wrap gap-y-4 gap-x-8">
@@ -846,7 +854,7 @@ const UserHome = () => {
           </div>
         </div>
         <ActivityGrid activityData={activityData} />
-      </section>
+      </section> */}
     </div>
   );
 };

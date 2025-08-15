@@ -158,13 +158,17 @@ const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus }) => {
                 )
               )}
             </p>
-            <p className="line-through text-sm text-gray-400">
+            {course?.course.discount > 0 && (
+              <>
+              <p className="line-through text-sm text-gray-400">
               {formatCurrency(course?.course.price)}
             </p>
 
             <p className="text-right text-xs text-red-500">
               {course?.course.discount}% OFF
             </p>
+            </>
+          )}
           </>
         )}
       </div>}

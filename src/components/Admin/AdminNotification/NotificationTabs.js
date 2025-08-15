@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Tabs, Table, Typography, message } from "antd";
+import { Tabs, Table, Typography, message, Modal } from "antd";
 import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
 import { useSelector } from "react-redux";
@@ -10,6 +10,8 @@ const NotificationTabs = () => {
   const [sentNotifs, setSentNotifs] = useState([]);
   const [receivedNotifs, setReceivedNotifs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState(null);
+  const [isNotiModalOpen, setIsNotiModalOpen] = useState(false);
 
   const user = useSelector((state) => state?.user?.user);
 
@@ -80,27 +82,52 @@ const NotificationTabs = () => {
   ];
 
   return (
-    <Tabs defaultActiveKey="received">
-      <TabPane tab="Received Notifications" key="received">
-        <Table
-          columns={columns}
-          dataSource={receivedNotifs}
-          rowKey="id"
-          loading={loading}
-          pagination={{ pageSize: 6 }}
-        />
-      </TabPane>
+    <>
+      <Tabs defaultActiveKey="received">
+        <TabPane tab="Received Notifications" key="received">
+          <Table
+            columns={columns}
+            dataSource={receivedNotifs}
+            rowKey="id"
+            loading={loading}
+            pagination={{ pageSize: 6 }}
+            onRow={(record) => {
+                return {
+                    onClick: () => {
+                        setSelectedNotification(record);
+                        setIsNotiModalOpen(true);
+                    },
+                };
+            }}
+            style={{ cursor: "pointer" }}
+          />
+        </TabPane>
 
-      <TabPane tab="Sent Notifications" key="sent">
-        <Table
-          columns={columns}
-          dataSource={sentNotifs}
-          rowKey="id"
-          loading={loading}
-          pagination={{ pageSize: 6 }}
-        />
-      </TabPane>
-    </Tabs>
+        <TabPane tab="Sent Notifications" key="sent">
+          <Table
+            columns={columns}
+            dataSource={sentNotifs}
+            rowKey="id"
+            loading={loading}
+            pagination={{ pageSize: 6 }}
+          />
+        </TabPane>
+      </Tabs>
+
+      <Modal
+        open={isNotiModalOpen}
+        title={selectedNotification?.title}
+        onCancel={() => setIsNotiModalOpen(false)}
+        footer={null}
+        bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
+      >
+        <div className="whitespace-pre-wrap prose max-w-none" dangerouslySetInnerHTML={{ __html: selectedNotification?.content }}></div>
+        <p className="text-xs text-gray-400 mt-4">
+          {selectedNotification &&
+            new Date(selectedNotification.createdAt).toLocaleString()}
+        </p>
+      </Modal>
+    </>
   );
 };
 
