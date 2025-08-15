@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import useDocumentTitle from "../../../common/useDocumentTitle";
 
 export default function LessonLayout() {
-   useDocumentTitle("Study - CodeVerse");
+  useDocumentTitle("Study - CodeVerse");
   const navigate = useNavigate();
   const { courseId } = useParams();
   const user = useSelector((state) => state?.user?.user);
@@ -24,6 +24,26 @@ export default function LessonLayout() {
   const [language, setLanguage] = useState(null);
 
   const selectedLessonIdRef = useRef(null);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}, [selectedLesson]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const lesson_id = Number(params.get("lesson"));
+    if (lesson_id) {
+      selectedLessonIdRef.current = lesson_id;
+      if (lessonData?.length > 0) {
+        for (const lesson of lessonData) {
+          const found = lesson?.subLessons.find(sub => sub.id === lesson_id);
+          if (found) {
+            setSelectedLesson(found);
+          }
+        }
+      }
+    }
+  }, [lessonData]);
 
   const fetchCourseData = useCallback(
     async (options = { initialLoad: false }) => {
@@ -127,7 +147,7 @@ export default function LessonLayout() {
   if (isEnrolled === null || !isEnrolled) return <LoadingOverlay />;
 
   return (
-    <div className="flex min-h-[800px] overflow-y-auto">
+    <div className="flex min-h-[calc(100vh-120px)] overflow-y-auto">
       <LessonSidebar
         lessons={lessonData}
         selectedLessonId={selectedLesson?.id}

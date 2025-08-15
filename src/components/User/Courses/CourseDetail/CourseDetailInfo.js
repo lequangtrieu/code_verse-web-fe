@@ -38,7 +38,7 @@ const CourseDetailInfo = ({ courseDetail, enrollmentStatus }) => {
             {/* LEFT SIDE - PRICE, LESSONS, RATING (all inline) */}
                 <div className="flex flex-wrap md:flex-nowrap items-center gap-x-8 gap-y-2 text-[15px] text-gray-700">
                 {/* Price */}
-                    <div className="flex items-center gap-2">
+                    {!enrollmentStatus.enrolled && <div className="flex items-center gap-2">
                         {getDiscountedPrice(courseDetail?.course.price, courseDetail?.course.discount) === 0 ? (
                             <span className="text-green-600 font-semibold text-lg">Free</span>
                         ) : (
@@ -53,7 +53,7 @@ const CourseDetailInfo = ({ courseDetail, enrollmentStatus }) => {
                                 )}
                             </div>
                         )}
-                    </div>
+                    </div>}
 
                     {/* Lessons */}
                     <div className="flex items-center gap-1">
