@@ -256,7 +256,7 @@ const CodeEditor = ({
   return (
     <div
       style={{ overflow: "hidden", position: "relative" }}
-      className="w-full p-4 bg-gray-900 rounded-lg shadow max-h-[850px] overflow-y-auto"
+      className="w-full p-4 bg-gray-900 rounded-lg shadow h-[calc(100vh-85px)] overflow-y-auto"
     >
       <div className="flex items-center justify-between mb-4 space-x-4">
         <div className="flex gap-2">
@@ -314,9 +314,9 @@ const CodeEditor = ({
         </div>
       </div>
 
-      <div className="border border-gray-700 rounded overflow-hidden mb-6">
+      <div className="border border-gray-700 h-[calc(100vh-420px)] rounded overflow-hidden mb-6">
         <Editor
-          height="450px"
+          height="100%"
           language={language}
           value={code}
           theme={theme}
@@ -325,7 +325,7 @@ const CodeEditor = ({
         />
       </div>
 
-      <div className="bg-[#2e2f45] text-white rounded-lg shadow-lg p-4 mt-6">
+      <div className="bg-[#2e2f45] text-white rounded-lg shadow-lg p-4 mt-6 h-[230px]">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-green-400">Test Results</h3>
 
@@ -339,7 +339,7 @@ const CodeEditor = ({
           )}
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex flex-col md:flex-row gap-6 overflow-y-auto h-[160px]">
           {/* Left: Test case buttons */}
           <div className="flex flex-row md:flex-col gap-2 md:w-1/4">
             {testCases.map((_, index) => (
@@ -363,7 +363,7 @@ const CodeEditor = ({
           </div>
 
           {/* Right: Details of selected test */}
-          <div className="flex-1 bg-[#1e1f33] rounded-lg p-4">
+          <div className="flex-1 bg-[#1e1f33] rounded-lg p-4 h-[max-content]">
             {selectedIndex !== null && testCases[selectedIndex] && (
               <div className="space-y-2 text-sm text-white">
                 <div>

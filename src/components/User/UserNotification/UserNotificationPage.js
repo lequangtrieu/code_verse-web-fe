@@ -1,6 +1,6 @@
 import { Card } from "antd";
 
-const UserWishlistPage = () => {
+const UserNotificationPage = () => {
   return (
     <div className="w-full h-full pt-2">
       <Card className="w-full shadow-lg" title="Wishlist">
@@ -10,4 +10,4 @@ const UserWishlistPage = () => {
   );
 };
 
-export default UserWishlistPage;
+export default UserNotificationPage;

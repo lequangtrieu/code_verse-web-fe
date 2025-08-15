@@ -91,8 +91,8 @@ const UserPanel = () => {
           <Menu.Item key="accomplishments" icon={<BookOutlined />}>
             Accomplishments
           </Menu.Item>
-          <Menu.Item key="wishlist" icon={<BarsOutlined />}>
-            Wishlist
+          <Menu.Item key="notifications" icon={<BarsOutlined />}>
+            Notification
           </Menu.Item>
           <Menu.Item key="reviews" icon={<StarOutlined />}>
             Reviews

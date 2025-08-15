@@ -3,13 +3,13 @@ import { Upload, Modal, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 
 const UploadImage = ({
-                         value = [],
-                         onChange,
-                         maxCount = 1,
-                         label = "Upload",
-                         accept = "image/*",
-                         disabled = false,
-                     }) => {
+    value = [],
+    onChange,
+    maxCount = 1,
+    label = "Upload",
+    accept = "image/*",
+    disabled = false,
+}) => {
     const [previewVisible, setPreviewVisible] = useState(false);
     const [previewImage, setPreviewImage] = useState("");
     const [previewTitle, setPreviewTitle] = useState("");
@@ -19,6 +19,11 @@ const UploadImage = ({
         if (!file.type.startsWith("image/")) {
             message.error("You can only upload image files!");
             return Upload.LIST_IGNORE; // bỏ file không hợp lệ
+        }
+        const isLt4M = file.size / 1024 / 1024 < 4;
+        if (!isLt4M) {
+            message.error("Image must be smaller than 4MB!");
+            return Upload.LIST_IGNORE;
         }
         return false; // chặn upload tự động, xử lý thủ công
     };
@@ -71,7 +76,9 @@ const UploadImage = ({
                     </div>
                 )}
             </Upload>
-
+            <div style={{ marginTop: 8, fontSize: 12, color: "#888" }}>
+                Only image files under 4MB are accepted.
+            </div>
             <Modal
                 open={previewVisible}
                 title={previewTitle}

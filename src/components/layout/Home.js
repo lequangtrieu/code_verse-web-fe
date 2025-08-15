@@ -1,6 +1,6 @@
 import {Avatar, Button, Carousel, Form, Input, message, Modal, notification, Tabs} from "antd";
 import {FaArrowRight, FaQuoteLeft} from "react-icons/fa";
-import {useContext, useState} from "react";
+import {useContext, useState, useEffect} from "react";
 import {GoogleLogin} from "@react-oauth/google";
 import commonApi from "../../common/api";
 import axios from "axios";
@@ -93,6 +93,11 @@ const Home = () => {
   const [activeTab, setActiveTab] = useState("login");
   const { fetchUserDetails } = useContext(Context);
   const [hoveredIndex, setHoveredIndex] = useState(null);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
   const openModal = (tab) => {
     setActiveTab(tab);
     setIsModalOpen(true);
