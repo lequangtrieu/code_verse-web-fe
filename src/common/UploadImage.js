@@ -74,6 +74,7 @@ const UploadImage = ({
 
             <Modal
                 open={previewVisible}
+                getContainer={false}
                 title={previewTitle}
                 footer={null}
                 onCancel={handleCancel}

@@ -307,6 +307,7 @@ const InstructorCoursesPage = () => {
             </div>
 
             <Modal title={selectedCourse?.title}
+                getContainer={false}
                 open={isModalOpen}
                 onCancel={() => {setLearners([]); setIsModalOpen(false);}}
                 footer={null}

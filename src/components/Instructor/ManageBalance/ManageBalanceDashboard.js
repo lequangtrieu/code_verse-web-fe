@@ -45,8 +45,6 @@ export function ManageBalanceDashboard() {
     const fetchData = async () => {
         setLoading(true);
         try {
-            console.log("Fetching for instructorId:", instructorId);
-
             // Gọi API lấy lịch sử rút tiền
             const withdrawRes = await axiosInstance.get(commonApi.withdrawal.getMyRequests.url(instructorId));
             const rawWithdrawals = withdrawRes.data;

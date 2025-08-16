@@ -722,6 +722,7 @@ const Header = () => {
         </Form>
       </Modal>
       <Modal
+        getContainer={false}
         open={isNotiModalOpen}
         title={selectedNotification?.title}
         onCancel={() => setIsNotiModalOpen(false)}

@@ -451,6 +451,7 @@ const CodeEditor = ({
         </div>
       </Modal>
       <Modal
+        getContainer={false}
         title="🎉 Congratulations!"
         open={showSuccessModal}
         onCancel={() => {
@@ -500,6 +501,7 @@ const CodeEditor = ({
       </Modal>
       <Modal
         title={null}
+        getContainer={false}
         open={showCourseCompletionModal}
         onCancel={() => setShowCourseCompletionModal(false)}
         centered

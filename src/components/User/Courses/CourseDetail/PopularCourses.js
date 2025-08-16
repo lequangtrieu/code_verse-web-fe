@@ -1,12 +1,9 @@
-import React from "react";
 import {formatCurrency, getDiscountedPrice} from "../../../../common/helper";
-import scrollTop from "../../../../config/scrollTop";
 import {useNavigate} from "react-router-dom";
 
 const PopularCourses = ({ popularCourses }) => {
     const navigate = useNavigate();
     const handleCourseClick = (id) => {
-        console.log("Clicked course id:", id);
         navigate(`/course/${id}`);
     };
     return (

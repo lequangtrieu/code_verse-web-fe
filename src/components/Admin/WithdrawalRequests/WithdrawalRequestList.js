@@ -255,6 +255,7 @@ export function WithdrawalRequestList() {
                 title="Instructor QR Code"
                 open={isQrModalOpen}
                 onCancel={handleCloseQrModal}
+                getContainer={false}
                 footer={null}
                 centered
                 width={400}
@@ -269,6 +270,7 @@ export function WithdrawalRequestList() {
             </Modal>
 
             <Modal
+                getContainer={false}
                 title={actionModal.type === "approve" ? "Confirm Approval" : "Reject Withdrawal Request"}
                 open={actionModal.open}
                 onOk={handleActionConfirm}

@@ -27,7 +27,6 @@ const TheoryForm = ({ lessonId }) => {
       setEditorContent(res.data?.result?.content || "");
     } catch (error) {
       console.log(error);
-      message.error("Error fetching theory.");
     } finally {
       setTimeout(() => {
         setInitialLoading(false);
