@@ -90,10 +90,8 @@ const LessonContent = ({ lesson }) => {
           });
         }
       }, 200);
-
     }
   }, []);
-
 
   useEffect(() => {
     if (!lesson) return;
@@ -116,10 +114,10 @@ const LessonContent = ({ lesson }) => {
 
   if (!lesson) {
     return (
-      <div className=
-        // "max-h-[850px] min-w-[400px] w-1/2
-        "w-full p-4 bg-white overflow-y-auto">
-        Select a lesson to view the content.
+      <div className="w-full p-4 bg-white overflow-y-auto">
+        {" "}
+        // "max-h-[850px] min-w-[400px] w-1/2 Select a lesson to view the
+        content.
       </div>
     );
   }
@@ -353,6 +351,7 @@ const LessonContent = ({ lesson }) => {
         type="primary"
         loading={summaryLoading}
         onClick={handleSummarizeLesson}
+        size="middle"
       >
         AI Summary
       </Button>
@@ -360,8 +359,14 @@ const LessonContent = ({ lesson }) => {
   );
 
   return (
-    <div className="h-[calc(100vh-85px)] min-w-[400px] w-full p-4 bg-white">
-      <Tabs activeKey={activeKey} onChange={(key) => setActiveKey(key)} size="large" defaultActiveKey="1" tabBarExtraContent={summaryButton}>
+    <div className="h-[calc(100vh-85px)] min-w-[435px] w-full p-4 bg-white">
+      <Tabs
+        activeKey={activeKey}
+        onChange={(key) => setActiveKey(key)}
+        size="large"
+        defaultActiveKey="1"
+        tabBarExtraContent={summaryButton}
+      >
         <TabPane tab="Theory" key="1">
           <Card
             bordered={false}
@@ -414,7 +419,11 @@ const LessonContent = ({ lesson }) => {
         </TabPane>
 
         <TabPane tab="Discussion" key="3">
-          <Card bordered={false} className="max-h-[calc(100vh-190px)] overflow-y-auto" ref={containerRef}>
+          <Card
+            bordered={false}
+            className="max-h-[calc(100vh-190px)] overflow-y-auto"
+            ref={containerRef}
+          >
             <h2 className="text-xl font-semibold mb-4">Discussion</h2>
 
             <TextArea
@@ -446,7 +455,8 @@ const LessonContent = ({ lesson }) => {
                   >
                     <div
                       id={`comment-${comment.id}`}
-                      className="flex items-start gap-3">
+                      className="flex items-start gap-3"
+                    >
                       <Avatar
                         src={comment.avatar}
                         icon={!comment.avatar && <UserOutlined />}
@@ -502,7 +512,12 @@ const LessonContent = ({ lesson }) => {
                             </div>
                           </div>
                         ) : (
-                          <div className="text-gray-800 mt-1 text-sm">
+                          <div
+                            className="
+    whitespace-pre-wrap break-words font-mono text-sm
+    bg-gray-50 p-3 rounded border border-gray-200 overflow-x-auto
+  "
+                          >
                             {comment.messageText}
                             {comment.originalMessage && (
                               <Tooltip
@@ -522,7 +537,11 @@ const LessonContent = ({ lesson }) => {
                     <div className="mt-3 space-y-2 pl-6 border-l border-gray-300">
                       {(comment.replies || []).map((rep) =>
                         rep?.isDeleted ? null : (
-                          <div key={rep.id} id={`comment-${rep.id}`} className="bg-gray-100 p-2 rounded">
+                          <div
+                            key={rep.id}
+                            id={`comment-${rep.id}`}
+                            className="bg-gray-100 p-2 rounded"
+                          >
                             <div className="flex items-start gap-2">
                               <Avatar
                                 src={rep.avatar}
@@ -578,9 +597,14 @@ const LessonContent = ({ lesson }) => {
                                     </div>
                                   </div>
                                 ) : (
-                                  <p className="text-gray-800 text-sm mt-1">
+                                  <div
+                                    className="
+    whitespace-pre-wrap break-words font-mono text-sm mt-1
+    bg-gray-50 p-2 rounded border border-gray-200 overflow-x-auto
+  "
+                                  >
                                     {rep.messageText}
-                                  </p>
+                                  </div>
                                 )}
                               </div>
                             </div>
