@@ -178,6 +178,7 @@ const AdminReportReasonsPage = () => {
             />
 
             <Modal
+                getContainer={false}
                 open={isModalOpen}
                 title={editingReason ? "Edit Report Reason" : "Add Report Reason"}
                 onCancel={() => setIsModalOpen(false)}

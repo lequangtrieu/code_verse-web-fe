@@ -104,7 +104,6 @@ const UserHome = () => {
     try {
       const res = await axiosInstance.get(commonApi.viewProfile.url);
       const data = res.data.result;
-      console.log(data);
       const achievements = data.badges
         .filter(Boolean);
         setUserInfo({

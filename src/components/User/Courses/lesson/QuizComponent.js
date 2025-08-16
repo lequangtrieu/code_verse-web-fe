@@ -485,6 +485,7 @@ const QuizComponent = ({
       </div> */}
       <Modal
         title={null}
+        getContainer={false}
         open={showCourseCompletionModal}
         onCancel={() => setShowCourseCompletionModal(false)}
         centered

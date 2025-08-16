@@ -63,7 +63,6 @@ function App() {
         setCartDetailCount(response.data.result);
       } else {
         setCartDetailCount(0);
-        console.log("No cart data found.");
       }
     } catch (error) {
       if (error.response) {
@@ -163,7 +162,6 @@ function App() {
       fetchNotifications();
       fetchNotificationUnread();
     } catch (error) {
-      console.log(error)
       message.error("There is an error connecting with database.");
     }
   };  

@@ -32,7 +32,6 @@ const UpdateProfileModal = ({ visible, initialValues, onCancel, onSubmit }) => {
             onCancel();
         } catch (error) {
             console.log("Validate Failed:", error);
-            message.error("Please fix the errors before submitting.");
         }
     };
 

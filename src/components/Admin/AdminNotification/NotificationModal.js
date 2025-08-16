@@ -106,6 +106,7 @@ const NotificationModal = ({ open, onClose, onSubmit, loading }) => {
             okText="Send"
             destroyOnClose
             loading={loading}
+            getContainer={false}
         >
             <Form form={form} layout="vertical">
                 

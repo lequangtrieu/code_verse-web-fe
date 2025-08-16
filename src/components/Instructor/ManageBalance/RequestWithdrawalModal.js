@@ -55,6 +55,7 @@ const RequestWithdrawalModal = ({
     return (
         <Modal
             open={open}
+            getContainer={false}
             title="Request Withdrawal"
             onCancel={onClose}
             footer={null}
