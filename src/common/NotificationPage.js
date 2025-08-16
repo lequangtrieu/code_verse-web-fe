@@ -1,10 +1,10 @@
 import { useContext, useEffect, useState } from "react";
-import Context from "../../../config/context/context";
+import Context from "../config/context/context";
 import { Table, Typography, Modal } from "antd";
 
 const { Text } = Typography;
 
-const InstructorNotificationPage = () => {
+const NotificationPage = () => {
     const { notifications, handleMarkAllAsRead } = useContext(Context);
     const [selectedNotification, setSelectedNotification] = useState(null);
     const [isNotiModalOpen, setIsNotiModalOpen] = useState(false);
@@ -109,4 +109,4 @@ const InstructorNotificationPage = () => {
     );
 };
 
-export default InstructorNotificationPage;
+export default NotificationPage;

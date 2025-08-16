@@ -62,6 +62,15 @@ const ReportCommentModal = ({ open, onClose, messageId, reportedUserId }) => {
     };
 
     const handleBeforeUpload = (file) => {
+        if (!file.type.startsWith("image/")) {
+            antdMsg.error("You can only upload image files!");
+            return Upload.LIST_IGNORE;
+        }
+        const isLt4M = file.size / 1024 / 1024 < 4;
+        if (!isLt4M) {
+            antdMsg.error("Image must be smaller than 4MB!");
+            return Upload.LIST_IGNORE;
+        }
         setEvidence(file);
         const objectUrl = URL.createObjectURL(file);
         setPreviewUrl(objectUrl);
@@ -155,6 +164,9 @@ const ReportCommentModal = ({ open, onClose, messageId, reportedUserId }) => {
                             className="mt-2 rounded max-h-40 border"
                         />
                     )}
+                    {!previewUrl && <div style={{ marginTop: 8, fontSize: 12, color: "#888" }}>
+                        Only image files under 4MB are accepted.
+                    </div>}
                 </div>
             </div>
         </CustomModal>

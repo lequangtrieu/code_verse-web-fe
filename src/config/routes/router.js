@@ -18,7 +18,6 @@ import UserProfilePage from "../../components/User/UserProfile/UserProfilePage";
 import UserMessagePage from "../../components/User/UserMessage/UserMessagePage";
 import UserReviewPage from "../../components/User/UserReview/UserReviewPage";
 import UserQuizPage from "../../components/User/UserQuiz/UserQuizPage";
-import UserWishlistPage from "../../components/User/UserWishlist/UserWishlistPage";
 import UserAssignmentPage from "../../components/User/UserAssignment/UserAssignmentPage";
 import UserHome from "../../components/User/layout/UserHome";
 import CartPage from "../../components/User/Cart/CartPage";
@@ -31,7 +30,7 @@ import InstructorPanel from "../../components/Instructor/layout/InstructorPanel"
 import InstructorDashboardPage from "../../components/Instructor/InstructorDashboard/InstructorDashboardPage";
 import InstructorCoursesPage from "../../components/Instructor/InstructorCourses/InstructorCoursePage";
 import InstructorCourseDetailView from "../../components/Instructor/InstructorCourses/InstructorCourseDetail";
-import InstructorNotificationPage from "../../components/Instructor/InstructorNotifications/InstructorNotificationPage";
+import NotificationPage from "../../common/NotificationPage";
 import InstructorTrainingsPage from "../../components/Instructor/InstructorTraining/InstructorTrainingPage";
 import TrainingCreation from "../../components/Instructor/InstructorTraining/TrainingCreation";
 import RegisterPage from "../../components/Auth/RegisterPage";
@@ -151,8 +150,8 @@ const router = createBrowserRouter([
             element: <UserQuizPage />,
           },
           {
-            path: "wishlist",
-            element: <UserWishlistPage />,
+            path: "notifications",
+            element: <NotificationPage />,
           },
           {
             path: "assignment",
@@ -206,7 +205,7 @@ const router = createBrowserRouter([
           },
           {
             path: "notifications",
-            element: <InstructorNotificationPage />,
+            element: <NotificationPage />,
           },
           {
             path: "manageBalance",

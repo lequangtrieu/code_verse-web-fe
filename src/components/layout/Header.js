@@ -429,17 +429,19 @@ const Header = () => {
               src="../../logoCodeVerseNoBG.png"
             />
           </Link>
-          <div className="hidden lg:flex h-full gap-8 text-[15px] font-[600]">
-            <Link
-              to="/course"
-              onClick={scrollTop}
-              className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(
-                "/course"
-              )} hover:text-[#2c31cf] hover:border-b-[#2c31cf]`}
-            >
-              Courses
-            </Link>
-            {/* <Link
+          {
+            (user?.role !== ROLE.INSTRUCTOR && user?.role !== ROLE.ADMIN) &&
+            <div className="hidden lg:flex h-full gap-8 text-[15px] font-[600]">
+              <Link
+                to="/course"
+                onClick={scrollTop}
+                className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(
+                  "/course"
+                )} hover:text-[#2c31cf] hover:border-b-[#2c31cf]`}
+              >
+                Courses
+              </Link>
+              {/* <Link
               to="/fights"
               onClick={scrollTop}
               className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(
@@ -458,17 +460,19 @@ const Header = () => {
               Trainings
             </Link> */}
 
-            <Link
-              to="/ranking"
-              onClick={scrollTop}
-              className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(
-                "/ranking"
-              )} hover:text-[#2c31cf] hover:border-b-[#2c31cf]`}
-            >
-              Ranking
-            </Link>
-          </div>
+              <Link
+                to="/ranking"
+                onClick={scrollTop}
+                className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(
+                  "/ranking"
+                )} hover:text-[#2c31cf] hover:border-b-[#2c31cf]`}
+              >
+                Ranking
+              </Link>
+            </div>
+          }
         </div>
+
 
         <div className="flex items-center gap-3">
           {user?.role ? (
@@ -498,7 +502,7 @@ const Header = () => {
             ""
           )}
 
-          {user?.role ? (
+          {user?.role === ROLE.LEARNER ? (
             <Popover
               content={cartContent}
               trigger="hover"
@@ -577,7 +581,7 @@ const Header = () => {
                 className="font-semibold text-base"
                 onClick={() => setIsMobileMenuOpen(false)}
                 items={[
-                  {
+                  (user?.role !== ROLE.INSTRUCTOR && user?.role !== ROLE.ADMIN) && {
                     key: "course",
                     label: <Link to="/course">📚 Courses</Link>,
                   },
@@ -589,7 +593,7 @@ const Header = () => {
                   //   key: "trainings",
                   //   label: <Link to="/trainings">🏆 Trainings</Link>,
                   // },
-                  {
+                  (user?.role !== ROLE.INSTRUCTOR && user?.role !== ROLE.ADMIN) && {
                     key: "ranking",
                     label: <Link to="/ranking">📈 Ranking</Link>,
                   },
@@ -729,7 +733,7 @@ const Header = () => {
         footer={null}
         bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
       >
-        <div className="whitespace-pre-wrap prose max-w-none" dangerouslySetInnerHTML={{__html: selectedNotification?.content}}></div>
+        <div className="whitespace-pre-wrap prose max-w-none" dangerouslySetInnerHTML={{ __html: selectedNotification?.content }}></div>
         <p className="text-xs text-gray-400 mt-4">
           {selectedNotification &&
             new Date(selectedNotification.createdAt).toLocaleString()}

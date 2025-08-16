@@ -4,7 +4,7 @@ import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
 import { formatCurrency } from "../../../common/helper";
 import LoadingOverlay from "../../../common/LoadingOverlay";
-import { Modal, message, Pagination, Input, Select, Progress, Tag, Table, Image, Button } from "antd";
+import { Modal, message, Pagination, Input, Select, Progress, Tag, Table, Image, Button, Space, InputNumber } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import moment from "moment/moment";
 
@@ -27,6 +27,10 @@ const InstructorCoursesPage = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [selectedStatus, setSelectedStatus] = useState("all");
+    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+    const [discount, setDiscount] = useState(null);
+    const [loadingDiscount, setLoadingDiscount] = useState(false);
+    const [loadingRemoveDiscount, setLoadingRemoveDiscount] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 10;
 
@@ -34,7 +38,69 @@ const InstructorCoursesPage = () => {
     const [selectedCourse, setSelectedCourse] = useState(null);
     const user = useSelector((state) => state?.user?.user);
 
+    const handleApplyDiscount = async () => {
+        if (!discount || selectedRowKeys.length === 0) return;
+
+        Modal.confirm({
+            title: "Confirm Apply Discount",
+            content: `Apply ${discount}% discount to ${selectedRowKeys.length} selected courses?`,
+            onOk: async () => {
+                setLoadingDiscount(true);
+                try {
+                    await Promise.all(
+                        selectedRowKeys.map((courseId) =>
+                            axiosInstance.patch(commonApi.updateCourseDiscount.url(courseId, discount)))
+                    );
+                    message.success("Discount applied successfully!");
+                    fetchCourses();
+                    setSelectedRowKeys([]);
+                    setDiscount(null);
+                } catch (error) {
+                    message.error("Error applying discount.");
+                } finally {
+                    setLoadingDiscount(false);
+                }
+            }
+        });
+    };
+
+    const handleRemoveDiscount = async () => {
+        if (selectedRowKeys.length === 0) return;
+
+        Modal.confirm({
+            title: "Confirm Remove Discount",
+            content: `Remove discount from ${selectedRowKeys.length} selected courses?`,
+            onOk: async () => {
+                setLoadingRemoveDiscount(true);
+                try {
+                    await Promise.all(
+                        selectedRowKeys.map((courseId) =>
+                            axiosInstance.patch(commonApi.updateCourseDiscount.url(courseId, 0))
+                        )
+                    );
+                    message.success("Discount removed successfully!");
+                    fetchCourses();
+                    setSelectedRowKeys([]);
+                    setDiscount(null);
+                } catch (error) {
+                    message.error("Error removing discount.");
+                } finally {
+                    setLoadingRemoveDiscount(false);
+                }
+            }
+        });
+    };
+
     const course_columns = [
+        {
+            title: "Discount",
+            dataIndex: "discount",
+            key: "discount",
+            align: "center",
+            render: (discount) =>
+                discount ? `${discount}%` : <Tag color="default">None</Tag>,
+            width: "10%"
+        },
         {
             title: "Image",
             dataIndex: "thumbnailUrl",
@@ -54,7 +120,7 @@ const InstructorCoursesPage = () => {
             title: "Title",
             dataIndex: "title",
             key: "title",
-            width: "30%"
+            width: "20%"
         },
         {
             title: "Category",
@@ -92,25 +158,25 @@ const InstructorCoursesPage = () => {
             key: "actions",
             render: (_, record) => (
                 <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="primary"
-                    className="bg-yellow-400 hover:bg-yellow-500 flex-1 min-w-[100px]"
-                    onClick={() => handleViewDetail(record.id)}
-                  >
-                    View Detail
-                  </Button>
-                  {record.status === "PUBLISHED" && <Button
-                    type="primary"
-                    className="bg-yellow-400 hover:bg-yellow-500 flex-1 min-w-[100px]"
-                    onClick={() => {
-                      setSelectedCourse(record);
-                      handleViewLearners(record.id);
-                    }}
-                  >
-                    View Learners
-                  </Button>}
+                    <Button
+                        type="primary"
+                        className="bg-yellow-400 hover:bg-yellow-500 flex-1 min-w-[100px]"
+                        onClick={() => handleViewDetail(record.id)}
+                    >
+                        View Detail
+                    </Button>
+                    {record.status === "PUBLISHED" && <Button
+                        type="primary"
+                        className="bg-yellow-400 hover:bg-yellow-500 flex-1 min-w-[100px]"
+                        onClick={() => {
+                            setSelectedCourse(record);
+                            handleViewLearners(record.id);
+                        }}
+                    >
+                        View Learners
+                    </Button>}
                 </div>
-              ),              
+            ),
             width: "21%"
         },
     ];
@@ -258,38 +324,79 @@ const InstructorCoursesPage = () => {
                 </div>
             )}
             {/* Search and Filters */}
-            <div className="flex flex-wrap gap-4 mb-4">
-                <Input
-                    placeholder="Search by title or description"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-64"
-                />
-                <Select
-                    placeholder="Filter by category"
-                    className="w-52"
-                    value={selectedCategory}
-                    onChange={setSelectedCategory}
-                >
-                    <Option value="all">All Categories</Option>
-                    {uniqueCategories.map((cat) => (
-                        <Option key={cat} value={cat}>{cat}</Option>
-                    ))}
-                </Select>
-                <Select
-                    placeholder="Filter by status"
-                    className="w-52"
-                    value={selectedStatus}
-                    onChange={setSelectedStatus}
-                >
-                    <Option value="all">All Status</Option>
-                    <Option value="published">Published</Option>
-                    <Option value="draft">Draft</Option>
-                    <Option value="pending">Pending</Option>
-                </Select>
+            <div className="flex flex-wrap justify-between items-center mb-4">
+                {/* Left: Filters */}
+                <div className="flex flex-wrap gap-4">
+                    <Input
+                        placeholder="Search by title or description"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-64"
+                    />
+                    <Select
+                        placeholder="Filter by category"
+                        className="w-52"
+                        value={selectedCategory}
+                        onChange={setSelectedCategory}
+                    >
+                        <Option value="all">All Categories</Option>
+                        {uniqueCategories.map((cat) => (
+                            <Option key={cat} value={cat}>{cat}</Option>
+                        ))}
+                    </Select>
+                    <Select
+                        placeholder="Filter by status"
+                        className="w-52"
+                        value={selectedStatus}
+                        onChange={setSelectedStatus}
+                    >
+                        <Option value="all">All Status</Option>
+                        <Option value="published">Published</Option>
+                        <Option value="draft">Draft</Option>
+                        <Option value="pending">Pending</Option>
+                    </Select>
+                </div>
+
+                <div>
+                    <Space>
+                        <InputNumber
+                            min={0}
+                            max={100}
+                            value={discount}
+                            formatter={(value) => `${value}%`}
+                            parser={(value) => value.replace('%', '')}
+                            placeholder="Discount"
+                            onChange={setDiscount}
+                        />
+                        <Button
+                            type="primary"
+                            disabled={!discount || selectedRowKeys.length === 0 || loadingRemoveDiscount}
+                            onClick={handleApplyDiscount}
+                            loading={loadingDiscount}
+                        >
+                            Apply Discount
+                        </Button>
+                        <Button
+                            danger
+                            disabled={selectedRowKeys.length === 0 || loadingDiscount}
+                            onClick={handleRemoveDiscount}
+                            loading={loadingRemoveDiscount}
+                        >
+                            Remove Discount
+                        </Button>
+                    </Space>
+                </div>
             </div>
+
             {initialLoading && <LoadingOverlay />}
             <Table
+                rowSelection={{
+                    selectedRowKeys,
+                    onChange: setSelectedRowKeys,
+                    getCheckboxProps: (record) => ({
+                        disabled: record.price === 0
+                    }),
+                }}
                 dataSource={paginatedCourses}
                 columns={course_columns}
                 rowKey="id"
@@ -306,10 +413,11 @@ const InstructorCoursesPage = () => {
                 />
             </div>
 
-            <Modal title={selectedCourse?.title}
+            <Modal
                 getContainer={false}
+                title={selectedCourse?.title}
                 open={isModalOpen}
-                onCancel={() => {setLearners([]); setIsModalOpen(false);}}
+                onCancel={() => { setLearners([]); setIsModalOpen(false); }}
                 footer={null}
                 width={800}
                 centered>

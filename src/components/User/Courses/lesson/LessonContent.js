@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Card,
   Tabs,
@@ -56,9 +56,44 @@ const LessonContent = ({ lesson }) => {
   const [replyInputs, setReplyInputs] = useState({});
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportComment, setReportComment] = useState(null);
+  const [activeKey, setActiveKey] = useState("1");
+  const containerRef = useRef(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [summaryData, setSummaryData] = useState(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const commentId = params.get("commentId");
+    if (commentId) {
+      setActiveKey("3");
+      setTimeout(() => {
+        const el = document.getElementById(`comment-${commentId}`);
+        const container = containerRef.current;
+        if (el && container) {
+          const containerRect = container.getBoundingClientRect();
+          const commentRect = el.getBoundingClientRect();
+
+          const currentScroll = el.scrollTop;
+
+          const desiredScroll =
+            currentScroll +
+            (commentRect.top - containerRect.top) -
+            container.clientHeight / 2 +
+            el.clientHeight / 2;
+          const maxScroll = container.scrollHeight - container.clientHeight;
+          const clampedScroll = Math.max(0, Math.min(desiredScroll, maxScroll));
+
+          container.scrollTo({
+            top: clampedScroll,
+            behavior: "smooth",
+          });
+        }
+      }, 200);
+
+    }
+  }, []);
+
 
   useEffect(() => {
     if (!lesson) return;
@@ -81,10 +116,10 @@ const LessonContent = ({ lesson }) => {
 
   if (!lesson) {
     return (
-      <div className="w-full p-4 bg-white overflow-y-auto">
-        {" "}
-        // "max-h-[850px] min-w-[400px] w-1/2 Select a lesson to view the
-        content.
+      <div className=
+        // "max-h-[850px] min-w-[400px] w-1/2
+        "w-full p-4 bg-white overflow-y-auto">
+        Select a lesson to view the content.
       </div>
     );
   }
@@ -326,11 +361,7 @@ const LessonContent = ({ lesson }) => {
 
   return (
     <div className="h-[calc(100vh-85px)] min-w-[400px] w-full p-4 bg-white">
-      <Tabs
-        defaultActiveKey="1"
-        size="large"
-        tabBarExtraContent={summaryButton}
-      >
+      <Tabs activeKey={activeKey} onChange={(key) => setActiveKey(key)} size="large" defaultActiveKey="1" tabBarExtraContent={summaryButton}>
         <TabPane tab="Theory" key="1">
           <Card
             bordered={false}
@@ -383,10 +414,7 @@ const LessonContent = ({ lesson }) => {
         </TabPane>
 
         <TabPane tab="Discussion" key="3">
-          <Card
-            bordered={false}
-            className="max-h-[calc(100vh-190px)] overflow-y-auto"
-          >
+          <Card bordered={false} className="max-h-[calc(100vh-190px)] overflow-y-auto" ref={containerRef}>
             <h2 className="text-xl font-semibold mb-4">Discussion</h2>
 
             <TextArea
@@ -416,7 +444,9 @@ const LessonContent = ({ lesson }) => {
                     key={comment.id}
                     className="bg-blue-50 p-4 rounded shadow-sm"
                   >
-                    <div className="flex items-start gap-3">
+                    <div
+                      id={`comment-${comment.id}`}
+                      className="flex items-start gap-3">
                       <Avatar
                         src={comment.avatar}
                         icon={!comment.avatar && <UserOutlined />}
@@ -492,7 +522,7 @@ const LessonContent = ({ lesson }) => {
                     <div className="mt-3 space-y-2 pl-6 border-l border-gray-300">
                       {(comment.replies || []).map((rep) =>
                         rep?.isDeleted ? null : (
-                          <div key={rep.id} className="bg-gray-100 p-2 rounded">
+                          <div key={rep.id} id={`comment-${rep.id}`} className="bg-gray-100 p-2 rounded">
                             <div className="flex items-start gap-2">
                               <Avatar
                                 src={rep.avatar}
