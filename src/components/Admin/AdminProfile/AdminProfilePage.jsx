@@ -42,7 +42,6 @@ const AdminProfilePage = () => {
   };
 
   const handleUpdateUser = (values) => {
-    console.log("Updated values:", values);
     setEditableFields((prev) => ({
       ...prev,
       ...values,

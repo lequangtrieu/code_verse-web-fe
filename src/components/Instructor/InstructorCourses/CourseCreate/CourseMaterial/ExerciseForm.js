@@ -381,6 +381,7 @@ const ExerciseForm = ({ lessonId }) => {
 
             {/* Test Case Modal */}
             <Modal
+                getContainer={false}
                 title={editingTestCase ? "Edit Test Case" : "Add Test Case"}
                 open={isTestCaseModalOpen}
                 loading={loadingTestCase}

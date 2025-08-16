@@ -14,6 +14,9 @@ const commonApi = {
     aiFeedback: {
         url: `${backendDomain}/ai/feedback`,
     },
+    aiSummary: {
+        url: `${backendDomain}/ai/summary`,
+    },
 
     /** Code api */
     executionCode: {

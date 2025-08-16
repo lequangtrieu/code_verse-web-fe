@@ -91,7 +91,6 @@ const CourseModule = ({ courseId }) => {
             moduleForm.resetFields();
         } catch (error) {
             console.log("Failed to save module:", error);
-            message.error("Error saving module.");
         } finally {
             setLoadingModule(false);
         }
@@ -324,6 +323,7 @@ const CourseModule = ({ courseId }) => {
             {/* Module Modal */}
             <Modal
                 title="Module"
+                getContainer={false}
                 open={showModuleModal}
                 onCancel={() => setShowModuleModal(false)}
                 footer={null}
@@ -349,6 +349,7 @@ const CourseModule = ({ courseId }) => {
             {/* Lesson Modal */}
             <Modal
                 title="Lesson"
+                getContainer={false}
                 open={showLessonModal}
                 onCancel={() => {
                     setShowLessonModal(false);
@@ -399,6 +400,7 @@ const CourseModule = ({ courseId }) => {
             </Modal>
             <Modal
                 open={deleteConfirm.visible}
+                getContainer={false}
                 title={`Confirm Delete ${deleteConfirm.type === 'module' ? 'Module' : 'Lesson'}`}
                 onCancel={() => setDeleteConfirm({ visible: false, type: '', target: null })}
                 onOk={confirmDelete}

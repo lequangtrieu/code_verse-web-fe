@@ -27,14 +27,12 @@ const UserProfilePage = () => {
   const getUserProfile = async () => {
     try {
       const response = await axiosInstance.get(commonApi.viewProfile.url);
-      console.log(response);
       if (response.data && response.data.code === 1000 && response.data.result) {
         setUserData(response.data.result);
       } else {
         message.error("Failed to fetch user information");
       }
     } catch (e) {
-      console.log(e);
       message.error("Error occurred while fetching user information");
     }
   };
@@ -240,6 +238,7 @@ const UserProfilePage = () => {
         title="Your Avatar"
         open={isAvatarModalOpen}
         onCancel={handleCloseAvatarModal}
+        getContainer={false}
         footer={null}
       >
         <div className="flex justify-center">
@@ -294,6 +293,7 @@ const UserProfilePage = () => {
           title="Teaching Credentials"
           open={isCredentialsModalOpen}
           onCancel={handleCloseCredentialsModal}
+          getContainer={false}
           footer={null}
           width="60vw"
           centered
@@ -311,6 +311,7 @@ const UserProfilePage = () => {
           title="Your QR Code"
           open={isQrModalOpen}
           onCancel={handleCloseQrModal}
+          getContainer={false}
           footer={null}
           centered
       >

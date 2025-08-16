@@ -22,7 +22,7 @@ const CodeEditor = ({
   const defaultCodeMap = useMemo(
     () => ({
       javascript: `function run() {\n  // Your JS code here\n}`,
-      python: `def run():\n    # Your Python code here\n    pass`,
+      python: `def run():\n    # Your Python code here\n    pass\n\nrun()`,
       java: `import java.util.Scanner;\n\npublic class Main {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    // Your Java code here\n  }\n}`,
       c: `#include <stdio.h>\nint main() {\n  // Your C code here\n  return 0;\n}`,
       cpp: `#include <iostream>\nint main() {\n  // Your C++ code here\n  return 0;\n}`,
@@ -48,6 +48,7 @@ const CodeEditor = ({
   const [lastPassedCode, setLastPassedCode] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [hardcodeFailCount, setHardcodeFailCount] = useState(0);
 
   const canShowSubmitButton = useMemo(() => {
     const currentCode = editorRef.current?.getValue() || "";
@@ -174,14 +175,29 @@ const CodeEditor = ({
 
     if (isHardcoded) {
       setLastPassedCode(null);
-      notification.warning({
-        message: "⚠️ AI detected hardcoded or invalid logic",
-        description:
-          "Your code passes the test cases, but appears to be hardcoded or not generalized. Please revise it before submitting.",
-        placement: "topLeft",
-      });
+      setHardcodeFailCount((prev) => prev + 1); // tăng số lần hardcode
+
+      if (hardcodeFailCount + 1 < 2) {
+        notification.warning({
+          message: "⚠️ AI detected hardcoded or invalid logic",
+          description:
+            "Your code passes the test cases, but appears to be hardcoded or not generalized. Please revise it before submitting.",
+          placement: "topLeft",
+        });
+      } else {
+        notification.success({
+          message: "All test cases passed!",
+          description:
+            "You've failed AI validation twice. We'll now allow you to submit as long as test cases pass.",
+          placement: "topLeft",
+        });
+        setLastPassedCode(userCode);
+      }
+
+      return;
     } else {
       setLastPassedCode(userCode);
+      setHardcodeFailCount(0);
       notification.success({
         message: "All test cases passed and AI approved!",
         description: "Great job, your code is valid and algorithmic!",
@@ -451,6 +467,7 @@ const CodeEditor = ({
         </div>
       </Modal>
       <Modal
+        getContainer={false}
         title="🎉 Congratulations!"
         open={showSuccessModal}
         onCancel={() => {
@@ -500,6 +517,7 @@ const CodeEditor = ({
       </Modal>
       <Modal
         title={null}
+        getContainer={false}
         open={showCourseCompletionModal}
         onCancel={() => setShowCourseCompletionModal(false)}
         centered

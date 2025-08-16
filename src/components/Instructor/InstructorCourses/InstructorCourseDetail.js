@@ -135,8 +135,7 @@ const InstructorCourseDetailView = () => {
             toggleEdit();
         })
             .catch((error) => {
-                console.log(error);
-                message.error("Fail to save draft.");
+                message.error("Fail to save draft." + error);
             });
     }
 

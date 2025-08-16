@@ -55,7 +55,6 @@ const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus }) => {
 
   const enrollFreeCourse = (course) => {
     try {
-      console.log("Enrolling course...");
       handleAddToCartFree(course);
       setTimeout(() => {
         navigate(`/course/${course.id}/learn`);

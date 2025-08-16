@@ -6,7 +6,6 @@ import {useNavigate} from "react-router-dom";
 const AuthorCourses = ({ authorCourses }) => {
     const navigate = useNavigate();
     const handleCourseClick = (id) => {
-        console.log("Clicked course id:", id);
         navigate(`/course/${id}`);
     };
 

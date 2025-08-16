@@ -116,6 +116,7 @@ const AdminCategoryPage = () => {
 
             <Modal
                 open={isModalOpen}
+                getContainer={false}
                 title={editingCategory ? "Edit Category" : "Add Category"}
                 onCancel={() => setIsModalOpen(false)}
                 onOk={handleSubmit}

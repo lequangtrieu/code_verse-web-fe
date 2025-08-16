@@ -93,6 +93,7 @@ const NotificationPage = () => {
             />
             <Modal
                 open={isNotiModalOpen}
+                getContainer={false}
                 title={selectedNotification?.title}
                 onCancel={() => setIsNotiModalOpen(false)}
                 footer={null}
