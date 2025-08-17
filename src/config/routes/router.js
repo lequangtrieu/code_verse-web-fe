@@ -52,6 +52,20 @@ import AdminCategoryPage from "../../components/Admin/AdminCategory/AdminCategor
 import LoginMockup from "../../components/$Mockup/LoginMockup";
 import RegisterMockupSketch from "../../components/$Mockup/RegisterMockupSketch";
 import RegisterInstructorMockupSketch from "../../components/$Mockup/RegisterInstructorMockupSketch";
+import ResetPasswordMockupSketch from "../../components/$Mockup/ResetPasswordMockupSketch";
+import ChangePasswordMockupSketch from "../../components/$Mockup/ChangePasswordMockupSketch";
+import ViewProfileMockupSketch from "../../components/$Mockup/ViewProfileMockupSketch";
+import UpdateProfileMockupSketch from "../../components/$Mockup/UpdateProfileMockupSketch";
+import ViewCourseListMockupSketch from "../../components/$Mockup/ViewCourseListMockupSketch";
+import ViewCourseDetailMockupSketch from "../../components/$Mockup/ViewCourseDetailMockupSketch";
+import ViewLessonDetailMockupSketch from "../../components/$Mockup/ViewLessonDetailMockupSketch";
+import PurchaseCourseMockupSketch from "../../components/$Mockup/PurchaseCourseMockupSketch";
+import TakeQuizMockupSketch from "../../components/$Mockup/TakeQuizMockupSketch";
+import ViewQuizResultMockupSketch from "../../components/$Mockup/ViewQuizResultMockupSketch";
+import TrackLearningProgressMockupSketch from "../../components/$Mockup/TrackLearningProgressMockupSketch";
+import ViewCommentMockupSketch from "../../components/$Mockup/ViewCommentMockupSketch";
+import ViewCertificateMockupSketch from "../../components/$Mockup/ViewCertificateMockupSketch";
+import DownloadCertificateMockupSketch from "../../components/$Mockup/DownloadCertificateMockupSketch";
 
 const router = createBrowserRouter([
   {
@@ -312,6 +326,62 @@ const router = createBrowserRouter([
       {
         path: "/mockup/registerIns",
         element: <RegisterInstructorMockupSketch />,
+      },
+      {
+        path: "/mockup/reset-password",
+        element: <ResetPasswordMockupSketch />,
+      },
+      {
+        path: "/mockup/change-password",
+        element: <ChangePasswordMockupSketch />,
+      },
+      {
+        path: "/mockup/view-profile",
+        element: <ViewProfileMockupSketch />,
+      },
+      {
+        path: "/mockup/update-profile",
+        element: <UpdateProfileMockupSketch />,
+      },
+      {
+        path: "/mockup/view-courseList",
+        element: <ViewCourseListMockupSketch />,
+      },
+      {
+        path: "/mockup/view-courseDetail",
+        element: <ViewCourseDetailMockupSketch />,
+      },
+      {
+        path: "/mockup/view-lessonDetail",
+        element: <ViewLessonDetailMockupSketch />,
+      },
+      {
+        path: "/mockup/purchase",
+        element: <PurchaseCourseMockupSketch />,
+      },
+      {
+        path: "/mockup/takeQuiz",
+        element: <TakeQuizMockupSketch />,
+      },
+      {
+        path: "/mockup/viewQuiz",
+        element: <ViewQuizResultMockupSketch />,
+      },
+      {
+        path: "/mockup/trackingProgress",
+        element: <TrackLearningProgressMockupSketch />,
+      },
+      {
+        path: "/mockup/viewCmt",
+        element: <ViewCommentMockupSketch />,
+      },
+      {
+        path: "/mockup/viewCert",
+        element: <ViewCertificateMockupSketch />,
+      },
+      {
+        path: "/mockup/downloadCert",
+        element: <DownloadCertificateMockupSketch />,
       },
     ],
   },
