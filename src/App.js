@@ -206,11 +206,11 @@ function App() {
         fetchCartItems,
       }}
     >
-      <Header />
-      <main className="min-h-[calc(100vh-120px)] pt-[82px]">
+      {/*<Header />*/}
+      {/*<main className="min-h-[calc(100vh-120px)] pt-[82px]">*/}
         <Outlet />
-      </main>
-      <Footer />
+      {/*</main>*/}
+      {/*<Footer />*/}
     </Context.Provider>
   );
 }
