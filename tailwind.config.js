@@ -20,6 +20,7 @@ module.exports = {
       },
       fontFamily: {
         heading: ['"Poppins"', "sans-serif"],
+        mockup: ['"Architects Daughter"', 'cursive'],
       },
     },
   },

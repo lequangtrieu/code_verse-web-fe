@@ -49,6 +49,9 @@ import AdminCourseDetailPage from "../../components/Admin/AdminCourses/AdminCour
 import InstructorRevenuePage from "../../components/Admin/AdminDashBoard/InstructorRevenuePage";
 import AdminReportReasonsPage from "../../components/Admin/AdminReportReasons/AdminReportReasonsPage";
 import AdminCategoryPage from "../../components/Admin/AdminCategory/AdminCategoryPage";
+import LoginMockup from "../../components/$Mockup/LoginMockup";
+import RegisterMockupSketch from "../../components/$Mockup/RegisterMockupSketch";
+import RegisterInstructorMockupSketch from "../../components/$Mockup/RegisterInstructorMockupSketch";
 
 const router = createBrowserRouter([
   {
@@ -297,6 +300,18 @@ const router = createBrowserRouter([
           },
 
         ],
+      },
+      {
+        path: "/mockup/login",
+        element: <LoginMockup />,
+      },
+      {
+        path: "/mockup/register",
+        element: <RegisterMockupSketch />,
+      },
+      {
+        path: "/mockup/registerIns",
+        element: <RegisterInstructorMockupSketch />,
       },
     ],
   },
