@@ -66,12 +66,153 @@ import TrackLearningProgressMockupSketch from "../../components/$Mockup/TrackLea
 import ViewCommentMockupSketch from "../../components/$Mockup/ViewCommentMockupSketch";
 import ViewCertificateMockupSketch from "../../components/$Mockup/ViewCertificateMockupSketch";
 import DownloadCertificateMockupSketch from "../../components/$Mockup/DownloadCertificateMockupSketch";
+import ViewBadges from "../../components/$Mockup/ViewBadges";
+import ViewRankingMockup from "../../components/$Mockup/ViewRankingMockup";
+import ReviewCompletedCourseMockup from "../../components/$Mockup/ReviewCompletedCourseMockup";
+import ReportViolationMockup from "../../components/$Mockup/ReportViolationMockup";
+import ViewInstructorCourseListMockup from "../../components/$Mockup/ViewInstructorCourseListMockup";
+import ViewInstructorCourseDetailMockup from "../../components/$Mockup/ViewInstructorCourseDetailMockup";
+import CreateCourseMockup from "../../components/$Mockup/CreateCourseMockup";
+import UpdateCourse from "../../components/$Mockup/UpdateCourse";
+import ViewNotificationHistoryMockup from "../../components/$Mockup/ViewNotificationHistoryMockup";
+import ViewLearnerListMockup from "../../components/$Mockup/ViewLearnerListMockup";
+import ViewCourseAnalyticsMockup from "../../components/$Mockup/ViewCourseAnalyticsMockup";
+import ViewEarningsBalanceMockup from "../../components/$Mockup/ViewEarningsBalanceMockup";
+import RequestWithdrawalMockup from "../../components/$Mockup/RequestWithdrawalMockup";
+import ViewUserListMockup from "../../components/$Mockup/ViewUserListMockup";
+import ViewUserDetailsMockup from "../../components/$Mockup/ViewUserDetailsMockup";
+import ViewUserViolationMockup from "../../components/$Mockup/ViewUserViolationMockup";
+import LockUserMockupWithConfirm from "../../components/$Mockup/LockUserMockup";
+import UnlockUserMockupWithConfirm from "../../components/$Mockup/UnlockUserMockupWithConfirm";
+import ImportUsersFromExcelMockup from "../../components/$Mockup/ImportUsersFromExcelMockup";
+import ViewCoursesListMockup from "../../components/$Mockup/ViewCoursesListMockup";
+import ApproveCourseMockup from "../../components/$Mockup/ApproveCourseMockup";
+import ViewSystemStatisticsMockup from "../../components/$Mockup/ViewSystemWideStatistics";
+import SendAnnouncementMockup from "../../components/$Mockup/SendAnnouncementMockup";
+import AnnouncementHistoryMockup from "../../components/$Mockup/AnnouncementHistoryMockup";
+import InstructorApplicationListWireframe from "../../components/$Mockup/InstructorApplicationListWireframe";
+import InstructorApprovalWireframe from "../../components/$Mockup/InstructorApprovalWireframe";
+import ViewWithdrawalRequestsMockup from "../../components/$Mockup/ViewWithdrawalRequestsMockup";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
+      {
+        path: "/mockup/ViewWithdrawalRequestsMockup",
+        element: <ViewWithdrawalRequestsMockup />,
+      },
+      {
+        path: "/mockup/InstructorApprovalWireframe",
+        element: <InstructorApprovalWireframe />,
+      },
+      {
+        path: "/mockup/InstructorApplicationListWireframe",
+        element: <InstructorApplicationListWireframe />,
+      },
+      {
+        path: "/mockup/AnnouncementHistoryMockup",
+        element: <AnnouncementHistoryMockup />,
+      },
+      {
+        path: "/mockup/SendAnnouncementMockup",
+        element: <SendAnnouncementMockup />,
+      },
+      {
+        path: "/mockup/ViewSystemStatisticsMockup",
+        element: <ViewSystemStatisticsMockup />,
+      },
+      {
+        path: "/mockup/ApproveCourseMockup",
+        element: <ApproveCourseMockup />,
+      },
+      {
+        path: "/mockup/ViewCoursesListMockup",
+        element: <ViewCoursesListMockup />,
+      },
+      {
+        path: "/mockup/ImportUsersFromExcelMockup",
+        element: <ImportUsersFromExcelMockup />,
+      },
+      {
+        path: "/mockup/UnlockUserMockupWithConfirm",
+        element: <UnlockUserMockupWithConfirm />,
+      },
+      {
+        path: "/mockup/LockUserMockupWithConfirm",
+        element: <LockUserMockupWithConfirm />,
+      },
+      {
+        path: "/mockup/ViewUserViolationMockup",
+        element: <ViewUserViolationMockup />,
+      },
+      {
+        path: "/mockup/ViewUserDetailsMockup",
+        element: <ViewUserDetailsMockup />,
+      },
+      {
+        path: "/mockup/ViewUserListMockup",
+        element: <ViewUserListMockup />,
+      },
+      {
+        path: "/mockup/RequestWithdrawalMockup",
+        element: <RequestWithdrawalMockup />,
+      },
+      {
+        path: "/mockup/ViewEarningsBalanceMockup",
+        element: <ViewEarningsBalanceMockup />,
+      },
+      {
+        path: "/mockup/ViewCourseAnalyticsMockup",
+        element: <ViewCourseAnalyticsMockup />,
+      },
+      {
+        path: "/mockup/viewBadge",
+        element: <ViewBadges />,
+      },
+      {
+        path: "/mockup/viewRanking",
+        element: <ViewRankingMockup />,
+      },
+      {
+        path: "/mockup/reviewCompletedCourseMockup",
+        element: <ReviewCompletedCourseMockup />,
+      },
+      {
+        path: "/mockup/ReportViolationMockup",
+        element: <ReportViolationMockup />,
+      },
+      {
+        path: "/mockup/ViewInstructorCourseListMockup",
+        element: <ViewInstructorCourseListMockup />,
+      },
+      {
+        path: "/mockup/ViewInstructorCourseDetailMockup",
+        element: <ViewInstructorCourseDetailMockup />,
+      },
+      {
+        path: "/mockup/CreateCourseMockup",
+        element: <CreateCourseMockup />,
+      },
+      {
+        path: "/mockup/UpdateCourse",
+        element: <UpdateCourse />,
+      },
+      {
+        path: "/mockup/ViewNotificationHistoryMockup",
+        element: <ViewNotificationHistoryMockup />,
+      },
+      {
+        path: "/mockup/ViewLearnerListMockup",
+        element: <ViewLearnerListMockup />,
+      },
+
+
+
+
+
+
       {
         path: "certificate/:courseId",
         element: <CertificatePage />,
