@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
-import { Upload, Button, message, Table } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { Upload, Button, message, Table, Popconfirm, Typography } from 'antd';
+import { UploadOutlined, DownloadOutlined } from '@ant-design/icons';
 import axiosInstance from '../../../../../config/axiosInstance';
 import commonApi from '../../../../../common/api';
 import LoadingContainer from '../../../../../common/LoadingContainer';
 
-const QuizForm = ({ lessonId }) => {
+const { Text } = Typography;
+
+const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
     const [quizData, setQuizData] = useState([]);
+    const [savedQuizData, setSaveQuizData] = useState([]);
     const [initialLoading, setInitialLoading] = useState(false);
+    const [loadingSave, setLoadingSave] = useState(false);
+    const [isAiDrafted, setAIDrafted] = useState(false);
 
     useEffect(() => {
         if (lessonId) {
@@ -17,20 +22,94 @@ const QuizForm = ({ lessonId }) => {
         // eslint-disable-next-line
     }, [lessonId]);
 
-    const handleDownloadTemplate = () => {
-        const sampleData = [
-            { Question: 'What is 2 + 2?', Answer: '3', IsCorrect: false },
-            { Question: 'What is 2 + 2?', Answer: '4', IsCorrect: true },
-            { Question: 'Pick primary colors', Answer: 'Red', IsCorrect: true },
-            { Question: 'Pick primary colors', Answer: 'Green', IsCorrect: false },
-            { Question: 'Pick primary colors', Answer: 'Blue', IsCorrect: true },
-        ];
+    const handleDownloadTemplate = async () => {
+        let dataToDownload;
 
-        const worksheet = XLSX.utils.json_to_sheet(sampleData);
+        if (savedQuizData.length > 0) {
+            dataToDownload = savedQuizData.map((quiz) => {
+                const row = { Question: quiz.question };
+
+                quiz.answers.forEach((a, idx) => {
+                    const colLetter = String.fromCharCode(65 + idx);
+                    row[colLetter] = a.answer;
+                });
+
+                row['CorrectAnswers'] = quiz.answers
+                    .map((a, idx) => (a.correct ? String.fromCharCode(65 + idx) : null))
+                    .filter(i => i !== null)
+                    .join(',');
+                return row;
+            });
+        } else if (isAiDrafted) {
+            try {
+                message.loading({ content: "Generating quiz bank...", key: "download" });
+
+                const res = await axiosInstance.post(commonApi.aiGenerateQuizBank.url(lessonId));
+
+                dataToDownload = res.data.result.quizBank.map((quiz) => {
+                    const row = { Question: quiz.question };
+
+                    quiz.answers.forEach((a, idx) => {
+                        const colLetter = String.fromCharCode(65 + idx);
+                        row[colLetter] = a.answer;
+                    });
+
+                    row["CorrectAnswers"] = quiz.answers
+                        .map((a, idx) => (a.isCorrect ? String.fromCharCode(65 + idx) : null))
+                        .filter((i) => i !== null)
+                        .join(",");
+
+                    return row;
+                });
+
+                message.success({ content: "Quiz bank generated and downloaded!", key: "download" });
+            } catch (error) {
+                console.error(error);
+                dataToDownload = [
+                    {
+                        Question: 'What is 2 + 2?',
+                        A: '2',
+                        B: '3',
+                        C: '4',
+                        D: '5',
+                        CorrectAnswers: 'C',
+                    },
+                    {
+                        Question: 'Pick primary colors',
+                        A: 'Red',
+                        B: 'Green',
+                        C: 'Blue',
+                        CorrectAnswers: 'A,C',
+                    },
+                ];
+
+                message.error({ content: "AI generated failed. Sample data will be downloaded instead.", key: "download" });
+            }
+        } else {
+            dataToDownload = [
+                {
+                    Question: 'What is 2 + 2?',
+                    A: '2',
+                    B: '3',
+                    C: '4',
+                    D: '5',
+                    CorrectAnswers: 'C',
+                },
+                {
+                    Question: 'Pick primary colors',
+                    A: 'Red',
+                    B: 'Green',
+                    C: 'Blue',
+                    CorrectAnswers: 'A,C',
+                },
+            ];
+        }
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToDownload);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'QuizSample');
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'QuizData');
 
-        XLSX.writeFile(workbook, 'quiz_sample.xlsx');
+        XLSX.writeFile(workbook, savedQuizData.length > 0 ? 'quiz_data.xlsx' : 'quiz_sample.xlsx');
     };
 
     const handleFileUpload = (file) => {
@@ -41,56 +120,83 @@ const QuizForm = ({ lessonId }) => {
             const sheet = workbook.Sheets[sheetName];
             const jsonData = XLSX.utils.sheet_to_json(sheet);
 
-            const grouped = groupByQuestion(jsonData);
-            setQuizData(grouped);
-            message.success('File parsed successfully!');
+            try {
+                const grouped = groupByQuestion(jsonData);
+                setQuizData(grouped);
+                setHasChange(true);
+                message.success('File parsed successfully!');
+            } catch (err) {
+                message.error(err.message);
+            }
         };
         reader.readAsBinaryString(file);
         return false;
     };
 
     const groupByQuestion = (rows) => {
-        const questionMap = {};
-
-        rows.forEach(row => {
+        return rows.map((row, rowIndex) => {
             const questionText = row['Question']?.trim();
-            const answerText = row['Answer']?.trim();
-            const correct = String(row['IsCorrect']).toLowerCase() === 'true';
+            if (!questionText) return null;
 
-            if (!questionText || !answerText) return;
+            const answers = Object.keys(row)
+                .filter(k => /^[A-Z]$/.test(k))
+                .map(k => row[k])
+                .filter(a => a && a.trim().length > 0);
 
-            if (!questionMap[questionText]) {
-                questionMap[questionText] = [];
+            const validLetters = answers.map((_, idx) => String.fromCharCode(65 + idx));
+
+            const inputLetters = String(row['CorrectAnswers'] || "")
+                .split(',')
+                .map(l => l.trim().toUpperCase())
+                .filter(l => l.length > 0);
+
+            const invalidLetters = inputLetters.filter(l => !validLetters.includes(l));
+            if (invalidLetters.length > 0) {
+                throw new Error(
+                    `Invalid CorrectAnswers "${invalidLetters.join(",")}" in row ${rowIndex + 2} (Question: "${questionText}"). ` +
+                    `Valid options are: ${validLetters.join(",")}`
+                );
             }
 
-            questionMap[questionText].push({
-                answer: answerText,
-                correct,
-            });
-        });
+            if (inputLetters.length === 0) {
+                throw new Error(
+                    `No CorrectAnswers provided for row ${rowIndex + 2} (Question: "${questionText}")`
+                );
+            }
 
-        return Object.entries(questionMap).map(([question, answers]) => ({
-            question,
-            quizType: answers.filter(a => a.correct).length === 1 ? 'SINGLE' : 'MULTIPLE',
-            answers,
-        }));
+            const correctIndexes = inputLetters.map(
+                l => l.charCodeAt(0) - 65
+            );
+
+            const formattedAnswers = answers.map((a, idx) => ({
+                answer: a,
+                correct: correctIndexes.includes(idx),
+            }));
+
+            return {
+                question: questionText,
+                quizType: correctIndexes.length === 1 ? "SINGLE" : "MULTIPLE",
+                answers: formattedAnswers,
+            };
+        }).filter(q => q !== null);
     };
 
     const fetchQuizBank = async () => {
         setInitialLoading(true);
         try {
             const res = await axiosInstance.get(commonApi.createQuizBank.url(lessonId));
-            
+
             const normalized = res.data.result.map((quiz) => ({
                 question: quiz.question,
                 quizType: quiz.quizType,
                 answers: quiz.answers.map((a) => ({
-                  answer: a.answer,
-                  correct: a.isCorrect,
+                    answer: a.answer,
+                    correct: a.isCorrect,
                 })),
-              }));
-              
-              setQuizData(normalized);
+            }));
+
+            setSaveQuizData(normalized);
+            setQuizData(normalized);
 
         } catch (error) {
             message.error("Failed to get quiz bank.");
@@ -103,10 +209,15 @@ const QuizForm = ({ lessonId }) => {
 
     const handleSubmit = async () => {
         try {
+            setLoadingSave(true);
             await axiosInstance.post(commonApi.createQuizBank.url(lessonId), quizData);
+            setHasChange(false);
             message.success('Quiz imported successfully!');
+            fetchQuizBank();
         } catch (error) {
             message.error('Failed to import quiz!');
+        } finally {
+            setLoadingSave(false);
         }
     };
 
@@ -144,9 +255,29 @@ const QuizForm = ({ lessonId }) => {
             <h2 className="text-xl font-bold">Import Quiz via Excel</h2>
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <Button onClick={handleDownloadTemplate}>
-                    Download Sample Excel
-                </Button>
+                {savedQuizData.length ? (
+                    <Button icon={<DownloadOutlined />} onClick={() => handleDownloadTemplate()}>
+                        Download Data Excel
+                    </Button>
+                ) : (
+                    <Popconfirm
+                        title="Download Excel"
+                        description="Do you want to download a sample Excel or AI drafted Excel?"
+                        okText="AI Drafted"
+                        cancelText="Sample"
+                        onConfirm={() => {
+                            setAIDrafted(true);
+                            handleDownloadTemplate();
+                        }}
+                        onCancel={() => {
+                            setAIDrafted(false);
+                            handleDownloadTemplate();
+                        }}
+                    >
+                        <Button icon={<DownloadOutlined />}>Download Drafted Excel</Button>
+                    </Popconfirm>
+                )}
+
 
                 <Upload
                     accept=".xlsx,.xls"
@@ -171,9 +302,12 @@ const QuizForm = ({ lessonId }) => {
                         type="primary"
                         onClick={handleSubmit}
                         className="mt-4"
+                        loading={loadingSave}
+                        disabled={!hasChange}
                     >
                         Submit Quiz
                     </Button>
+                    {hasChange && <Text className="ml-4">Unsaved.</Text>}
                 </>
             )}
         </div>

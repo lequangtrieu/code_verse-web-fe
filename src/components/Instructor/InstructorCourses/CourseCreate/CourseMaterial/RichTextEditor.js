@@ -2,18 +2,46 @@ import React, { useEffect, useState, forwardRef, useImperativeHandle } from "rea
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
+import { createLowlight } from "lowlight";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import javascript from "highlight.js/lib/languages/javascript";
+import python from "highlight.js/lib/languages/python";
+import Table from "@tiptap/extension-table";
+import TableRow from "@tiptap/extension-table-row";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
 import { Video } from "./Video";
 import { storage } from "./temp_firebase";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import Toolbar from "./Toolbar";
 import { Spin } from "antd";
 import "../CourseMaterial/RichTextEditor.css";
+import commonApi from "../../../../../common/api";
+import axiosInstance from "../../../../../config/axiosInstance";
+import "highlight.js/styles/github.css";
 
-const RichTextEditor = forwardRef(({ content, onChange, lessonId }, editorRef) => {
+const lowlight = createLowlight();
+lowlight.register('js', javascript);
+lowlight.register('py', python);
+
+const RichTextEditor = forwardRef(({ content, onChange, lessonId, theoryTitle }, editorRef) => {
     const [isUploading, setIsUploading] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
 
     const editor = useEditor({
-        extensions: [StarterKit, Image.configure({
+        extensions: [StarterKit.configure({
+            codeBlock: false,
+        }),
+        CodeBlockLowlight.configure({
+            lowlight,
+        }),
+        Table.configure({
+            resizable: true,
+        }),
+            TableRow,
+            TableHeader,
+            TableCell,
+        Image.configure({
             inline: false,
             allowBase64: false,
             HTMLAttributes: {
@@ -24,6 +52,17 @@ const RichTextEditor = forwardRef(({ content, onChange, lessonId }, editorRef) =
         content,
         onUpdate({ editor }) {
             onChange(editor.getHTML());
+        },
+        editorProps: {
+            handleKeyDown(view, event) {
+                if (event.key === "Tab") {
+                    event.preventDefault()
+                    view.dispatch(
+                        view.state.tr.insertText("    ")
+                    )
+                    return true
+                }
+            },
         },
     });
 
@@ -101,30 +140,56 @@ const RichTextEditor = forwardRef(({ content, onChange, lessonId }, editorRef) =
 
     useEffect(() => {
         if (editor && content !== editor.getHTML()) {
-          editor.commands.setContent(content || "");
+            editor.commands.setContent(content || "");
         }
         // eslint-disable-next-line
-      }, [content]);      
+    }, [content]);
+
+    const handleGenerateAI = async () => {
+        if (!editor) return;
+        if (!theoryTitle) return;
+        setIsGenerating(true);
+        try {
+            const res = await axiosInstance.post(commonApi.aiGenerateTheory.url,
+                {
+                    lessonId,
+                    theoryTitle,
+                    theoryContent: editor.getHTML()
+                }
+            );
+            const data = await res.data.result.draft;
+
+            const generatedText = data || "AI response here...";
+
+            editor.commands.insertContent(generatedText);
+        } catch (err) {
+            console.error("AI generation failed:", err);
+        } finally {
+            setIsGenerating(false);
+        }
+    };
 
     return (
         <div className="border border-gray-300 rounded-md">
             <div className={`border rounded bg-white ${isFullscreen
                 ? "fixed left-0 top-[82px] right-0 bottom-0 z-50 bg-white flex flex-col"
-                : "max-h-[400px] flex flex-col"
+                : "max-h-[600px] min-h-[400px] flex flex-col"
                 }`}>
                 {editor && <Toolbar
                     editor={editor}
                     onImageUpload={handleImageUpload}
                     onVideoUpload={handleVideoUpload}
+                    onGenerateAI={handleGenerateAI}
                     isFullscreen={isFullscreen}
                     toggleFullscreen={toggleFullscreen} />}
-                <div className={`relative flex-1 w-full overflow-x-auto ${isFullscreen ? "" : " max-w-none"
+                <div className={`relative flex-1 w-full overflow-x-auto ${isFullscreen ? " my-[40px]" : " max-w-none"
                     }`}>
                     <EditorContent editor={editor}
-                        className={`w-full px-4 editor-typography`} />
-                    {isUploading && (
+                        className={`w-full editor-typography ${isFullscreen ? " px-[400px]" : " px-4"
+                            }`} />
+                    {(isUploading || isGenerating) && (
                         <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-50">
-                            <Spin size="large" />
+                            <Spin size="large" tip={isGenerating ? "Generating with AI..." : "Uploading..."} />
                         </div>
                     )}
                 </div>

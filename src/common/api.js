@@ -20,6 +20,18 @@ const commonApi = {
     aiCourseSuggest: {
         url: `${backendDomain}/ai/course/suggest`
     },
+    aiDraftCourse: {
+        url: `${backendDomain}/ai/course/module-list`
+    },
+    aiGenerateTheory: {
+        url: `${backendDomain}/ai/lesson/theory-draft`
+    },
+    aiGenerateTestCases: {
+        url: `${backendDomain}/ai/lesson/test-case`
+    },
+    aiGenerateQuizBank: {
+        url: (lessonId) => `${backendDomain}/ai/lesson/quiz-bank/${lessonId}`
+    },
 
     /** Code api */
     executionCode: {
