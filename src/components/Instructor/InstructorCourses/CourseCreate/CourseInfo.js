@@ -235,9 +235,9 @@ export default function CourseDescription({
       >
         {initialLoading && <LoadingOverlay />}
 
-        <div className="flex items-center justify-end mb-4">
+        {/* <div className="flex items-center justify-end mb-4">
           <Button onClick={openSuggestModal}>Suggest with AI</Button>
-        </div>
+        </div> */}
 
         <Form.Item
           label="Course Title"

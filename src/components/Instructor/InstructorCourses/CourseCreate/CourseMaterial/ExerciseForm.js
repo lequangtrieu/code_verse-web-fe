@@ -16,6 +16,7 @@ const PRIORITY_OPTIONS = [
 const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
     const [exerciseId, setExerciseId] = useState(null);
     const [exerciseForm] = Form.useForm();
+    const [exercise, setExercise] = useState(null);
     const [taskDescription, setTaskDescription] = useState("");
     const [isAddingTask, setIsAddingTask] = useState(false);
     const [editingTaskId, setEditingTaskId] = useState(null);
@@ -56,6 +57,10 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
                 title: exercise.title,
                 instruction: exercise.instruction,
             });
+            setExercise({
+                title: exercise.title,
+                instruction: exercise.instruction,
+            });
         } catch {
             message.error("Failed to get exercise.");
         } finally {
@@ -73,6 +78,10 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
             };
             await axiosInstance.post(commonApi.createExercise.url, newExercise);
             setHasChange(false);
+            setExercise({
+                title: values.title,
+                instruction: values.instruction,
+            });
             message.success("Exercise saved successfully!");
         } catch {
             message.error("Error saving exercise.");
@@ -389,7 +398,13 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
                             icon={<ThunderboltTwoTone twoToneColor="#FFD666" />}
                             style={{ paddingRight: "10px", paddingLeft: "10px" }}
                             className="bg-gradient-to-r from-blue-500 to-purple-500 ml-2"
-                            onClick={() => setShowGenerateModal(true)}
+                            onClick={() => {
+                                if(exerciseTasks?.length === 0 || exercise?.instruction === null){
+                                    message.warning("Must save exercise info and exercise tasks before using this feature.");
+                                    return;
+                                }
+                                setShowGenerateModal(true);
+                            }}
                         >
                         </Button>
                     </Tooltip>

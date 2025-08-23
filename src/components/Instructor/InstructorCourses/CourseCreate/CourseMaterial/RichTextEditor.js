@@ -14,7 +14,7 @@ import { Video } from "./Video";
 import { storage } from "./temp_firebase";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import Toolbar from "./Toolbar";
-import { Spin } from "antd";
+import { Spin, message } from "antd";
 import "../CourseMaterial/RichTextEditor.css";
 import commonApi from "../../../../../common/api";
 import axiosInstance from "../../../../../config/axiosInstance";
@@ -147,7 +147,10 @@ const RichTextEditor = forwardRef(({ content, onChange, lessonId, theoryTitle },
 
     const handleGenerateAI = async () => {
         if (!editor) return;
-        if (!theoryTitle) return;
+        if (!theoryTitle || theoryTitle?.trim() === ""){
+            message.warning("Fill in theory title to use this feature.");
+             return;
+            }
         setIsGenerating(true);
         try {
             const res = await axiosInstance.post(commonApi.aiGenerateTheory.url,
