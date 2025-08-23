@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Button, Collapse, Modal, Input, InputNumber, Form, Tabs, Typography, Select, message } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Button, Collapse, Modal, Input, InputNumber, Form, Tabs, Typography, Select, message, Tooltip } from "antd";
+import { PlusOutlined, EditOutlined, DeleteOutlined, ThunderboltTwoTone, ToolTwoTone, RocketTwoTone } from "@ant-design/icons";
 import axiosInstance from "../../../../../config/axiosInstance";
 import commonApi from "../../../../../common/api";
 import ExerciseForm from "./ExerciseForm";
@@ -9,7 +9,7 @@ import TheoryForm from "./TheoryForm";
 import LoadingOverlay from "../../../../../common/LoadingOverlay";
 
 const { Panel } = Collapse;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 const { Option } = Select;
 
 const CourseModule = ({ courseId }) => {
@@ -23,9 +23,17 @@ const CourseModule = ({ courseId }) => {
     const [loadingModule, setLoadingModule] = useState(false);
     const [loadingLesson, setLoadingLesson] = useState(false);
     const [initialLoading, setInitialLoading] = useState(false);
+    const [showGenerateModal, setShowGenerateModal] = useState(false);
+    const [loadingGenerate, setLoadingGenerate] = useState(false);
+    const [loadingAIGenerate, setLoadingAIGenerate] = useState(false);
+    const [hasUnsavedTheory, setHasUnsavedTheory] = useState(false);
+    const [hasUnsavedExercise, setHasUnsavedExercise] = useState(false);
+    const [hasUnsavedQuiz, setHasUnsavedQuiz] = useState(false);
+    const [activeTab, setActiveTab] = useState("theory");
 
     const [moduleForm] = Form.useForm();
     const [lessonForm] = Form.useForm();
+    const [generateForm] = Form.useForm();
 
     const [deleteConfirm, setDeleteConfirm] = useState({
         visible: false,
@@ -33,6 +41,19 @@ const CourseModule = ({ courseId }) => {
         target: null,
     });
 
+    useEffect(() => {
+        if (!hasUnsavedExercise && !hasUnsavedTheory && !hasUnsavedQuiz) return;
+
+        const handleBeforeUnload = (e) => {
+            e.preventDefault();
+            e.returnValue = "";
+        };
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+        };
+    }, [hasUnsavedExercise, hasUnsavedTheory, hasUnsavedQuiz]);
 
     useEffect(() => {
         fetchModules();
@@ -161,32 +182,32 @@ const CourseModule = ({ courseId }) => {
 
     const confirmDelete = async () => {
         if (!deleteConfirm.target) return;
-      
+
         setInitialLoading(true);
         try {
-          if (deleteConfirm.type === 'module') {
-            await axiosInstance.delete(commonApi.updateCourseModule.url(deleteConfirm.target.id));
-            message.success("Module deleted successfully!");
-          } else if (deleteConfirm.type === 'lesson') {
-            await axiosInstance.delete(commonApi.updateLesson.url(deleteConfirm.target.id));
-            message.success("Lesson deleted successfully!");
-          }
-      
-          fetchModules();
-          setSelectedLesson(null);
+            if (deleteConfirm.type === 'module') {
+                await axiosInstance.delete(commonApi.updateCourseModule.url(deleteConfirm.target.id));
+                message.success("Module deleted successfully!");
+            } else if (deleteConfirm.type === 'lesson') {
+                await axiosInstance.delete(commonApi.updateLesson.url(deleteConfirm.target.id));
+                message.success("Lesson deleted successfully!");
+            }
+
+            fetchModules();
+            setSelectedLesson(null);
         } catch (err) {
-          message.error("Delete failed.");
+            message.error("Delete failed.");
         } finally {
-          setDeleteConfirm({ visible: false, type: '', target: null });
-          setTimeout(() => {
-            setInitialLoading(false);
-        }, 400);
+            setDeleteConfirm({ visible: false, type: '', target: null });
+            setTimeout(() => {
+                setInitialLoading(false);
+            }, 400);
         }
-      };      
+    };
 
     const renderModuleHeader = (mod) => (
         <div className="flex justify-between items-center">
-            <span>{mod.title}</span>
+            <Text>{mod.title}</Text>
             <div className="flex space-x-1">
                 <Button
                     size="small"
@@ -229,70 +250,164 @@ const CourseModule = ({ courseId }) => {
         </div>
     );
 
+    const handleGenerate = async (mode) => {
+        try {
+            const { modules: moduleCount, lessons: lessonCount } = await generateForm.validateFields();
+
+            let generatedData = [];
+            if (mode === "ai") {
+                setLoadingAIGenerate(true);
+                const res = await axiosInstance.post(commonApi.aiDraftCourse.url, {
+                    courseId,
+                    modules: moduleCount,
+                    lessons: lessonCount
+                });
+                generatedData = res.data.result.modules;
+            } else {
+                setLoadingGenerate(true);
+                generatedData = Array.from({ length: moduleCount }).map((_, m) => ({
+                    title: `Module ${(modules?.length ?? 0) + m + 1}`,
+                    subLessons: Array.from({ length: lessonCount }).map((_, l) => ({
+                        title: `Lesson ${l + 1}`,
+                        lessonType: "CODE",
+                        duration: 10,
+                        expReward: 10
+                    }))
+                }));
+            }
+
+            // Persist to backend
+            for (let [mIndex, mod] of generatedData.entries()) {
+                const modRes = await axiosInstance.post(commonApi.createModule.url, {
+                    courseId,
+                    title: mod.title,
+                    orderIndex: modules.length + mIndex + 1
+                });
+
+                const newModule = { ...modRes.data.result, lessons: [] };
+
+                for (let [lIndex, lesson] of mod.subLessons.entries()) {
+                    const lessonRes = await axiosInstance.post(commonApi.createLesson.url, {
+                        courseModuleId: modRes.data.result.id,
+                        title: lesson.title,
+                        lessonType: lesson.lessonType,
+                        duration: lesson.duration,
+                        expReward: lesson.expReward,
+                        orderIndex: lIndex + 1
+                    });
+                    newModule.lessons.push(lessonRes.data.result);
+                }
+
+                setModules((prev) => [...prev, newModule]);
+            }
+
+            message.success(mode === "ai" ? "AI drafted modules created!" : "Manual modules created!");
+            setShowGenerateModal(false);
+            generateForm.resetFields();
+        } catch (err) {
+            console.error(err);
+            message.error("Failed to generate.");
+        } finally {
+            setLoadingGenerate(false);
+            setLoadingAIGenerate(false);
+        }
+    };
+
     return (
         <div className="flex border border-gray-200 min-h-[500px]">
             {initialLoading && <LoadingOverlay />}
             {/* Sidebar */}
             <div className="w-[300px] bg-white p-4">
                 <Title level={4}>Modules</Title>
-                <Button
-                    type="dashed"
-                    icon={<PlusOutlined />}
-                    onClick={() => setShowModuleModal(true)}
-                    block
-                >
-                    Add Module
-                </Button>
+                <div className="flex justify-between items-center w-full gap-2">
+                    <Button
+                        type="dashed"
+                        icon={<PlusOutlined />}
+                        onClick={() => setShowModuleModal(true)}
+                        block
+                    >
+                        Add Module
+                    </Button>
+                    <Tooltip title="Fast Generate">
+                        <Button
+                            type="primary"
+                            icon={<ThunderboltTwoTone twoToneColor="#FFD666" />}
+                            style={{ paddingRight: "10px", paddingLeft: "10px" }}
+                            className="bg-gradient-to-r from-blue-500 to-purple-500"
+                            onClick={() => setShowGenerateModal(true)}
+                        >
+                        </Button>
+                    </Tooltip>
+                </div>
 
                 <div className="mt-4">
-                    <Collapse accordion>
-                        {modules?.map((mod) => (
-                            <Panel
-                                header={renderModuleHeader(mod)}
-                                key={mod.id}
-                            >
-                                {mod.lessons?.map((lesson) => (
-                                    <div
-                                        key={lesson.id}
-                                        className={`flex justify-between items-center px-3 py-2 rounded cursor-pointer
+                    <div className="max-h-[800px] overflow-y-auto pr-2">
+                        <Collapse accordion>
+                            {modules?.map((mod) => (
+                                <Panel
+                                    header={renderModuleHeader(mod)}
+                                    key={mod.id}
+                                >
+                                    {/* <div className="max-h-[250px] overflow-y-auto pr-1"> */}
+                                    {mod.lessons?.map((lesson) => (
+                                        <div
+                                            key={lesson.id}
+                                            className={`flex justify-between items-center px-3 py-2 rounded cursor-pointer
                           ${selectedLesson?.id === lesson.id ? 'bg-blue-100' : 'hover:bg-gray-100'}`}
-                                    >
-                                        <span
-                                            onClick={() => setSelectedLesson({ ...lesson, moduleId: mod.id })}
-                                            className="flex-1 truncate"
                                         >
-                                            {lesson.title}
-                                        </span>
-                                        <Button
-                                            size="small"
-                                            type="text"
-                                            icon={<span className="text-base"><EditOutlined /></span>}
-                                            onClick={() => {
-                                                setActiveModuleId(mod.id);
-                                                setEditingLesson({ ...lesson });
-                                                lessonForm.setFieldsValue({
-                                                    title: lesson.title,
-                                                    lessonType: lesson.lessonType,
-                                                    duration: lesson.duration,
-                                                    expReward: lesson.expReward
-                                                });
-                                                setShowLessonModal(true);
-                                            }}
-                                        />
-                                        <Button
-                                            size="small"
-                                            type="text"
-                                            danger
-                                            icon={<DeleteOutlined />}
-                                            onClick={() => {
-                                                setDeleteConfirm({ visible: true, type: 'lesson', target: { ...lesson, moduleId: mod.id } });
-                                            }}
-                                        />
-                                    </div>
-                                ))}
-                            </Panel>
-                        ))}
-                    </Collapse>
+                                            <span
+                                                onClick={() => {
+                                                    if (hasUnsavedTheory || hasUnsavedExercise || hasUnsavedQuiz) {
+                                                        Modal.confirm({
+                                                            title: "Unsaved changes",
+                                                            content: "You have unsaved changes. Do you want to leave without saving?",
+                                                            okText: "Leave",
+                                                            cancelText: "Stay",
+                                                            onOk: () => {
+                                                                setHasUnsavedExercise(false);
+                                                                setHasUnsavedQuiz(false);
+                                                                setHasUnsavedTheory(false);
+                                                                setSelectedLesson({ ...lesson, moduleId: mod.id });
+                                                            },
+                                                        });
+                                                    } else setSelectedLesson({ ...lesson, moduleId: mod.id });
+                                                }}
+                                                className="flex-1 truncate"
+                                            >
+                                                <Text>{lesson.title}</Text>
+                                            </span>
+                                            <Button
+                                                size="small"
+                                                type="text"
+                                                icon={<span className="text-base"><EditOutlined /></span>}
+                                                onClick={() => {
+                                                    setActiveModuleId(mod.id);
+                                                    setEditingLesson({ ...lesson });
+                                                    lessonForm.setFieldsValue({
+                                                        title: lesson.title,
+                                                        lessonType: lesson.lessonType,
+                                                        duration: lesson.duration,
+                                                        expReward: lesson.expReward
+                                                    });
+                                                    setShowLessonModal(true);
+                                                }}
+                                            />
+                                            <Button
+                                                size="small"
+                                                type="text"
+                                                danger
+                                                icon={<DeleteOutlined />}
+                                                onClick={() => {
+                                                    setDeleteConfirm({ visible: true, type: 'lesson', target: { ...lesson, moduleId: mod.id } });
+                                                }}
+                                            />
+                                        </div>
+                                    ))}
+                                    {/* </div> */}
+                                </Panel>
+                            ))}
+                        </Collapse>
+                    </div>
                 </div>
             </div>
 
@@ -303,16 +418,28 @@ const CourseModule = ({ courseId }) => {
                         <Title level={4}>Lesson Form: {selectedLesson.title}</Title>
 
                         {selectedLesson.lessonType === "CODE" ? (
-                            <Tabs defaultActiveKey="theory">
+                            <Tabs activeKey={activeTab} onChange={setActiveTab}>
                                 <Tabs.TabPane tab="Theory" key="theory">
-                                    <TheoryForm lessonId={selectedLesson.id} />
+                                    <TheoryForm
+                                        lessonId={selectedLesson.id}
+                                        isActive={activeTab === "theory"}
+                                        hasChange={hasUnsavedTheory}
+                                        setHasChange={setHasUnsavedTheory}
+                                    />
                                 </Tabs.TabPane>
                                 <Tabs.TabPane tab="Exercise" key="exercise">
-                                    <ExerciseForm lessonId={selectedLesson.id} />
+                                    <ExerciseForm
+                                        lessonId={selectedLesson.id}
+                                        hasChange={hasUnsavedExercise}
+                                        setHasChange={setHasUnsavedExercise}
+                                    />
                                 </Tabs.TabPane>
                             </Tabs>
                         ) : (
-                            <QuizForm lessonId={selectedLesson.id} />
+                            <QuizForm
+                                lessonId={selectedLesson.id}
+                                hasChange={hasUnsavedQuiz}
+                                setHasChange={setHasUnsavedQuiz} />
                         )}
                     </>
                 ) : (
@@ -325,7 +452,10 @@ const CourseModule = ({ courseId }) => {
                 title="Module"
                 getContainer={false}
                 open={showModuleModal}
-                onCancel={() => setShowModuleModal(false)}
+                onCancel={() => {
+                    moduleForm.resetFields();
+                    setShowModuleModal(false);
+                }}
                 footer={null}
             >
                 <Form form={moduleForm} layout="vertical">
@@ -334,11 +464,14 @@ const CourseModule = ({ courseId }) => {
                         label="Module Title"
                         rules={[{ required: true, message: "Please input module title" }]}
                     >
-                        <Input placeholder="e.g., Learn React from Scratch" />
+                        <Input placeholder="e.g., Learn React from Scratch" maxLength={250} showCount />
                     </Form.Item>
 
                     <div className="flex justify-end gap-2">
-                        <Button onClick={() => setShowModuleModal(false)}>Cancel</Button>
+                        <Button onClick={() => {
+                            moduleForm.resetFields();
+                            setShowModuleModal(false);
+                        }}>Cancel</Button>
                         <Button type="primary" onClick={handleSaveModule} loading={loadingModule}>
                             Save
                         </Button>
@@ -364,7 +497,7 @@ const CourseModule = ({ courseId }) => {
                         label="Lesson Title"
                         rules={[{ required: true, message: "Please input lesson title" }]}
                     >
-                        <Input placeholder="e.g., Learn React from Scratch" />
+                        <Input placeholder="e.g., Learn React from Scratch" maxLength={250} showCount />
                     </Form.Item>
                     <Form.Item
                         name="lessonType"
@@ -381,14 +514,14 @@ const CourseModule = ({ courseId }) => {
                         label="Estimated Duration (mins)"
                         rules={[{ required: true, message: "Please enter duration" }]}
                     >
-                        <InputNumber min={1} placeholder="Minutes" className="w-full" />
+                        <InputNumber min={1} max={30} placeholder="Minutes" className="w-full" />
                     </Form.Item>
                     <Form.Item
                         name="expReward"
                         label="Exp Reward"
                         rules={[{ required: true, message: "Please enter EXP Reward" }]}
                     >
-                        <InputNumber min={0} placeholder="Exp Reward" className="w-full" />
+                        <InputNumber min={0} max={50} placeholder="Exp Reward" className="w-full" />
                     </Form.Item>
                     <div className="flex justify-end gap-2">
                         <Button onClick={() => setShowLessonModal(false)}>Cancel</Button>
@@ -399,6 +532,7 @@ const CourseModule = ({ courseId }) => {
                 </Form>
             </Modal>
             <Modal
+                centered={true}
                 open={deleteConfirm.visible}
                 getContainer={false}
                 title={`Confirm Delete ${deleteConfirm.type === 'module' ? 'Module' : 'Lesson'}`}
@@ -410,6 +544,62 @@ const CourseModule = ({ courseId }) => {
                 <p>
                     Are you sure you want to delete this {deleteConfirm.type}? This action cannot be undone.
                 </p>
+            </Modal>
+
+            <Modal centered={true}
+                getContainer={false}
+                title="Fast Generate Modules & Lessons"
+                open={showGenerateModal}
+                onCancel={() => {
+                    setShowGenerateModal(false);
+                    generateForm.resetFields();
+                }}
+                footer={null}
+            >
+                <Form form={generateForm} layout="vertical">
+                    <Form.Item
+                        name="modules"
+                        label="Number of Modules"
+                        rules={[{ required: true, message: "Enter number of modules" }]}
+                    >
+                        <InputNumber min={1} max={10} className="w-full" />
+                    </Form.Item>
+                    <Form.Item
+                        name="lessons"
+                        label="Lessons per Module"
+                        rules={[{ required: true, message: "Enter number of lessons" }]}
+                    >
+                        <InputNumber min={1} max={10} className="w-full" />
+                    </Form.Item>
+                </Form>
+
+                <div className="grid grid-cols-2 gap-3 mt-4">
+                    {/* Manual Panel */}
+                    <Button
+                        type="dashed"
+                        disabled={loadingAIGenerate}
+                        loading={loadingGenerate}
+                        onClick={() => handleGenerate("manual")}
+                        className="min-h-28 flex flex-col items-center justify-center py-[80px]"
+                    >
+                        <ToolTwoTone twoToneColor="#2563EB" className="!text-3xl mb-2" />
+                        <strong>Manual</strong>
+                        <span className="text-xs text-gray-500">Empty placeholders</span>
+                    </Button>
+
+                    {/* AI Draft Panel */}
+                    <Button
+                        type="dashed"
+                        disabled={loadingGenerate}
+                        loading={loadingAIGenerate}
+                        onClick={() => handleGenerate("ai")}
+                        className="min-h-28 flex flex-col items-center justify-center py-[80px]"
+                    >
+                        <RocketTwoTone twoToneColor="#16A34A" className="!text-3xl mb-2" />
+                        <strong>AI Drafted</strong>
+                        <span className="text-xs text-gray-500">Generated titles</span>
+                    </Button>
+                </div>
             </Modal>
 
         </div>
