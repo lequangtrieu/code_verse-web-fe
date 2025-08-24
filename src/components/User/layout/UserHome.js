@@ -515,7 +515,7 @@ const UserHome = () => {
                       {(allCourses?.learning?.length || 0) + (allCourses?.completed?.length || 0)}/{(allCourses?.learning?.length || 0) + (allCourses?.completed?.length || 0) + (allCourses?.suggested?.length || 0)}
                     </div>
                     <div className="text-sm mt-1">
-                      {allCourses?.completed?.length || 0} certificates
+                      {userInfo?.certificates} certificates
                     </div>
                   </div>
 
