@@ -147,7 +147,7 @@ const ReportCommentModal = ({ open, onClose, messageId, reportedUserId }) => {
                 )}
 
                 <div>
-                    <label className="font-semibold">Evidence (optional)</label>
+                    <label className="font-semibold mr-4">Evidence (optional)</label>
                     <Upload
                         beforeUpload={handleBeforeUpload}
                         showUploadList={false}

@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
+import { useSelector } from "react-redux";
 import { Select, Button, notification, Tooltip, Modal } from "antd";
 import Editor from "@monaco-editor/react";
 import commonApi from "../../../common/api";
 import axiosInstance from "../../../config/axiosInstance";
 import { getAIFeedback } from "../../../common/aiHelper";
 import party from "party-js";
+import ROLE from "../../../common/role";
 
 const { Option } = Select;
 
@@ -19,6 +21,7 @@ const CodeEditor = ({
   allLessons = [],
   onRefreshLessonData,
 }) => {
+  const user = useSelector((state) => state?.user?.user);
   const defaultCodeMap = useMemo(
     () => ({
       javascript: `function run() {\n  // Your JS code here\n}`,
@@ -310,15 +313,15 @@ const CodeEditor = ({
         </div>
 
         <div className="space-x-2">
-          <Button
+          {testCases.length && <Button
             type="primary"
             loading={isRunning}
             onClick={runTests}
             className="bg-blue-500"
           >
             Run Test
-          </Button>
-          {canShowSubmitButton && (
+          </Button>}
+          {(user?.role === ROLE.LEARNER && canShowSubmitButton) && (
             <Button
               onClick={handleSubmit}
               type="primary"

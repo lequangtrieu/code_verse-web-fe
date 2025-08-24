@@ -1,14 +1,17 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import { Collapse, List, Tooltip } from "antd";
 import {
   FileTextOutlined,
   MenuUnfoldOutlined,
   MenuFoldOutlined,
 } from "@ant-design/icons";
+import ROLE from "../../../../common/role";
 const { Panel } = Collapse;
 
 const LessonSidebar = ({ lessons, selectedLessonId, onSelect }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
+  const user = useSelector((state) => state?.user?.user);
 
   const renderStatusIcon = (status) => {
     switch (status) {
@@ -38,7 +41,7 @@ const LessonSidebar = ({ lessons, selectedLessonId, onSelect }) => {
 
   return (
     <div className="min-w-[290px] max-w-[290px] w-80 px-3 pb-2 bg-white border-r border-gray-200 overflow-y-auto shadow-sm flex flex-col">
-      <h2 className="text-xl font-semibold mb-4 text-blue-600 sticky top-0 bg-white z-10 pb-2">
+      <h2 className="text-xl font-semibold mb-4 text-blue-600 sticky top-0 bg-white z-10 pb-2 pt-2">
         Lesson List
       </h2>
 
@@ -97,7 +100,7 @@ const LessonSidebar = ({ lessons, selectedLessonId, onSelect }) => {
 
                       {sub.status && (
                         <Tooltip title={sub.status}>
-                          {renderStatusIcon(sub.status)}
+                          {user?.role === ROLE.LEARNER && renderStatusIcon(sub.status)}
                         </Tooltip>
                       )}
                     </List.Item>

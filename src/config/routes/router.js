@@ -36,6 +36,7 @@ import TrainingCreation from "../../components/Instructor/InstructorTraining/Tra
 import RegisterPage from "../../components/Auth/RegisterPage";
 import LearnerDetailPage from "../../components/Admin/AdminAccount/LearnerDetailPage";
 import InstructorDetailPage from "../../components/Admin/AdminAccount/InstructorDetailPage";
+import CourseDetailView from "../../components/Instructor/InstructorCourses/CourseView/CourseDetailView";
 import AdminApproveInstructorPage from "../../components/Admin/AdminApproveInstructor/AdminApproveInstructorPage";
 import AdminNotificationPage from "../../components/Admin/AdminNotification/AdminNotificationPage";
 import { ManageBalanceDashboard } from "../../components/Instructor/ManageBalance/ManageBalanceDashboard";
@@ -100,6 +101,10 @@ const router = createBrowserRouter([
       {
         path: "/course/:courseId/learn",
         element: <LessonLayout />,
+      },
+      {
+        path: "/course/:courseId/view",
+        element: <CourseDetailView />,
       },
       {
         path: "cart",

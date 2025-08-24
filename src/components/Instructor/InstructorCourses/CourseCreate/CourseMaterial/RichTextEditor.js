@@ -24,7 +24,7 @@ const lowlight = createLowlight();
 lowlight.register('js', javascript);
 lowlight.register('py', python);
 
-const RichTextEditor = forwardRef(({ content, onChange, lessonId, theoryTitle }, editorRef) => {
+const RichTextEditor = forwardRef(({ isTraining, content, onChange, lessonId, theoryTitle }, editorRef) => {
     const [isUploading, setIsUploading] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
 
@@ -184,7 +184,8 @@ const RichTextEditor = forwardRef(({ content, onChange, lessonId, theoryTitle },
                     onVideoUpload={handleVideoUpload}
                     onGenerateAI={handleGenerateAI}
                     isFullscreen={isFullscreen}
-                    toggleFullscreen={toggleFullscreen} />}
+                    toggleFullscreen={toggleFullscreen}
+                    isTraining={isTraining} />}
                 <div className={`relative flex-1 w-full overflow-x-auto ${isFullscreen ? " my-[40px]" : " max-w-none"
                     }`}>
                     <EditorContent editor={editor}

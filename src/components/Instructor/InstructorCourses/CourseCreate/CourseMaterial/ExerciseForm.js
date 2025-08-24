@@ -385,7 +385,8 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
                 }
                 className="border p-4 rounded shadow">
                 <div className="">
-                    <Button onClick={() => {
+                    <Button type="dashed"
+                        onClick={() => {
                         setIsTestCaseModalOpen(true);
                         setEditingTestCase(null);
                         testCaseForm.resetFields();

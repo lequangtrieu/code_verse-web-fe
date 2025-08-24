@@ -100,12 +100,12 @@ const AdminPanel = () => {
 
           {!collapsed && (
             <div className="px-4 pt-4 pb-1 text-xs text-gray-500 font-semibold">
-              SETTINGS
+              OTHERS
             </div>
           )}
-          <Menu.Item key="settings" icon={<SettingOutlined />}>
+          {/* <Menu.Item key="settings" icon={<SettingOutlined />}>
             Settings
-          </Menu.Item>
+          </Menu.Item> */}
           <Menu.Item key="logout" icon={<LogoutOutlined />}>
             <span className="text-red-500">Logout</span>
           </Menu.Item>

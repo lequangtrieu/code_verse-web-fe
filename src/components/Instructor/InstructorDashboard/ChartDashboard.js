@@ -6,12 +6,11 @@ import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
 import LoadingContainer from "../../../common/LoadingContainer";
 import MonthlyEnrollmentChart from "./MonthlyEnrollmentChart";
-import CourseRatingChart from "./CourseRatingChart";
 
 const ChartDashboard = () => {
   const user = useSelector((state) => state?.user?.user);
   const [stats, setStats] = useState([]);
-  const [ratingStats, setRatingStats] = useState([]);
+  // const [ratingStats, setRatingStats] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [loading, setLoading] = useState(true);
@@ -30,21 +29,21 @@ const ChartDashboard = () => {
     }
   };
 
-  const fetchCourseRatingStats = async () => {
-    setLoading(true);
-    try {
-      const res = await axiosInstance.get(commonApi.getCourseRatingStats.url);
-      setRatingStats(res.data.result);
-    } catch (err) {
-      console.error("Failed to fetch stats:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const fetchCourseRatingStats = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const res = await axiosInstance.get(commonApi.getCourseRatingStats.url);
+  //     setRatingStats(res.data.result);
+  //   } catch (err) {
+  //     console.error("Failed to fetch stats:", err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   useEffect(() => {
     fetchStats();
-    fetchCourseRatingStats();
+    // fetchCourseRatingStats();
   }, [user]);
 
   const getAvailableCourses = () => {
@@ -86,7 +85,7 @@ const ChartDashboard = () => {
               onChange={setSelectedCourses}
               style={{ minWidth: 400 }}
               maxTagCount="responsive"
-              dropdownStyle={{ maxHeight: 300, overflowY: "auto" }}
+              dropdownStyle={{ maxHeight: 300, overflowY: "auto", }}
               options={availableCourses}
             />
           </div>
@@ -113,12 +112,12 @@ const ChartDashboard = () => {
             selectedCourses={selectedCourses}
             selectedYear={selectedYear}
           />
-          <CourseRatingChart
+          {/* <CourseRatingChart
             stats={ratingStats}
             selectedCourses={selectedCourses}
             selectedYear={selectedYear}
             availableCourses={availableCourses}
-          />
+          /> */}
         </>
       )}
     </div>

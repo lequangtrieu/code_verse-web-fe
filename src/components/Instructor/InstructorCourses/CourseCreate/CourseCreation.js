@@ -95,9 +95,10 @@ export default function CourseForm() {
                 message.success("Course submitted for approval.");
                 navigate("/instructor-panel/courses");
             } else {
-                errors.forEach(err => {
-                    message.error(err);
-                });
+                // errors.forEach(err => {
+                //     message.error(err);
+                // });
+                message.error("Please fill all the required fields before submit your course.");
             }
         } catch (error) {
             console.error("Validation error:", error);

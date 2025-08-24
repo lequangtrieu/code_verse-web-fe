@@ -3,6 +3,7 @@ import { Tabs, Table, Typography, message, Modal } from "antd";
 import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
 import { useSelector } from "react-redux";
+import { truncateHtml } from "../../../common/helper";
 const { TabPane } = Tabs;
 const { Text } = Typography;
 
@@ -51,7 +52,10 @@ const NotificationTabs = () => {
       title: "Content",
       dataIndex: "content",
       key: "content",
-      render: (text) => <Text type="secondary">{text}</Text>,
+      render: (text) => <div
+        dangerouslySetInnerHTML={{ __html: truncateHtml(text, 150) }}
+        style={{ maxHeight: 100, overflow: "hidden" }}
+      />,
     },
     {
       title: "Sender",
@@ -92,12 +96,12 @@ const NotificationTabs = () => {
             loading={loading}
             pagination={{ pageSize: 6 }}
             onRow={(record) => {
-                return {
-                    onClick: () => {
-                        setSelectedNotification(record);
-                        setIsNotiModalOpen(true);
-                    },
-                };
+              return {
+                onClick: () => {
+                  setSelectedNotification(record);
+                  setIsNotiModalOpen(true);
+                },
+              };
             }}
             style={{ cursor: "pointer" }}
           />
@@ -115,6 +119,7 @@ const NotificationTabs = () => {
       </Tabs>
 
       <Modal
+        getContainer={false}
         open={isNotiModalOpen}
         title={selectedNotification?.title}
         onCancel={() => setIsNotiModalOpen(false)}
