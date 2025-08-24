@@ -1,6 +1,7 @@
 import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
 import { message, Button } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import NotificationModal from "./NotificationModal";
 import NotificationTabs from "./NotificationTabs";
 import { useState } from "react";
@@ -14,16 +15,21 @@ const AdminNotificationPage = () => {
     }
     return (
         <div>
-            <h2 className="text-2xl font-semibold mb-2">Notification</h2>
-            <div className="w-16 h-[2px] bg-pink-500 mb-6 rounded">
-            </div>
-            <div className="flex gap-4 mb-6">
-                <Button
-                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                    onClick={handleRedirectToCreate}
-                >
-                    Create Notification
-                </Button>
+            <div className="flex items-center mb-2">
+                <div>
+                <h2 className="text-2xl font-semibold mb-2">Notification</h2>
+                <div className="w-16 h-[2px] bg-pink-500 mb-6 rounded"></div>
+                </div>
+                <div className="flex gap-4 mb-6 ml-6">
+                    <Button
+                        icon={<PlusOutlined />}
+                        className="px-4 py-4 text-l"
+                        onClick={handleRedirectToCreate}
+                    >
+                        New
+                    </Button>
+                </div>
+            
             </div>
             <NotificationTabs />
             <NotificationModal

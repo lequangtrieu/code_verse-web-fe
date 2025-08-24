@@ -52,3 +52,8 @@
 .custom-sider-trigger > div:hover {
   color: #1677ff;
 }
+
+.ant-table {
+  border-collapse: separate !important;
+  border-spacing: 0 8px;
+}

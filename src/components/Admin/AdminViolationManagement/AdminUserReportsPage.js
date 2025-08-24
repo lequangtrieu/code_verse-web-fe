@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
-import { message, Pagination, Input, Select, Tag, Modal } from "antd";
+import { message, Pagination, Input, Select, Tag, Button } from "antd";
 import CustomModal from "../../../common/CustomModal";
 import { useNavigate } from "react-router-dom";
 
@@ -150,12 +150,12 @@ const AdminUserReportsPage = () => {
                   </td>
                   <td className="border p-2">{getStatusTag(report.status)}</td>
                   <td className="border p-2">
-                    <button
-                      className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded"
+                    <Button type="primary"
+                      className="px-3 py-1 border-none"
                       onClick={() => handleViewDetail(report)}
                     >
                       View Detail
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))

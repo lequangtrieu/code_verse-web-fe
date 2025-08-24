@@ -4,7 +4,7 @@ import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
 import { formatCurrency } from "../../../common/helper";
 import LoadingOverlay from "../../../common/LoadingOverlay";
-import { Card, Descriptions, Tag, Typography, message } from "antd";
+import { Card, Descriptions, Tag, Typography, message, Button } from "antd";
 import CourseModuleList from "../../Instructor/InstructorCourses/CourseView/CourseModuleList";
 
 const { Title, Paragraph } = Typography;
@@ -93,18 +93,18 @@ const AdminCourseDetailPage = () => {
 
             {course.status === "PENDING" && (
                 <div className="mt-4 flex gap-2">
-                    <button
-                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded"
+                    <Button
+                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 border-none"
                         onClick={handleAccept}
                     >
                         Accept
-                    </button>
-                    <button
-                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded"
+                    </Button>
+                    <Button
+                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 border-none"
                         onClick={handleReject}
                     >
                         Reject
-                    </button>
+                    </Button>
                 </div>
             )}
 

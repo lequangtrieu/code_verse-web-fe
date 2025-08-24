@@ -7,12 +7,13 @@ import ExerciseForm from "./ExerciseForm";
 import QuizForm from "./QuizForm";
 import TheoryForm from "./TheoryForm";
 import LoadingOverlay from "../../../../../common/LoadingOverlay";
+import { useUnsavedChanges } from "../../../../../common/useUnsavedChange";
 
 const { Panel } = Collapse;
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-const CourseModule = ({ courseId }) => {
+const CourseModule = ({ courseId, setCanPreview }) => {
     const [modules, setModules] = useState([]);
     const [selectedLesson, setSelectedLesson] = useState(null);
     const [showModuleModal, setShowModuleModal] = useState(false);
@@ -41,19 +42,12 @@ const CourseModule = ({ courseId }) => {
         target: null,
     });
 
+    useUnsavedChanges(hasUnsavedExercise || hasUnsavedQuiz || hasUnsavedTheory);
+
     useEffect(() => {
-        if (!hasUnsavedExercise && !hasUnsavedTheory && !hasUnsavedQuiz) return;
-
-        const handleBeforeUnload = (e) => {
-            e.preventDefault();
-            e.returnValue = "";
-        };
-
-        window.addEventListener("beforeunload", handleBeforeUnload);
-        return () => {
-            window.removeEventListener("beforeunload", handleBeforeUnload);
-        };
-    }, [hasUnsavedExercise, hasUnsavedTheory, hasUnsavedQuiz]);
+        if(modules.some(module => Array.isArray(module.lessons) && module.lessons.length > 0)) setCanPreview(true);
+        // eslint-disable-next-line
+    }, [modules]);
 
     useEffect(() => {
         fetchModules();

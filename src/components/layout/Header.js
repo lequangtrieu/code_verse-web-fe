@@ -400,9 +400,9 @@ const Header = () => {
         My Profile
       </Menu.Item>
 
-      <Menu.Item key="settings" icon={<SettingOutlined />}>
+      {/* <Menu.Item key="settings" icon={<SettingOutlined />}>
         Settings
-      </Menu.Item>
+      </Menu.Item> */}
 
       <Menu.Divider />
 

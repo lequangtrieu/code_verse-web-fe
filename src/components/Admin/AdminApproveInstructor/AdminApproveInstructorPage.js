@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { message, Table, Modal, Input, Pagination } from "antd";
+import { message, Table, Button, Input, Pagination } from "antd";
 import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
 import LoadingOverlay from "../../../common/LoadingOverlay";
@@ -177,12 +177,12 @@ const AdminApproveInstructorPage = () => {
                               {renderTeachingCredentials(instructor.teachingCredentials)}
                             </td>
                             <td className="border p-2 justify-center">
-                              <button
+                              <Button type="primary"
                                 onClick={() => fetchInstructorDetail(instructor.id)}
-                                className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded whitespace-nowrap min-w-[70px]"
+                                className="px-3 py-1 whitespace-nowrap min-w-[70px] border-none"
                               >
                                 View Detail
-                              </button>
+                              </Button>
                             </td>
                           </tr>
                         ))}
