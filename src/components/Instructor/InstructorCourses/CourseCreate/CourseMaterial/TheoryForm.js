@@ -1,13 +1,16 @@
 import React, { useRef, useState, useEffect } from "react";
-import { Form, Input, Button, message } from "antd";
+import { Form, Input, Button, message, Typography, Modal } from "antd";
 import RichTextEditor from "./RichTextEditor";
 import axiosInstance from "../../../../../config/axiosInstance";
 import commonApi from "../../../../../common/api";
 import LoadingContainer from "../../../../../common/LoadingContainer";
 
-const TheoryForm = ({ lessonId }) => {
+const { Text } = Typography;
+
+const TheoryForm = ({ lessonId, isActive, hasChange, setHasChange }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const theoryTitle = Form.useWatch("title", form);
   const [editorContent, setEditorContent] = useState("");
   const editorRef = useRef();
   const [initialLoading, setInitialLoading] = useState(false);
@@ -45,7 +48,7 @@ const TheoryForm = ({ lessonId }) => {
       };
 
       await axiosInstance.post(commonApi.createTheory.url, payload);
-
+      setHasChange(false);
       message.success("Theory saved successfully!");
     } catch (err) {
       message.error("Error saving theory.");
@@ -53,6 +56,19 @@ const TheoryForm = ({ lessonId }) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!isActive) return;
+
+    const handleKeySave = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        handleSaveTheory();
+      }
+    }
+    window.addEventListener("keydown", handleKeySave);
+    return () => window.removeEventListener("keydown", handleKeySave);
+  }, [isActive, handleSaveTheory]);
 
   return (
     <Form form={form} layout="vertical" className="relative">
@@ -63,15 +79,19 @@ const TheoryForm = ({ lessonId }) => {
         label="Theory Title"
         rules={[{ required: true, message: "Please input the theory title" }]}
       >
-        <Input placeholder="Enter theory title" />
+        <Input placeholder="Enter theory title" onChange={() => setHasChange(true)} />
       </Form.Item>
 
       <Form.Item label="Theory Content" required>
         <RichTextEditor
           content={editorContent}
-          onChange={(value) => setEditorContent(value)}
+          onChange={(value) => {
+            setHasChange(true);
+            setEditorContent(value);
+          }}
           lessonId={lessonId}
           ref={editorRef}
+          theoryTitle={theoryTitle}
         />
       </Form.Item>
 
@@ -80,9 +100,12 @@ const TheoryForm = ({ lessonId }) => {
         className="mt-6 justify-end"
         onClick={handleSaveTheory}
         loading={loading}
+        disabled={!hasChange}
       >
         Save Theory
       </Button>
+
+      {hasChange && <Text className="ml-4">Unsaved.</Text>}
     </Form>
   );
 };
