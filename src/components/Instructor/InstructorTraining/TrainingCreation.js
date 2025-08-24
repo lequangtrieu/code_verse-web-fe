@@ -7,6 +7,7 @@ import commonApi from "../../../common/api";
 import TrainingBasicInfo from "./TrainingBasicInfo";
 import TheoryForm from "../InstructorCourses/CourseCreate/CourseMaterial/TheoryForm";
 import ExerciseForm from "../InstructorCourses/CourseCreate/CourseMaterial/ExerciseForm";
+import { useUnsavedChanges } from "../../../common/useUnsavedChange";
 
 const { TabPane } = Tabs;
 
@@ -17,6 +18,9 @@ export default function TrainingCreation() {
   const [initialValues, setInitialValues] = useState(null);
   const [loading, setLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [hasUnsavedTheory, setHasUnsavedTheory] = useState(false);
+  const [hasUnsavedExercise, setHasUnsavedExercise] = useState(false);
+  const [activeTab, setActiveTab] = useState("theory");
 
   const navigate = useNavigate();
   const tabsRef = useRef(null);
@@ -30,6 +34,8 @@ export default function TrainingCreation() {
       fetchTraining();
     }
   }, [id]);
+
+  useUnsavedChanges(hasUnsavedExercise || hasUnsavedTheory);
 
   const fetchTraining = async () => {
     setLoading(true);
@@ -58,7 +64,7 @@ export default function TrainingCreation() {
       const formData = new FormData();
       formData.append("title", values.title);
       formData.append("level", values.levelId);
-      formData.append("language", values.language == "ALL" ? "" : values.language);
+      formData.append("language", values.language === "ALL" ? "" : values.language);
       formData.append("expReward", values.expReward ?? 0);
       formData.append("status", "TRAINING_DRAFT");
       formData.append("categoryId", 1);
@@ -90,7 +96,7 @@ export default function TrainingCreation() {
             const rect = element.getBoundingClientRect();
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             const offset = rect.top + scrollTop - window.innerHeight / 2 + rect.height / 2;
-        
+
             window.scrollTo({
               top: offset,
               behavior: "smooth",
@@ -153,12 +159,20 @@ export default function TrainingCreation() {
 
         {lessonId && (
           <Card ref={tabsRef}>
-            <Tabs defaultActiveKey="theory">
+            <Tabs activeKey={activeTab} onChange={setActiveTab}>
               <TabPane tab="Theory" key="theory">
-                <TheoryForm lessonId={lessonId} />
+                <TheoryForm
+                  lessonId={lessonId}
+                  isActive={activeTab === "theory"}
+                  hasChange={hasUnsavedTheory}
+                  setHasChange={setHasUnsavedTheory}
+                  isTraining={true} />
               </TabPane>
               <TabPane tab="Exercise" key="exercise">
-                <ExerciseForm lessonId={lessonId} />
+                <ExerciseForm 
+                  lessonId={lessonId}
+                  hasChange={hasUnsavedExercise}
+                  setHasChange={setHasUnsavedExercise} />
               </TabPane>
             </Tabs>
           </Card>

@@ -44,7 +44,16 @@ const ExerciseViewer = ({ lessonId }) => {
                 <Card title="Exercise Info" className="flex-1">
                     <Title level={5}>{exercise.title}</Title>
                     <Paragraph>{exercise.instruction}</Paragraph>
-                    <Text strong>EXP Reward:</Text> <Tag color="blue">{exercise.expReward} XP</Tag>
+                    <div className="space-y-1">
+                        <div>
+                            <Text strong>Duration:</Text>{" "}
+                            {exercise.duration} mins
+                        </div>
+                        <div>
+                            <Text strong>EXP Reward:</Text>{" "}
+                            <Tag color="blue">{exercise.expReward} XP</Tag>
+                        </div>
+                    </div>
                 </Card>
 
                 {/* Tasks */}

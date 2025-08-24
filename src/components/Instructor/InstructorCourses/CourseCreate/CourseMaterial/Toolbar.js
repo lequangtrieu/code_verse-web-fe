@@ -26,6 +26,7 @@ const Toolbar = ({
   onGenerateAI,
   isFullscreen,
   toggleFullscreen,
+  isTraining
 }) => {
   if (!editor) return null;
 
@@ -118,7 +119,7 @@ const Toolbar = ({
       icon: <VideoCameraOutlined />,
     },
     "divider",
-    {
+    !isTraining && {
       title: "Generate AI Text",
       action: onGenerateAI,
       icon: <RobotOutlined />,

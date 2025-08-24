@@ -7,7 +7,7 @@ import LoadingContainer from "../../../../../common/LoadingContainer";
 
 const { Text } = Typography;
 
-const TheoryForm = ({ lessonId, isActive, hasChange, setHasChange }) => {
+const TheoryForm = ({ lessonId, isActive, hasChange, setHasChange, isTraining = false }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const theoryTitle = Form.useWatch("title", form);
@@ -58,7 +58,7 @@ const TheoryForm = ({ lessonId, isActive, hasChange, setHasChange }) => {
   };
 
   useEffect(() => {
-    if (!isActive) return;
+    if (!isActive || !hasChange) return;
 
     const handleKeySave = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "s") {
@@ -84,6 +84,7 @@ const TheoryForm = ({ lessonId, isActive, hasChange, setHasChange }) => {
 
       <Form.Item label="Theory Content" required>
         <RichTextEditor
+          isTraining={isTraining}
           content={editorContent}
           onChange={(value) => {
             setHasChange(true);

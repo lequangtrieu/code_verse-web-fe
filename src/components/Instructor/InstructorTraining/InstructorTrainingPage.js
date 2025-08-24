@@ -2,11 +2,10 @@ import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
-import { formatCurrency } from "../../../common/helper";
 import LoadingOverlay from "../../../common/LoadingOverlay";
-import { Modal, message, Pagination, Input, Select, Progress, Tag, Table, Image, Button } from "antd";
+import { message, Pagination, Input, Select, Tag, Table, Button } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
-import moment from "moment/moment";
 
 const { Option } = Select;
 
@@ -77,7 +76,7 @@ const InstructorTrainingsPage = () => {
                 <div className="flex flex-wrap gap-2">
                   <Button
                     type="primary"
-                    className="bg-yellow-400 hover:bg-yellow-500 flex-1 min-w-[100px]"
+                    className="flex-1 min-w-[100px]"
                     onClick={() => handleViewDetail(record.id)}
                   >
                     View Detail
@@ -149,19 +148,23 @@ const InstructorTrainingsPage = () => {
 
     return (
         <div>
-            <h2 className="text-2xl font-semibold mb-2">Trainings</h2>
-            <div className="w-16 h-[2px] bg-pink-500 mb-6 rounded"></div>
-
-            {!isCreatePage && (
-                <div className="flex gap-4 mb-6">
+            <div className="flex items-center mb-2">
+                <div>
+                    <h2 className="text-2xl font-semibold mb-2">Trainings</h2>
+                    <div className="w-16 h-[2px] bg-pink-500 mb-6 rounded"></div>
+                </div>
+                {!isCreatePage && (
+                <div className="flex gap-4 mb-6 ml-6">
                     <Button
-                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                        icon={<PlusOutlined />}
+                        className="px-4 py-4 text-l"
                         onClick={handleRedirectToCreate}
                     >
-                        Create Training
+                        New
                     </Button>
                 </div>
             )}
+            </div>
             {/* Search and Filters */}
             <div className="flex flex-wrap gap-4 mb-4">
                 <Input

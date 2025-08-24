@@ -4,7 +4,8 @@ import Context from "./config/context/context";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 import commonApi from "./common/api";
-import { message, notification } from "antd";
+import { message, notification, ConfigProvider } from "antd";
+import { themeConfig } from "./config/ThemeConfig";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserDetails } from "./config/store/userSlice";
@@ -193,6 +194,7 @@ function App() {
   }, [user]);
 
   return (
+    <ConfigProvider theme={themeConfig}>
     <Context.Provider
       value={{
         fetchUserDetails,
@@ -212,6 +214,7 @@ function App() {
       </main>
       <Footer />
     </Context.Provider>
+    </ConfigProvider>
   );
 }
 

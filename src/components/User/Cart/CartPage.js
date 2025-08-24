@@ -267,6 +267,7 @@ const CartPage = () => {
             e.stopPropagation();
             handleRemoveItem(key);
           }}
+          danger
           className="px-3 py-2 text-red-600"
         >
           Remove

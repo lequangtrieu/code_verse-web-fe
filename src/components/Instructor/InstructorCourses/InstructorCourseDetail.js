@@ -4,10 +4,11 @@ import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
 import { formatCurrency } from "../../../common/helper";
 import LoadingOverlay from "../../../common/LoadingOverlay";
-import { Form, Card, Descriptions, Tag, Typography, message, Button } from "antd";
+import { Form, Card, Descriptions, Tag, Typography, message, Button, Image } from "antd";
 import CourseDescription from "./CourseCreate/CourseInfo";
 import CourseModule from "./CourseCreate/CourseMaterial/CourseModule";
 import CourseModuleList from "./CourseView/CourseModuleList";
+import { useNavigate } from "react-router-dom";
 
 const { Title, Paragraph } = Typography;
 
@@ -22,6 +23,8 @@ const InstructorCourseDetailView = () => {
     const [initialLoading, setInitialLoading] = useState(true);
     const [submitLoading, setSubmitLoading] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
+    const [canPreview, setCanPreview] = useState(false);
+    const navigate = useNavigate();
 
     const toggleEdit = () => {
         if (isEditing) {
@@ -159,10 +162,11 @@ const InstructorCourseDetailView = () => {
                 loadInitialData();
                 message.success("Course submitted for approval.");
             } else {
-                message.error("Course has validation issues:");
-                errors.forEach(err => {
-                    message.error(err);
-                });
+                // message.error("Course has validation issues:");
+                // errors.forEach(err => {
+                //     message.error(err);
+                // });
+                message.error("Please fill all the required fields before submit your course.");
             }
         } catch (error) {
             console.error("Validation error:", error);
@@ -215,10 +219,17 @@ const InstructorCourseDetailView = () => {
                     ) : (
                         <div className="flex flex-col md:flex-row gap-6">
 
-                            <img
+                            {/* <img
                                 src={course?.thumbnailUrl || "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"}
                                 alt="Course Thumbnail"
                                 className="w-full md:w-60 h-auto object-cover rounded-lg border"
+                            /> */}
+                            <Image
+                                width="20vw"
+                                height="100%"
+                                src={course?.thumbnailUrl || "https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg"}
+                                alt="Course Thumbnail"
+                                style={{ objectFit: "cover", borderRadius: 8 }}
                             />
                             <div className="flex-1">
                                 <Title level={3}>{course?.title}</Title>
@@ -252,8 +263,17 @@ const InstructorCourseDetailView = () => {
             </Card>
 
             {/* Modules & Lessons */}
-            <Card title="Course Modules" variant="outlined" className="shadow">
-                {course?.status === "DRAFT" ? <CourseModule courseId={id} /> : (
+            <Card
+                title="Course Modules"
+                variant="outlined"
+                className="shadow"
+                extra={
+                    (canPreview && <Button type="text" size="small" onClick={() => navigate(`/course/${id}/view`)}>
+                      Preview
+                    </Button>)
+                  }
+                  >
+                {course?.status === "DRAFT" ? <CourseModule courseId={id} setCanPreview={setCanPreview} /> : (
                     <CourseModuleList courseId={id} />
                 )}
             </Card>

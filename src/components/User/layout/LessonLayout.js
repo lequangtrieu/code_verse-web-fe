@@ -22,6 +22,7 @@ export default function LessonLayout() {
   const [lessonData, setLessonData] = useState(null);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [language, setLanguage] = useState(null);
+  const [instructor, setInstructor] = useState(null);
 
   const selectedLessonIdRef = useRef(null);
 
@@ -53,6 +54,7 @@ export default function LessonLayout() {
         );
 
         setLanguage(response.data.result?.language.toLowerCase());
+        setInstructor(response.data.result?.instructor);
         setLessonData(response.data.result.data);
 
         const allLessons = response.data.result.data.flatMap(
@@ -166,7 +168,7 @@ export default function LessonLayout() {
           ) : (
             <>
               <ResizableSplitLayout
-                leftComponent={<LessonContent lesson={selectedLesson} />}
+                leftComponent={<LessonContent instructor={instructor} lesson={selectedLesson} />}
                 rightComponent={<CodeEditor
                   key={selectedLesson?.id}
                   lessonId={selectedLesson?.id}

@@ -82,19 +82,19 @@ const UserPanel = () => {
           <Menu.Item key="profile" icon={<UserOutlined />}>
             My Profile
           </Menu.Item>
-          <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
+          {/* <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
             Dashboard
           </Menu.Item>
           <Menu.Item key="messages" icon={<MessageOutlined />}>
             Messages <Badge count={12} offset={[10, 0]} />
-          </Menu.Item>
+          </Menu.Item> */}
           <Menu.Item key="accomplishments" icon={<BookOutlined />}>
             Accomplishments
           </Menu.Item>
           <Menu.Item key="notifications" icon={<BarsOutlined />}>
             Notification
           </Menu.Item>
-          <Menu.Item key="reviews" icon={<StarOutlined />}>
+          {/* <Menu.Item key="reviews" icon={<StarOutlined />}>
             Reviews
           </Menu.Item>
           <Menu.Item key="quiz" icon={<QuestionCircleOutlined />}>
@@ -102,7 +102,7 @@ const UserPanel = () => {
           </Menu.Item>
           <Menu.Item key="assignment" icon={<ScheduleOutlined />}>
             Assignments
-          </Menu.Item>
+          </Menu.Item> */}
 
           {!collapsed && (
             <div className="px-4 pt-4 pb-1 text-xs text-gray-500 font-semibold">
