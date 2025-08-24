@@ -110,7 +110,7 @@ const UserHome = () => {
           email: user?.username,
           avatar: data.avatar,
           courseProgress: data?.lessonProgressStatus ?? "0/0",
-          certificates: allCourses?.completed?.length ?? 0,
+          certificates: data?.completed ?? 0,
           trainingStatus: data?.trainingStatus ?? "0/0",
           achievements
         })
