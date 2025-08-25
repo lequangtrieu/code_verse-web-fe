@@ -44,7 +44,7 @@ const HandlePaymentSuccess = () => {
           });
 
           scrollTop();
-          navigate("/cart");
+          navigate("/home");
         } catch (error) {
           notification.error({
             message: "Failed to Confirm Payment",
