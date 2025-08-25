@@ -393,7 +393,13 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
                     }}>
                         + Add Test Case
                     </Button>
-                    <Tooltip title="Fast Generate">
+                    <Tooltip title={
+                        <div>
+                        <strong>Fast Generate</strong>
+                        <br />
+                        <span>Hints: The more clearly you define the exercise and the exercise tasks, the more accurate the test cases that AI ​​generates will be.</span>
+                      </div>
+                    }>
                         <Button
                             type="primary"
                             icon={<ThunderboltTwoTone twoToneColor="#FFD666" />}
