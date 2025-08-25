@@ -177,10 +177,10 @@ const Courses = () => {
     const handleResetFilters = () => {
         setSearchQuery("");
         setSelectedCategory(null);
-        setSelectedRatings([]);
+        setSelectedRatings(null);
         setSelectedDuration(null);
-        setSelectedLevels([]);
-        setSelectedLanguages([]);
+        setSelectedLevels(null);
+        setSelectedLanguages(null);
         setSelectedPrice(null);
     };
 

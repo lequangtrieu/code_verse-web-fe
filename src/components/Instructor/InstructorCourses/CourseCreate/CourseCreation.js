@@ -14,6 +14,7 @@ export default function CourseForm() {
     const [courseId, setCourseId] = useState(null);
     const [initialLoading, setInitialLoading] = useState(false);
     const [submitLoading, setSubmitLoading] = useState(false);
+    const [canPreview, setCanPreview] = useState(false);
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -122,7 +123,7 @@ export default function CourseForm() {
         },
         {
             title: "Course Material",
-            component: <CourseModule courseId={courseId} />,
+            component: <CourseModule courseId={courseId} setCanPreview={setCanPreview} />,
         },
     ];
 
@@ -146,6 +147,10 @@ export default function CourseForm() {
                     </Button>
                 )}
                 {current === 1 && courseId && (
+                    <div className="flex gap-2">
+                    {canPreview && canPreview && <Button type="text" onClick={() => window.open(`/course/${courseId}/view`, "_blank")}>
+                      Preview
+                    </Button>}
                     <Button
                         type="primary"
                         onClick={handleSubmitForApproval}
@@ -153,6 +158,7 @@ export default function CourseForm() {
                     >
                         Submit
                     </Button>
+                    </div>
                 )}
             </div>
         </div>

@@ -268,7 +268,7 @@ const InstructorCourseDetailView = () => {
                 variant="outlined"
                 className="shadow"
                 extra={
-                    (canPreview && <Button type="text" size="small" onClick={() => navigate(`/course/${id}/view`)}>
+                    (canPreview && <Button type="text" size="small" onClick={() => window.open(`/course/${id}/view`, "_blank")}>
                       Preview
                     </Button>)
                   }
