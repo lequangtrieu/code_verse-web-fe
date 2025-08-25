@@ -21,6 +21,7 @@ const QuizComponent = ({
   const [quizProgress, setQuizProgress] = useState(null);
   const [quizHistory, setQuizHistory] = useState([]);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [quizResult, setQuizResult] = useState([]);
 
   const mapLessonProgressStatus = (status) => {
     switch (status) {
@@ -199,34 +200,82 @@ const QuizComponent = ({
 
     setSubmitted(true);
 
-    const correctCount = quiz.questions.filter((q) => {
+    let results = quiz.questions.map((q) => {
       const userAnswer = answers[q.id];
-      if (q.quizType === "SINGLE") {
-        return userAnswer === q.answers.find((a) => a.isCorrect)?.id;
-      } else {
-        const correctIds = q.answers
-          .filter((a) => a.isCorrect)
-          .map((a) => a.id);
-        return (
-          Array.isArray(userAnswer) &&
-          userAnswer.length === correctIds.length &&
-          userAnswer.every((id) => correctIds.includes(id))
-        );
-      }
-    }).length;
+      const correctAnswers = q.answers
+        .filter((a) => a.isCorrect)
+        .map((a) => a.id);
 
+      const isCorrect =
+        q.quizType === "SINGLE"
+          ? userAnswer === correctAnswers[0]
+          : Array.isArray(userAnswer) &&
+            userAnswer.length === correctAnswers.length &&
+            userAnswer.every((id) => correctAnswers.includes(id));
+
+      return {
+        questionId: q.id,
+        question: q.question,
+        isCorrect,
+        userAnswer,
+        correctAnswers,
+        allOptions: q.answers,
+        aiFeedback: null,
+      };
+    });
+
+    setQuizResult(results);
+
+    const correctCount = results.filter((r) => r.isCorrect).length;
     const scorePercent = Math.round((correctCount / totalQuestions) * 100);
     const passScore = quiz.passScore || 80;
 
     try {
       const response = await axiosInstance.put(
         commonApi.submitQuizPer.url(userId, lessonId),
-        {
-          score: scorePercent,
-        }
+        { score: scorePercent }
       );
 
       const statusDone = response?.data?.result?.statusDone;
+
+      const wrongAnswers = results
+        .filter((r) => !r.isCorrect)
+        .map((r) => ({
+          question: r.question,
+          userAnswer: r.allOptions
+            .filter((a) =>
+              Array.isArray(r.userAnswer)
+                ? r.userAnswer.includes(a.id)
+                : r.userAnswer === a.id
+            )
+            .map((a) => a.answer),
+          correctAnswers: r.allOptions
+            .filter((a) => r.correctAnswers.includes(a.id))
+            .map((a) => a.answer),
+        }));
+
+      if (wrongAnswers.length > 0) {
+        try {
+          const aiResp = await axiosInstance.post(
+            commonApi.aiQuizFeedback.url,
+            {
+              quizTitle: quiz.title,
+              wrongAnswers,
+            }
+          );
+
+          const feedbackArray = aiResp.data.feedback || [];
+
+          const updatedResults = results.map((r) => {
+            const fb = feedbackArray.find((f) => f.question === r.question);
+            return fb ? { ...r, aiFeedback: fb.explanation } : r;
+          });
+
+          setQuizResult(updatedResults);
+        } catch (err) {
+          console.error("AI feedback error", err);
+        }
+      }
 
       if (scorePercent >= passScore) {
         if (statusDone) {
@@ -245,11 +294,13 @@ const QuizComponent = ({
           });
 
           await checkQuizProgress();
-          setMode("info");
           setTimeLeft(0);
-          if (typeof onProgressUpdate === "function") {
-            onProgressUpdate();
-          }
+
+          setTimeout(() => {
+            if (typeof onProgressUpdate === "function") {
+              onProgressUpdate();
+            }
+          }, 4000);
         }
       } else {
         notification.warning({
@@ -258,8 +309,8 @@ const QuizComponent = ({
         });
 
         await checkQuizProgress();
-        setMode("info");
         setTimeLeft(0);
+        setMode("review");
       }
     } catch (error) {
       console.error("Error submitting quiz:", error);
@@ -274,11 +325,15 @@ const QuizComponent = ({
     const questionId = quiz.questions[index].id;
     const userAnswer = answers[questionId];
 
-    if (submitted) {
-      if (!userAnswer) return "border border-red-400 bg-red-50 text-red-600";
-      return "border-green-500";
+    if (index === currentIndex) {
+      return "bg-blue-600 text-white border-blue-600 shadow-md";
     }
-    return "border-gray-300";
+
+    if (userAnswer) {
+      return "bg-blue-100 text-blue-700 border-blue-400";
+    }
+
+    return "bg-white text-gray-700 border-gray-300";
   };
 
   if (mode === "info") {
@@ -393,6 +448,104 @@ const QuizComponent = ({
     );
   }
 
+  if (mode === "review") {
+    const currentReview = quizResult[currentIndex];
+
+    return (
+      <div className="min-w-[600px] w-full p-6 bg-white rounded shadow max-h-[850px] overflow-y-auto space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold text-gray-800">
+            {quiz.title} - Review
+          </h2>
+          <div className="px-4 py-2 rounded text-sm font-semibold bg-blue-50 text-blue-700">
+            Score: {quizResult.filter((r) => r.isCorrect).length}/
+            {quizResult.length}
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2">
+            {quizResult.map((res, index) => (
+              <Button
+                key={index}
+                type={index === currentIndex ? "primary" : "default"}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-16 font-medium ${
+                  res.isCorrect
+                    ? "border-green-500 bg-green-50 text-green-700"
+                    : "border-red-500 bg-red-50 text-red-700"
+                }`}
+              >
+                Q{index + 1}
+              </Button>
+            ))}
+          </div>
+          <Button
+            type="primary"
+            onClick={() => setMode("info")}
+            className="mt-2 sm:mt-0"
+          >
+            Back
+          </Button>
+        </div>
+
+        {/* Question card */}
+        <Card key={currentReview.questionId}>
+          <p className="font-semibold text-lg mb-2">
+            {currentIndex + 1}. {currentReview.question}
+          </p>
+
+          <ul className="space-y-2">
+            {currentReview.allOptions.map((opt) => {
+              const isUser = Array.isArray(currentReview.userAnswer)
+                ? currentReview.userAnswer.includes(opt.id)
+                : currentReview.userAnswer === opt.id;
+              const isCorrect = currentReview.correctAnswers.includes(opt.id);
+
+              return (
+                <li
+                  key={opt.id}
+                  className={`px-3 py-2 rounded-lg border flex items-center justify-between ${
+                    isCorrect
+                      ? "bg-green-50 border-green-300 text-green-700"
+                      : isUser
+                      ? "bg-red-50 border-red-300 text-red-700"
+                      : "bg-gray-50 border-gray-200 text-gray-700"
+                  }`}
+                >
+                  <span>{opt.answer}</span>
+                  {isCorrect && <span>✅</span>}
+                  {isUser && !isCorrect && <span>❌</span>}
+                </li>
+              );
+            })}
+          </ul>
+
+          {!currentReview.isCorrect && (
+            <div className="mt-4">
+              <p className="text-red-500 font-medium">
+                ❌ Your answer is incorrect
+              </p>
+              {currentReview.aiFeedback ? (
+                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-gray-800 whitespace-pre-line">
+                  {currentReview.aiFeedback}
+                </div>
+              ) : (
+                <p className="text-gray-400 italic mt-2">
+                  Loading AI explanation...
+                </p>
+              )}
+            </div>
+          )}
+
+          {currentReview.isCorrect && (
+            <p className="mt-4 text-green-600 font-medium">✅ Correct</p>
+          )}
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-w-[600px] w-full p-6 bg-white rounded shadow max-h-[850px] overflow-y-auto space-y-6">
       <div className="flex justify-between items-center">
@@ -417,7 +570,7 @@ const QuizComponent = ({
               key={index}
               type={index === currentIndex ? "primary" : "default"}
               onClick={() => setCurrentIndex(index)}
-              className={`w-16 border ${getButtonStyle(index)}`}
+              className={`w-16 ${getButtonStyle(index)}`}
             >
               Q{index + 1}
             </Button>
@@ -473,16 +626,6 @@ const QuizComponent = ({
         )}
       </Card>
 
-      {/* <div className="flex justify-end">
-        <Button
-          onClick={async () => {
-            setMode("info");
-          }}
-          className="mt-4"
-        >
-          Back
-        </Button>
-      </div> */}
       <Modal
         title={null}
         getContainer={false}
