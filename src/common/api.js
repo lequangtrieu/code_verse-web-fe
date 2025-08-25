@@ -11,6 +11,9 @@ const commonApi = {
     },
 
     /** AI HELP */
+    aiQuizFeedback: {
+        url: `${backendDomain}/ai/quiz-feedback`,
+    },
     aiFeedback: {
         url: `${backendDomain}/ai/feedback`,
     },
