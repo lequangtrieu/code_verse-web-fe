@@ -24,7 +24,7 @@ const CodeEditor = ({
   const user = useSelector((state) => state?.user?.user);
   const defaultCodeMap = useMemo(
     () => ({
-      javascript: `function run() {\n  // Your JS code here\n}`,
+      javascript: `function run() {\n  // Your JS code heres\n}\n\nrun();`,
       python: `def run():\n    # Your Python code here\n    pass\n\nrun()`,
       java: `import java.util.Scanner;\n\npublic class Main {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    // Your Java code here\n  }\n}`,
       c: `#include <stdio.h>\nint main() {\n  // Your C code here\n  return 0;\n}`,

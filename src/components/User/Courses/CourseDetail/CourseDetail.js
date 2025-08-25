@@ -1,5 +1,4 @@
 import {FaBookOpen,} from "react-icons/fa";
-import {message} from "antd";
 import {HiOutlineLightBulb} from "react-icons/hi";
 import {RiSendPlaneLine} from "react-icons/ri";
 import {GiPlanetCore} from "react-icons/gi";
@@ -56,7 +55,7 @@ const CourseDetail = () => {
     useEffect(() => {
         const timer = setTimeout(() => {
             setInitialLoading(false);
-        }, 450);
+        }, 250);
 
         return () => clearTimeout(timer);
     }, []);
