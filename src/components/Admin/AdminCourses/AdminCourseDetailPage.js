@@ -87,7 +87,12 @@ const AdminCourseDetailPage = () => {
             </Card>
 
             {/* Modules & Lessons */}
-            <Card title="Course Modules" className="shadow">
+            <Card title="Course Modules" className="shadow"
+            extra={
+                <Button type="text" size="small" onClick={() => window.open(`/course/${id}/view`, "_blank")}>
+                  Preview
+                </Button>
+              }>
                 <CourseModuleList courseId={id} />
             </Card>
 

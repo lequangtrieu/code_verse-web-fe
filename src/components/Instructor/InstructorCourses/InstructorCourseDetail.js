@@ -73,6 +73,7 @@ const InstructorCourseDetailView = () => {
             ]);
             setCategories(categoryRes.data.result);
             sortCourseData(courseRes.data.result);
+            if(course?.status !== "DRAFT") setCanPreview(true);
         } catch (err) {
             message.error("Error loading data.");
         } finally {
