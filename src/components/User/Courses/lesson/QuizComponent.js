@@ -526,15 +526,25 @@ const QuizComponent = ({
               <p className="text-red-500 font-medium">
                 ❌ Your answer is incorrect
               </p>
-              {currentReview.aiFeedback ? (
-                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-gray-800 whitespace-pre-line">
-                  {currentReview.aiFeedback}
+
+              <div className="mt-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-blue-600 text-lg">🤖</span>
+                  <span className="font-semibold text-blue-700">
+                    AI Explanation
+                  </span>
                 </div>
-              ) : (
-                <p className="text-gray-400 italic mt-2">
-                  Loading AI explanation....
-                </p>
-              )}
+
+                {currentReview.aiFeedback ? (
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-gray-800 whitespace-pre-line shadow-sm">
+                    {currentReview.aiFeedback}
+                  </div>
+                ) : (
+                  <p className="text-gray-400 italic mt-2">
+                    Loading AI explanation...
+                  </p>
+                )}
+              </div>
             </div>
           )}
 
