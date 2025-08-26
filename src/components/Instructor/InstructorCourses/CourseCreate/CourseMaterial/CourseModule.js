@@ -45,7 +45,7 @@ const CourseModule = ({ courseId, setCanPreview }) => {
     useUnsavedChanges(hasUnsavedExercise || hasUnsavedQuiz || hasUnsavedTheory);
 
     useEffect(() => {
-        if(modules.some(module => Array.isArray(module.lessons) && module.lessons.length > 0)) setCanPreview(true);
+        if(modules?.some?.(module => Array.isArray(module.lessons) && module.lessons.length > 0)) setCanPreview(true);
         // eslint-disable-next-line
     }, [modules]);
 
@@ -591,7 +591,7 @@ const CourseModule = ({ courseId, setCanPreview }) => {
                     >
                         <RocketTwoTone twoToneColor="#16A34A" className="!text-3xl mb-2" />
                         <strong>AI Drafted</strong>
-                        <span className="text-xs text-gray-500">Generated titles</span>
+                        <span className="text-xs text-gray-500 text-wrap">AI will generate title of modules and lessons based on your course information.</span>
                     </Button>
                 </div>
             </Modal>

@@ -12,6 +12,7 @@ import ResizableSplitLayout from "../../../../common/ResizableSplitLayout";
 import { notification } from "antd";
 import { useNavigate } from "react-router-dom";
 import useDocumentTitle from "../../../../common/useDocumentTitle";
+import ROLE from "../../../../common/role";
 
 export default function CourseDetailView() {
   useDocumentTitle("Course Detail");
@@ -102,7 +103,8 @@ export default function CourseDetailView() {
         return;
       }
 
-      try {
+      if(user?.role !== ROLE.ADMIN){
+        try {
         const res = await axiosInstance.get(
           commonApi.isCourseOwner.url(courseId));
         if (res.data.result === true) {
@@ -121,13 +123,14 @@ export default function CourseDetailView() {
         console.error("Error checking permission", err);
         setIsOwner(false);
       }
+    }
     };
 
     checkOwner();
   }, [courseId, user, navigate]);
 
   useEffect(() => {
-    if (isOwner && user?.id) {
+    if ((isOwner || user?.role === ROLE.ADMIN) && user?.id) {
       fetchCourseData({ initialLoad: true });
     }
   }, [fetchCourseData, isOwner, user?.id]);
@@ -145,7 +148,7 @@ export default function CourseDetailView() {
     return <LoadingOverlay />;
   }
 
-  if (isOwner === null || !isOwner) return <LoadingOverlay />;
+  if (user?.role !== ROLE.ADMIN && (isOwner === null || !isOwner)) return <LoadingOverlay />;
 
   return (
     <div className="flex min-h-[calc(100vh-120px)] overflow-y-auto">

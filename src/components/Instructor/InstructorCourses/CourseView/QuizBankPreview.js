@@ -4,6 +4,9 @@ import { Button, message } from "antd";
 import axiosInstance from "../../../../config/axiosInstance";
 import commonApi from "../../../../common/api";
 import LoadingContainer from "../../../../common/LoadingContainer";
+import { Typography } from "antd";
+
+const { Text } = Typography;
 
 const QuizBankPreview = ({ lessonId }) => {
   const [quizData, setQuizData] = useState([]);
@@ -82,8 +85,8 @@ const QuizBankPreview = ({ lessonId }) => {
           {quizData.map((quiz, index) => (
             <div key={index} className="border rounded-lg p-4 bg-gray-50">
               <div className="flex items-center gap-2 mb-2">
-                <span className="font-semibold">{index + 1}. {quiz.question}</span>
-                <span className="text-sm text-gray-500">({quiz.quizType})</span>
+                <Text className="font-semibold">{index + 1}. {quiz.question}</Text>
+                <Text className="text-sm text-gray-500">({quiz.quizType})</Text>
               </div>
               <ul className="space-y-1 ml-4">
                 {quiz.answers.map((a, i) => (
