@@ -532,7 +532,7 @@ const QuizComponent = ({
                 </div>
               ) : (
                 <p className="text-gray-400 italic mt-2">
-                  Loading AI explanation...
+                  Loading AI explanation....
                 </p>
               )}
             </div>
