@@ -130,9 +130,10 @@ export default function TrainingCreation() {
         message.success("Training has been published.");
         navigate("/instructor-panel/trainings");
       } else {
-        errors.forEach(err => {
-          message.error(err);
-        });
+        // errors.forEach(err => {
+        //   message.error(err);
+        // });
+        message.error(errors[0]);
       }
     } catch (error) {
       message.error("Failed to validate the training.");
