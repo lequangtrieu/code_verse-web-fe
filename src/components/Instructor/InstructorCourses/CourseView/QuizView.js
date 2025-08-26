@@ -27,12 +27,16 @@ const QuizViewer = ({ lessonId }) => {
     }, [lessonId]);
 
     return (
-        <div className="flex flex-col gap-6 max-h-[80vh] overflow-y-auto scrollbar-thin pr-2">
+        <div className="flex flex-col gap-6 max-h-[80vh] overflow-y-auto scrollbar-thin pr-2 w-full">
             {loading && <LoadingContainer />}
             {quizData?.map((quiz, index) => (
                 <Card
                     key={quiz.id}
-                    title={`Question ${index + 1}: ${quiz.question}`}
+                    title={
+                        <div className="whitespace-normal break-words">
+                          Question {index + 1}: {quiz.question}
+                        </div>
+                      }
                     className="border rounded shadow"
                 >
                     <Space direction="vertical" className="w-full">

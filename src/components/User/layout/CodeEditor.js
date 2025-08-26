@@ -358,9 +358,12 @@ const CodeEditor = ({
           )}
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6 overflow-y-auto h-[160px]">
+        <div className="flex flex-col md:flex-row gap-6 h-[160px]">
           {/* Left: Test case buttons */}
-          <div className="flex flex-row md:flex-col gap-2 md:w-1/4">
+          <div className="flex flex-row md:flex-col gap-2 md:w-1/4 overflow-y-auto"
+            style={{
+              scrollbarWidth: "thin",
+            }}>
             {testCases.map((_, index) => (
               <Button
                 key={index}

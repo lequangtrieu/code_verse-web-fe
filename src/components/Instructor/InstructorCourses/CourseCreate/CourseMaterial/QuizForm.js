@@ -13,7 +13,6 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
     const [savedQuizData, setSaveQuizData] = useState([]);
     const [initialLoading, setInitialLoading] = useState(false);
     const [loadingSave, setLoadingSave] = useState(false);
-    const [isAiDrafted, setAIDrafted] = useState(false);
 
     useEffect(() => {
         if (lessonId) {
@@ -22,9 +21,8 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
         // eslint-disable-next-line
     }, [lessonId]);
 
-    const handleDownloadTemplate = async () => {
+    const handleDownloadTemplate = async (isAIDrafted = false) => {
         let dataToDownload;
-
         if (savedQuizData.length > 0) {
             dataToDownload = savedQuizData.map((quiz) => {
                 const row = { Question: quiz.question };
@@ -40,7 +38,7 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
                     .join(',');
                 return row;
             });
-        } else if (isAiDrafted) {
+        } else if (isAIDrafted) {
             try {
                 message.loading({ content: "Generating quiz bank...", key: "download" });
 
@@ -266,12 +264,10 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
                         okText="AI Drafted"
                         cancelText="Sample"
                         onConfirm={() => {
-                            setAIDrafted(true);
-                            handleDownloadTemplate();
+                            handleDownloadTemplate(true);
                         }}
                         onCancel={() => {
-                            setAIDrafted(false);
-                            handleDownloadTemplate();
+                            handleDownloadTemplate(false);
                         }}
                     >
                         <Button icon={<DownloadOutlined />}>Download Drafted Excel</Button>
