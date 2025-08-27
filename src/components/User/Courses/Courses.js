@@ -64,7 +64,7 @@ const Courses = () => {
             } finally {
                 setTimeout(() => {
                     setInitialLoading(false);
-                }, 140);
+                }, 240);
             }
         };
 
