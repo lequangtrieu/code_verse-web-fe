@@ -167,7 +167,7 @@ const InstructorCourseDetailView = () => {
                 // errors.forEach(err => {
                 //     message.error(err);
                 // });
-                message.error("Please fill all the required fields before submit your course.");
+                message.error(errors[0]);
             }
         } catch (error) {
             console.error("Validation error:", error);
