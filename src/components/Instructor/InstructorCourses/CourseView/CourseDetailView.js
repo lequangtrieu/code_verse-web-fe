@@ -1,24 +1,26 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import LessonSidebar from "../Courses/lesson/LessonSidebar";
-import LessonContent from "../Courses/lesson/LessonContent";
-import CodeEditor from "./CodeEditor";
-import QuizComponent from "../Courses/lesson/QuizComponent";
-import commonApi from "../../../common/api";
-import axiosInstance from "../../../config/axiosInstance";
+import LessonSidebar from "../../../User/Courses/lesson/LessonSidebar";
+import LessonContent from "../../../User/Courses/lesson/LessonContent";
+import CodeEditor from "../../../User/layout/CodeEditor";
+import QuizBankPreview from "./QuizBankPreview";
+import commonApi from "../../../../common/api";
+import axiosInstance from "../../../../config/axiosInstance";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import LoadingOverlay from "../../../common/LoadingOverlay";
-import ResizableSplitLayout from "../../../common/ResizableSplitLayout";
+import LoadingOverlay from "../../../../common/LoadingOverlay";
+import ResizableSplitLayout from "../../../../common/ResizableSplitLayout";
 import { notification } from "antd";
 import { useNavigate } from "react-router-dom";
-import useDocumentTitle from "../../../common/useDocumentTitle";
+import useDocumentTitle from "../../../../common/useDocumentTitle";
+import ROLE from "../../../../common/role";
 
-export default function LessonLayout() {
-  useDocumentTitle("Study - CodeVerse");
+export default function CourseDetailView() {
+  useDocumentTitle("Course Detail");
   const navigate = useNavigate();
   const { courseId } = useParams();
+  const [course, setCourse] = useState(null);
   const user = useSelector((state) => state?.user?.user);
-  const [isEnrolled, setIsEnrolled] = useState(null);
+  const [isOwner, setIsOwner] = useState(null);
   const [lessonData, setLessonData] = useState(null);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [language, setLanguage] = useState(null);
@@ -49,10 +51,12 @@ export default function LessonLayout() {
   const fetchCourseData = useCallback(
     async (options = { initialLoad: false }) => {
       try {
-        const response = await axiosInstance.get(
-          commonApi.getCourseDetails.url(courseId, user?.id)
-        );
+        const [response, courseRes] = await Promise.all([
+          axiosInstance.get(commonApi.getCourseDetails.url(courseId, user?.id)),
+          axiosInstance.get(commonApi.instructorGetCourse.url(courseId)),
+        ]);
 
+        setCourse(courseRes.data.result);
         setLanguage(response.data.result?.language.toLowerCase());
         setInstructor(response.data.result?.instructor);
         setLessonData(response.data.result.data);
@@ -87,9 +91,9 @@ export default function LessonLayout() {
   );
 
   useEffect(() => {
-    const checkEnrollment = async () => {
+    const checkOwner = async () => {
       if (!user?.username || !user?.id) {
-        setIsEnrolled(false);
+        setIsOwner(false);
         notification.warning({
           message: "Login Required",
           description: "Please log in to view this page.",
@@ -99,39 +103,37 @@ export default function LessonLayout() {
         return;
       }
 
-      try {
+      if(user?.role !== ROLE.ADMIN){
+        try {
         const res = await axiosInstance.get(
-          commonApi.checkEnrollment.url(courseId),
-          {
-            params: { username: user?.username },
-          }
-        );
-        if (res.data === true) {
-          setIsEnrolled(true);
+          commonApi.isCourseOwner.url(courseId));
+        if (res.data.result === true) {
+          setIsOwner(true);
         } else {
-          setIsEnrolled(false);
+          setIsOwner(false);
           notification.destroy();
           notification.error({
             message: "Access Denied",
-            description: "You must purchase this course to access its content.",
+            description: "You don't have permission to view this page.",
             placement: "topLeft",
           });
-          navigate("/home");
+          navigate("/instructor-panel/courses");
         }
       } catch (err) {
-        console.error("Error checking enrollment", err);
-        setIsEnrolled(false);
+        console.error("Error checking permission", err);
+        setIsOwner(false);
       }
+    }
     };
 
-    checkEnrollment();
+    checkOwner();
   }, [courseId, user, navigate]);
 
   useEffect(() => {
-    if (isEnrolled && user?.id) {
+    if ((isOwner || user?.role === ROLE.ADMIN) && user?.id) {
       fetchCourseData({ initialLoad: true });
     }
-  }, [fetchCourseData, isEnrolled, user?.id]);
+  }, [fetchCourseData, isOwner, user?.id]);
 
   const handleSelectLesson = (lesson) => {
     selectedLessonIdRef.current = lesson?.id;
@@ -146,7 +148,7 @@ export default function LessonLayout() {
     return <LoadingOverlay />;
   }
 
-  if (isEnrolled === null || !isEnrolled) return <LoadingOverlay />;
+  if (user?.role !== ROLE.ADMIN && (isOwner === null || !isOwner)) return <LoadingOverlay />;
 
   return (
     <div className="flex min-h-[calc(100vh-120px)] overflow-y-auto">
@@ -158,17 +160,12 @@ export default function LessonLayout() {
       {selectedLesson && (
         <>
           {selectedLesson.lessonType === "EXAM" ? (
-            <QuizComponent
-              quiz={selectedLesson}
-              lessonId={selectedLesson?.id}
-              userId={user?.id}
-              onProgressUpdate={fetchCourseData}
-              onRefreshLessonData={(opts) => fetchCourseData(opts)}
+            <QuizBankPreview lessonId={selectedLesson?.id}
             />
           ) : (
             <>
               <ResizableSplitLayout
-                leftComponent={<LessonContent instructor={instructor} lesson={selectedLesson} />}
+                leftComponent={<LessonContent status={course?.status} instructor={instructor} lesson={selectedLesson} />}
                 rightComponent={<CodeEditor
                   key={selectedLesson?.id}
                   lessonId={selectedLesson?.id}

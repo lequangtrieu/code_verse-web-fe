@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
+import { useSelector } from "react-redux";
 import { Select, Button, notification, Tooltip, Modal } from "antd";
 import Editor from "@monaco-editor/react";
 import commonApi from "../../../common/api";
 import axiosInstance from "../../../config/axiosInstance";
 import { getAIFeedback } from "../../../common/aiHelper";
 import party from "party-js";
+import ROLE from "../../../common/role";
 
 const { Option } = Select;
 
@@ -19,9 +21,10 @@ const CodeEditor = ({
   allLessons = [],
   onRefreshLessonData,
 }) => {
+  const user = useSelector((state) => state?.user?.user);
   const defaultCodeMap = useMemo(
     () => ({
-      javascript: `function run() {\n  // Your JS code here\n}`,
+      javascript: `function run() {\n  // Your JS code heres\n}\n\nrun();`,
       python: `def run():\n    # Your Python code here\n    pass\n\nrun()`,
       java: `import java.util.Scanner;\n\npublic class Main {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    // Your Java code here\n  }\n}`,
       c: `#include <stdio.h>\nint main() {\n  // Your C code here\n  return 0;\n}`,
@@ -310,15 +313,15 @@ const CodeEditor = ({
         </div>
 
         <div className="space-x-2">
-          <Button
+          {testCases.length && <Button
             type="primary"
             loading={isRunning}
             onClick={runTests}
             className="bg-blue-500"
           >
             Run Test
-          </Button>
-          {canShowSubmitButton && (
+          </Button>}
+          {(user?.role === ROLE.LEARNER && canShowSubmitButton) && (
             <Button
               onClick={handleSubmit}
               type="primary"
@@ -355,9 +358,12 @@ const CodeEditor = ({
           )}
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6 overflow-y-auto h-[160px]">
+        <div className="flex flex-col md:flex-row gap-6 h-[160px]">
           {/* Left: Test case buttons */}
-          <div className="flex flex-row md:flex-col gap-2 md:w-1/4">
+          <div className="flex flex-row md:flex-col gap-2 md:w-1/4 overflow-y-auto"
+            style={{
+              scrollbarWidth: "thin",
+            }}>
             {testCases.map((_, index) => (
               <Button
                 key={index}

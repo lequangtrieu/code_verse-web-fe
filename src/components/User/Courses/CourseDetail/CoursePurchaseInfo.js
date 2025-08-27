@@ -12,6 +12,7 @@ import axiosInstance from "../../../../config/axiosInstance";
 import commonApi from "../../../../common/api";
 import { logoutUser } from "../../../../config/store/userSlice";
 import { useDispatch, useSelector } from "react-redux";
+import ROLE from "../../../../common/role";
 
 const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus }) => {
   const navigate = useNavigate();
@@ -79,7 +80,7 @@ const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus }) => {
       );
     }
 
-    if (!enrolled) {
+    if (!enrolled && user?.role === ROLE.LEARNER) {
       return (
         <>
           {isFree ? (
@@ -103,7 +104,18 @@ const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus }) => {
       );
     }
 
-    // if (completionPercentage < 100) {
+    if(user?.role === ROLE.INSTRUCTOR && user?.username === course?.courseMoreInfo.instructorUsername){
+      return (
+        <button
+          className="mt-3 w-full bg-green-600 text-white py-2 rounded"
+          onClick={() => navigate(`/course/${course?.course.id}/view`)}
+        >
+          View
+        </button>
+      );
+    }
+
+    if (enrolled && user?.role === ROLE.LEARNER) {
       return (
         <button
           className="mt-3 w-full bg-green-600 text-white py-2 rounded"
@@ -112,7 +124,7 @@ const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus }) => {
           Learning Now
         </button>
       );
-    // }
+    }
 
     // return (
     //   <button
@@ -174,9 +186,9 @@ const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus }) => {
 
       {renderActionButton()}
 
-      <p className="text-xs mt-1 text-center text-gray-500">
+      {/* <p className="text-xs mt-1 text-center text-gray-500">
         {course?.course.description}
-      </p>
+      </p> */}
 
       <div className="mt-4 space-y-2 text-sm text-gray-600">
         <p>Instructor: {course?.courseMoreInfo.instructor}</p>
@@ -186,8 +198,8 @@ const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus }) => {
           {formatDuration(course?.courseMoreInfo.totalDurations)}
         </p>
         {/* <p>Enrolled: Enrolled</p> */}
-        <p>Skill Level: {course?.course.level}</p>
-        <p>Language: {course?.course.language}</p>
+        <p>Skill Level: {course?.course.level.charAt(0).toUpperCase() + course?.course.level.slice(1).toLowerCase()}</p>
+        <p>Language: {course?.course.language.charAt(0).toUpperCase() + course?.course.language.slice(1).toLowerCase()}</p>
         {/*<p>Quiz: {course.quiz ? "Yes" : "No"}</p>*/}
         {/*<p>Certificate: {course.certificate ? "Yes" : "No"}</p>*/}
       </div>

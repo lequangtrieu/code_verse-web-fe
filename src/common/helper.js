@@ -28,4 +28,14 @@ export const formatNumber = (value) => {
 export const formatDate = (dateString) => {
     return dayjs(dateString).format('MMM DD, YYYY'); // Example format: 'Sep 29, 2024'
 };
+
+
+
+export const truncateHtml = (html, maxLen) => {
+    const div = document.createElement("div");
+    div.innerHTML = html;
+    const text = div.textContent || div.innerText || "";
+    const shortText = text.length > maxLen ? text.slice(0, maxLen) + "..." : text;
+    return shortText.replace(/\n/g, "<br>");
+}
   

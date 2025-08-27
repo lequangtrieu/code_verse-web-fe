@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Form, Popconfirm, message, Pagination, Upload, Input, Select, Button, Tag, Table } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import * as XLSX from 'xlsx';
 import commonApi from "../../../common/api";
 import { useNavigate } from 'react-router-dom';
@@ -236,21 +237,25 @@ const AdminAccountsPage = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-2">Accounts</h2>
-      <div className="w-16 h-[2px] bg-pink-500 mb-6 rounded"></div>
-
-      {/* Import Button */}
-      <div className="flex gap-4 mb-6">
-        <button
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          onClick={() => {
-            setImportUsers([]);
-            setIsImportModalOpen(true);
-          }}
-        >
-          Create Learners from Excel
-        </button>
+      <div className="flex items-center mb-2">
+        <div>
+          <h2 className="text-2xl font-semibold mb-2">Accounts</h2>
+          <div className="w-16 h-[2px] bg-pink-500 mb-6 rounded"></div>
+        </div>
+        {/* Import Button */}
+        <div className="flex gap-4 mb-6 ml-6">
+          <Button icon={<PlusOutlined />}
+            className="px-4 py-2 text-l"
+            onClick={() => {
+              setImportUsers([]);
+              setIsImportModalOpen(true);
+            }}
+          >
+            Add from Excel
+          </Button>
+        </div>
       </div>
+
 
       {/* Loading Overlay */}
       {loading && <LoadingOverlay />}
@@ -385,20 +390,22 @@ const AdminAccountsPage = () => {
                       okText="Yes"
                       cancelText="No"
                     >
-                      <button
-                        className={`w-16 px-3 py-1 rounded text-white min-w-[70px] ${user.isBanned ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600"
-                          }`}
+                      <Button danger={!user.isBanned}
+                        style={user.isBanned && { color: "#22c55e", borderColor: "#22c55e", border: "1px solid" }}
+                        className={`w-16 px-3 py-1 min-w-[70px]`
+                          // rounded text-white ${user.isBanned ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600"}
+                        }
                       >
                         {user.isBanned ? "Unban" : "Ban"}
-                      </button>
+                      </Button>
                     </Popconfirm>
 
-                    <button
-                      className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded whitespace-nowrap min-w-[70px]"
+                    <Button type="primary"
+                      className="px-3 py-1 whitespace-nowrap min-w-[70px]"
                       onClick={() => handleViewDetail(user)}
                     >
                       View Detail
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))

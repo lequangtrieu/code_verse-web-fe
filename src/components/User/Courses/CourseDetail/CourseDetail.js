@@ -1,9 +1,8 @@
 import {FaBookOpen,} from "react-icons/fa";
-import {message} from "antd";
 import {HiOutlineLightBulb} from "react-icons/hi";
 import {RiSendPlaneLine} from "react-icons/ri";
 import {GiPlanetCore} from "react-icons/gi";
-import React, {useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useState, useRef} from "react";
 import axios from "axios";
 import commonApi from "../../../../common/api";
 import {useParams} from "react-router-dom";
@@ -36,10 +35,27 @@ const CourseDetail = () => {
         completionPercentage: 0,
     });
 
+    const courseRef = useRef(null);
+
+    useEffect(() => {
+        setTimeout(() => {
+            if (courseRef.current) {
+                const headerOffset = 120;
+                const elementPosition = courseRef.current.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.scrollY - headerOffset;
+              
+                window.scrollTo({
+                  top: offsetPosition,
+                  behavior: "smooth",
+                });
+              }
+          }, 300);
+    }, [courseDetail]);
+
     useEffect(() => {
         const timer = setTimeout(() => {
             setInitialLoading(false);
-        }, 450);
+        }, 250);
 
         return () => clearTimeout(timer);
     }, []);
@@ -130,7 +146,7 @@ const CourseDetail = () => {
 
                     <section className="bg-white py-10 text-black">
                         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-10">
-                            <div className="lg:col-span-2">
+                            <div className="lg:col-span-2" ref={courseRef}>
                                 <CourseDetailInfo
                                     courseDetail={courseDetail}
                                     enrollmentStatus={enrollmentStatus}

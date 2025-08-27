@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import Context from "../config/context/context";
 import { Table, Typography, Modal } from "antd";
+import { truncateHtml } from "./helper";
 
 const { Text } = Typography;
 
@@ -9,18 +10,14 @@ const NotificationPage = () => {
     const [selectedNotification, setSelectedNotification] = useState(null);
     const [isNotiModalOpen, setIsNotiModalOpen] = useState(false);
 
-    function truncateHtml(html, maxLen) {
-        const div = document.createElement("div");
-        div.innerHTML = html;
-        const text = div.textContent || div.innerText || "";
-        const shortText = text.length > maxLen ? text.slice(0, maxLen) + "..." : text;
-        return shortText.replace(/\n/g, "<br>");
-    }
-
     useEffect(() => {
         if (notifications.some((n) => !n.read)) handleMarkAllAsRead();
         // eslint-disable-next-line
     }, [notifications]);
+
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }, []);
 
     const columns = [
         {

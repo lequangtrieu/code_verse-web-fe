@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, List, Modal, Select, Switch, Space, Card, message } from "antd";
-import { DeleteOutlined, EditOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import { Form, Input, Button, List, Modal, Select, Switch, Space, Card, message, Typography, Tooltip, InputNumber } from "antd";
+import { DeleteOutlined, EditOutlined, CheckOutlined, CloseOutlined, ThunderboltTwoTone } from "@ant-design/icons";
 import axiosInstance from "../../../../../config/axiosInstance";
 import commonApi from "../../../../../common/api";
 import LoadingContainer from "../../../../../common/LoadingContainer";
 
 const { TextArea } = Input;
+const { Text } = Typography;
 
 const PRIORITY_OPTIONS = [
     { label: "Required", value: "REQUIRED" },
     { label: "Optional", value: "OPTIONAL" },
 ];
 
-const ExerciseForm = ({ lessonId }) => {
+const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
     const [exerciseId, setExerciseId] = useState(null);
     const [exerciseForm] = Form.useForm();
+    const [exercise, setExercise] = useState(null);
     const [taskDescription, setTaskDescription] = useState("");
     const [isAddingTask, setIsAddingTask] = useState(false);
     const [editingTaskId, setEditingTaskId] = useState(null);
@@ -25,7 +27,9 @@ const ExerciseForm = ({ lessonId }) => {
     const [isTestCaseModalOpen, setIsTestCaseModalOpen] = useState(false);
     const [initialLoading, setInitialLoading] = useState(false);
     const [loadingTestCase, setLoadingTestCase] = useState(false);
+    const [showGenerateModal, setShowGenerateModal] = useState(false);
     const [testCaseForm] = Form.useForm();
+    const [generateForm] = Form.useForm();
 
     useEffect(() => {
         if (lessonId) {
@@ -53,6 +57,10 @@ const ExerciseForm = ({ lessonId }) => {
                 title: exercise.title,
                 instruction: exercise.instruction,
             });
+            setExercise({
+                title: exercise.title,
+                instruction: exercise.instruction,
+            });
         } catch {
             message.error("Failed to get exercise.");
         } finally {
@@ -69,6 +77,11 @@ const ExerciseForm = ({ lessonId }) => {
                 ...values
             };
             await axiosInstance.post(commonApi.createExercise.url, newExercise);
+            setHasChange(false);
+            setExercise({
+                title: values.title,
+                instruction: values.instruction,
+            });
             message.success("Exercise saved successfully!");
         } catch {
             message.error("Error saving exercise.");
@@ -205,6 +218,48 @@ const ExerciseForm = ({ lessonId }) => {
         }
     };
 
+    const handleGenerateTestCases = async (values) => {
+        setLoadingTestCase(true);
+        try {
+            const payload = {
+                lessonId: lessonId,
+                testCases: values.testCases
+            };
+
+            const res = await axiosInstance.post(
+                commonApi.aiGenerateTestCases.url,
+                payload
+            );
+
+            let generated = res.data.result.testCases || [];
+
+            generated = generated.map(tc => ({
+                exerciseId: exerciseId,
+                input: stringifyInputListToString(tc.input || []),
+                expectedOutput: tc.expectedOutput,
+                priority: "REQUIRED",
+                public: true
+            }));
+            for(let [index, tc] of generated.entries()){
+                const result = await axiosInstance.post(
+                    commonApi.createTestCase.url,
+                    tc
+                );
+                setTestCases((prev) => [...prev, result.data.result || []]);
+            }
+            
+            message.success("Test cases generated successfully!");
+
+            setShowGenerateModal(false);
+            generateForm.resetFields();
+        } catch (err) {
+            console.log(err);
+            message.error("Failed to generate test cases.");
+        } finally {
+            setLoadingTestCase(false);
+        }
+    };
+
     const stringifyInputListToString = (list) => {
         return list.map(val => `#@ip!${val}#@ip!`).join("");
     };
@@ -224,15 +279,16 @@ const ExerciseForm = ({ lessonId }) => {
                 <Card title="Exercise" className="flex-1">
                     <Form form={exerciseForm} layout="vertical" onFinish={handleSaveExercise}>
                         <Form.Item name="title" label="Exercise Title" rules={[{ required: true }]}>
-                            <Input placeholder="Enter title" />
+                            <Input placeholder="Enter title" onChange={() => setHasChange(true)} />
                         </Form.Item>
                         <Form.Item name="instruction" label="Instruction" rules={[{ required: true }]}>
-                            <TextArea rows={4} placeholder="Enter instruction" />
+                            <TextArea rows={4} placeholder="Enter instruction" onChange={() => setHasChange(true)} />
                         </Form.Item>
                         <Form.Item>
-                            <Button type="primary" htmlType="submit">
+                            <Button type="primary" htmlType="submit" disabled={!hasChange}>
                                 Save Exercise
                             </Button>
+                            {hasChange && <Text className="ml-4">Unsaved.</Text>}
                         </Form.Item>
                     </Form>
                 </Card>
@@ -311,7 +367,7 @@ const ExerciseForm = ({ lessonId }) => {
                                             onChange={(e) => setEditingDescription(e.target.value)}
                                         />
                                     ) : (
-                                        item.description
+                                        <Text>{item.description}</Text>
                                     )}
                                 </List.Item>
                             )}
@@ -328,13 +384,39 @@ const ExerciseForm = ({ lessonId }) => {
                     </span>
                 }
                 className="border p-4 rounded shadow">
-                <Button onClick={() => {
-                    setIsTestCaseModalOpen(true);
-                    setEditingTestCase(null);
-                    testCaseForm.resetFields();
-                }}>
-                    + Add Test Case
-                </Button>
+                <div className="">
+                    <Button type="dashed"
+                        onClick={() => {
+                        setIsTestCaseModalOpen(true);
+                        setEditingTestCase(null);
+                        testCaseForm.resetFields();
+                    }}>
+                        + Add Test Case
+                    </Button>
+                    <Tooltip title={
+                        <div>
+                        <strong>Fast Generate</strong>
+                        <br />
+                        <span>Hints: The more clearly you define the exercise and the exercise tasks, the more accurate the test cases that AI ​​generates will be.</span>
+                      </div>
+                    }>
+                        <Button
+                            type="primary"
+                            icon={<ThunderboltTwoTone twoToneColor="#FFD666" />}
+                            style={{ paddingRight: "10px", paddingLeft: "10px" }}
+                            className="bg-gradient-to-r from-blue-500 to-purple-500 ml-2"
+                            onClick={() => {
+                                if(exerciseTasks?.length === 0 || exercise?.instruction === null){
+                                    message.warning("Must save exercise info and exercise tasks before using this feature.");
+                                    return;
+                                }
+                                setShowGenerateModal(true);
+                            }}
+                        >
+                        </Button>
+                    </Tooltip>
+                </div>
+
                 <div className="max-h-64 overflow-y-auto mt-4">
                     <List
                         dataSource={testCases}
@@ -469,6 +551,44 @@ const ExerciseForm = ({ lessonId }) => {
                         <Switch />
                     </Form.Item>
 
+                </Form>
+            </Modal>
+            <Modal centered={true}
+                getContainer={false}
+                title="Fast Generate Test Cases "
+                open={showGenerateModal}
+                onCancel={() => {
+                    setShowGenerateModal(false);
+                    generateForm.resetFields();
+                }}
+                footer={[
+                    <Button key="cancel" onClick={() => {
+                        setShowGenerateModal(false);
+                        generateForm.resetFields();
+                    }}>
+                        Cancel
+                    </Button>,
+                    <Button
+                        key="generate"
+                        type="primary"
+                        loading={loadingTestCase}
+                        onClick={() => generateForm.submit()}
+                    >
+                        Generate
+                    </Button>
+                ]}
+            >
+                <Form
+                    form={generateForm}
+                    layout="vertical"
+                    onFinish={handleGenerateTestCases}>
+                    <Form.Item
+                        name="testCases"
+                        label="Number of Test Cases"
+                        rules={[{ required: true, message: "Enter number of test cases" }]}
+                    >
+                        <InputNumber min={1} max={15} className="w-full" />
+                    </Form.Item>
                 </Form>
             </Modal>
 

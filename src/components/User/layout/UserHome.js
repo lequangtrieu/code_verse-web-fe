@@ -24,6 +24,7 @@ import Context from "../../../config/context/context";
 import axiosInstance from "../../../config/axiosInstance";
 import { logoutUser } from "../../../config/store/userSlice";
 import useAddToCart from "../../../hooks/useAddToCart";
+import ROLE from "../../../common/role";
 
 const BADGES = {
   NEW_LEARNER: { 
@@ -110,7 +111,7 @@ const UserHome = () => {
           email: user?.username,
           avatar: data.avatar,
           courseProgress: data?.lessonProgressStatus ?? "0/0",
-          certificates: allCourses?.completed?.length ?? 0,
+          certificates: data?.completed ?? 0,
           trainingStatus: data?.trainingStatus ?? "0/0",
           achievements
         })
@@ -154,8 +155,17 @@ const UserHome = () => {
   };
 
   useEffect(() => {
-    fetchUserboard();
-    fetchCourses(); // Fetch all data on initial load
+    if(user?.role !== ROLE.LEARNER){
+      navigate("/");
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if(user){
+      fetchUserboard();
+      fetchCourses(); // Fetch all data on initial load
+    }
+    
   }, [userId]);
 
   useEffect(() => {
@@ -502,7 +512,7 @@ const UserHome = () => {
                   </h4>
                   <div className="flex gap-5 justify-between items-baseline">
                     <div className="lg:text-[32px] font-semibold text-yellow-300">
-                      {allCourses?.learning?.length + allCourses?.completed?.length}/{allCourses?.learning?.length + allCourses?.completed?.length + allCourses?.suggested?.length}
+                      {(allCourses?.learning?.length || 0) + (allCourses?.completed?.length || 0)}/{(allCourses?.learning?.length || 0) + (allCourses?.completed?.length || 0) + (allCourses?.suggested?.length || 0)}
                     </div>
                     <div className="text-sm mt-1">
                       {userInfo?.certificates} certificates
@@ -561,7 +571,7 @@ const UserHome = () => {
                     if (!badge) return null;
 
                     return (
-                      <Tooltip
+                      <Tooltip color="white" overlayInnerStyle={{ color: "#1B2559" }}
                         key={index}
                         title={
                           <div>

@@ -5,7 +5,7 @@ export default function ResizableSplitLayout({
   rightComponent,
 }) {
   const containerRef = useRef(null);
-  const [leftWidth, setLeftWidth] = useState(450);
+  const [leftWidth, setLeftWidth] = useState("42vw");
   const isDraggingRef = useRef(false);
 
   const handleMouseDown = (e) => {

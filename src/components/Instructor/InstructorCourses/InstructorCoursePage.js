@@ -4,7 +4,8 @@ import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
 import { formatCurrency } from "../../../common/helper";
 import LoadingOverlay from "../../../common/LoadingOverlay";
-import { Modal, message, Pagination, Input, Select, Progress, Tag, Table, Image, Button, Space, InputNumber } from "antd";
+import { Modal, message, Pagination, Input, Select, Progress, Tag, Table, Image, Button, Space, InputNumber, Tooltip } from "antd";
+import { TeamOutlined, EyeOutlined, PlusOutlined } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import moment from "moment/moment";
 
@@ -98,7 +99,7 @@ const InstructorCoursesPage = () => {
             key: "discount",
             align: "center",
             render: (discount) =>
-                discount ? `${discount}%` : <Tag color="default">None</Tag>,
+                discount ? <Tag color="red">{discount}%</Tag> : <Tag color="default">None</Tag>,
             width: "10%"
         },
         {
@@ -114,19 +115,19 @@ const InstructorCoursesPage = () => {
                     style={{ objectFit: "cover", borderRadius: 8 }}
                 />
             ),
-            width: "10%"
+            width: "15%"
         },
         {
             title: "Title",
             dataIndex: "title",
             key: "title",
-            width: "20%"
+            width: "25%"
         },
         {
             title: "Category",
             dataIndex: "category",
             key: "category",
-            width: "19%"
+            width: "18%"
         },
         {
             title: "Price",
@@ -158,26 +159,31 @@ const InstructorCoursesPage = () => {
             key: "actions",
             render: (_, record) => (
                 <div className="flex flex-wrap gap-2">
-                    <Button
-                        type="primary"
-                        className="bg-yellow-400 hover:bg-yellow-500 flex-1 min-w-[100px]"
-                        onClick={() => handleViewDetail(record.id)}
+                    <Tooltip title="View Detail">
+                        <Button type="text"
+                        size="large"
+                        icon={<EyeOutlined />}
+                        className="flex-1"
+                        onClick={() => handleViewDetail(record.id, record.status)}
                     >
-                        View Detail
                     </Button>
-                    {record.status === "PUBLISHED" && <Button
-                        type="primary"
-                        className="bg-yellow-400 hover:bg-yellow-500 flex-1 min-w-[100px]"
+                    </Tooltip>
+                    {record.status === "PUBLISHED" && <Tooltip title="View Learners">
+                        <Button
+                        type="text"
+                        size="large"
+                        icon={<TeamOutlined />}
+                        className="flex-1"
                         onClick={() => {
                             setSelectedCourse(record);
                             handleViewLearners(record.id);
                         }}
                     >
-                        View Learners
-                    </Button>}
+                    </Button>
+                    </Tooltip>}
                 </div>
             ),
-            width: "21%"
+            width: "12%"
         },
     ];
 
@@ -289,7 +295,12 @@ const InstructorCoursesPage = () => {
 
     const uniqueCategories = [...new Set(courses.map((c) => c.category))];
 
-    const handleViewDetail = (courseId) => {
+    const handleViewDetail = (courseId, status) => {
+        console.log(status);
+        if(status === "PUBLISHED") {
+            navigate(`/course/${courseId}`);
+            return;
+        }
         navigate(`/instructor-panel/courses/${courseId}`);
     };
 
@@ -310,19 +321,24 @@ const InstructorCoursesPage = () => {
 
     return (
         <div>
-            <h2 className="text-2xl font-semibold mb-2">Courses</h2>
-            <div className="w-16 h-[2px] bg-pink-500 mb-6 rounded"></div>
-
-            {!isCreatePage && (
-                <div className="flex gap-4 mb-6">
-                    <button
-                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+            <div className="flex items-center mb-2">
+                <div>
+                    <h2 className="text-2xl font-semibold mb-2">Courses</h2>
+                    <div className="w-16 h-[2px] bg-pink-500 mb-6 rounded"></div>
+                </div>
+                {!isCreatePage && (
+                <div className="flex gap-4 mb-6 ml-6">
+                    <Button
+                        icon={<PlusOutlined />}
+                        className="px-4 py-4 text-l"
                         onClick={handleRedirectToCreate}
                     >
-                        Create Course
-                    </button>
+                        New
+                    </Button>
                 </div>
             )}
+            </div>
+            
             {/* Search and Filters */}
             <div className="flex flex-wrap justify-between items-center mb-4">
                 {/* Left: Filters */}
@@ -394,7 +410,7 @@ const InstructorCoursesPage = () => {
                     selectedRowKeys,
                     onChange: setSelectedRowKeys,
                     getCheckboxProps: (record) => ({
-                        disabled: record.price === 0
+                        disabled: record.price === 0 || record.status !== "PUBLISHED"
                     }),
                 }}
                 dataSource={paginatedCourses}

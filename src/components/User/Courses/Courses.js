@@ -64,7 +64,7 @@ const Courses = () => {
             } finally {
                 setTimeout(() => {
                     setInitialLoading(false);
-                }, 450);
+                }, 140);
             }
         };
 
@@ -177,10 +177,10 @@ const Courses = () => {
     const handleResetFilters = () => {
         setSearchQuery("");
         setSelectedCategory(null);
-        setSelectedRatings([]);
+        setSelectedRatings(null);
         setSelectedDuration(null);
-        setSelectedLevels([]);
-        setSelectedLanguages([]);
+        setSelectedLevels(null);
+        setSelectedLanguages(null);
         setSelectedPrice(null);
     };
 
@@ -194,7 +194,7 @@ const Courses = () => {
                 window.scrollTo({ top: offset, behavior: "smooth" });
             }
             setCurrentPage(page);
-        }, 400);
+        }, 120);
     };
 
     const handleCourseClick = (id) => {
@@ -206,8 +206,8 @@ const Courses = () => {
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
-            setSearchQuery(value); // trigger useEffect lọc courseList
-        }, 500);
+            setSearchQuery(value);
+        }, 150);
     };
 
     const handleCategoryClick = (key) => {

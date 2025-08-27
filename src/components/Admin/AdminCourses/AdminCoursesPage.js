@@ -4,7 +4,7 @@ import axiosInstance from "../../../config/axiosInstance";
 import commonApi from "../../../common/api";
 import { formatCurrency } from "../../../common/helper";
 import LoadingOverlay from "../../../common/LoadingOverlay";
-import { message, Pagination, Input, Select } from "antd";
+import { message, Pagination, Input, Select, Button } from "antd";
 import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
@@ -211,12 +211,12 @@ const AdminCoursesPage = () => {
                     )}
                   </td>
                   <td className="border p-2 space-x-2">
-                    <button
-                      className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded whitespace-nowrap min-w-[70px]"
+                    <Button type="primary"
+                      className="px-3 py-1 whitespace-nowrap min-w-[70px] border-none"
                       onClick={() => handleViewDetail(course.id)}
                     >
                       View Detail
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))

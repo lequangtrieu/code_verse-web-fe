@@ -9,6 +9,7 @@ import {
   Tooltip,
   Modal,
   List,
+  Tag
 } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -43,7 +44,7 @@ function extractVideoSrcFromHtml(html) {
   }
 }
 
-const LessonContent = ({ lesson }) => {
+const LessonContent = ({ status = "PUBLISHED", instructor, lesson }) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState(null);
   const [editingComment, setEditingComment] = useState(null);
@@ -144,11 +145,11 @@ const LessonContent = ({ lesson }) => {
           c.id === commentToDelete
             ? { ...c, isDeleted: true }
             : {
-                ...c,
-                replies: c.replies?.map((r) =>
-                  r.id === commentToDelete ? { ...r, isDeleted: true } : r
-                ),
-              }
+              ...c,
+              replies: c.replies?.map((r) =>
+                r.id === commentToDelete ? { ...r, isDeleted: true } : r
+              ),
+            }
         )
       );
       openNotification(
@@ -283,10 +284,10 @@ const LessonContent = ({ lesson }) => {
             const updatedReplies = c.replies.map((rep) =>
               rep.id === editingComment
                 ? {
-                    ...rep,
-                    originalMessage: rep.messageText,
-                    messageText: editText,
-                  }
+                  ...rep,
+                  originalMessage: rep.messageText,
+                  messageText: editText,
+                }
                 : rep
             );
             return { ...c, replies: updatedReplies };
@@ -418,7 +419,7 @@ const LessonContent = ({ lesson }) => {
           </Card>
         </TabPane>
 
-        <TabPane tab="Discussion" key="3">
+        {status === "PUBLISHED" && <TabPane tab="Discussion" key="3">
           <Card
             bordered={false}
             className="max-h-[calc(100vh-190px)] overflow-y-auto"
@@ -465,7 +466,9 @@ const LessonContent = ({ lesson }) => {
                         <div className="flex justify-between items-start">
                           <div>
                             <p className="font-semibold">
-                              {comment.authorEmail}
+                              {comment.authorEmail}{comment.authorEmail === instructor ?
+                                <Tag color="pink" className="ml-2">Instructor</Tag>
+                                : <></>}
                             </p>
                             <p className="text-xs text-gray-500">
                               {dayjs(comment.createdAt).fromNow()}
@@ -552,6 +555,9 @@ const LessonContent = ({ lesson }) => {
                                   <div>
                                     <p className="font-semibold text-sm">
                                       {rep.authorEmail}
+                                      {rep.authorEmail === instructor ?
+                                        <Tag color="pink" className="ml-2">Instructor</Tag>
+                                        : <></>}
                                     </p>
                                     <p className="text-xs text-gray-500">
                                       {dayjs(rep.createdAt).fromNow()}
@@ -660,7 +666,7 @@ const LessonContent = ({ lesson }) => {
               )}
             </div>
           </Card>
-        </TabPane>
+        </TabPane>}
       </Tabs>
       <Modal
         open={deleteModalOpen}
