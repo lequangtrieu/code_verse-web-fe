@@ -384,7 +384,6 @@ export default function CourseDescription({
             )}
           </Space>
         }
-        bodyStyle={{ maxHeight: "60vh", overflowY: "auto" }}
       >
         {/* Step 0: Preview base info */}
         {aiStep === 0 && (

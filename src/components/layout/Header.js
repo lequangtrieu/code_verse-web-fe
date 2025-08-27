@@ -441,7 +441,7 @@ const Header = () => {
               >
                 Courses
               </Link>
-              {/* <Link
+               {/* <Link
               to="/fights"
               onClick={scrollTop}
               className={`h-full flex items-center transition font-semibold border-b-2 ${checkActive(
@@ -731,7 +731,6 @@ const Header = () => {
         title={selectedNotification?.title}
         onCancel={() => setIsNotiModalOpen(false)}
         footer={null}
-        bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
       >
         <div className="whitespace-pre-wrap prose max-w-none" dangerouslySetInnerHTML={{ __html: selectedNotification?.content }}></div>
         <p className="text-xs text-gray-400 mt-4">
