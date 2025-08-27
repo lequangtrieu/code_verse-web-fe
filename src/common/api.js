@@ -369,27 +369,24 @@ const commonApi = {
     dashboardOverview: {
         url: `${backendDomain}/api/admin/dashboard/overview`,
     },
-    dashboardRevenueByYear: {
-        url: `${backendDomain}/api/admin/dashboard/revenue/yearly`,
-    },
     dashboardRevenueByMonth: {
-        url: `${backendDomain}/api/admin/dashboard/revenue/monthly`,
+        url: `${backendDomain}/api/admin/dashboard/revenue/month`,
     },
     dashboardRevenueByQuarter: {
-        url: `${backendDomain}/api/admin/dashboard/revenue/quarterly`,
+        url: `${backendDomain}/api/admin/dashboard/revenue/quarter`,
     },
-    dashboardUserRole: {
-        url: `${backendDomain}/api/admin/dashboard/user-role-stats`,
+    dashboardRevenueByYear: {
+        url: `${backendDomain}/api/admin/dashboard/revenue/year`,
     },
 
     adminRevenue: {
         instructors: {
             url: (params = "") =>
-                `${backendDomain}/api/admin/revenue/instructors${params ? `?${params}` : ""}`
+                `${backendDomain}/api/admin/dashboard/revenue/instructors${params ? `?${params}` : ""}`
         },
         instructorCourses: {
             url: (instructorId) =>
-                `${backendDomain}/api/admin/revenue/instructors/${instructorId}/courses`
+                `${backendDomain}/api/admin/dashboard/revenue/instructors/${instructorId}/courses`
         }
     },
 
