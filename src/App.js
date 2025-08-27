@@ -181,6 +181,13 @@ function App() {
   };  
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      console.clear();
+    }, 60 * 150);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
     fetchUserDetails();
   }, [fetchUserDetails]);
 
