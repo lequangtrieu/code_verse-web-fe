@@ -293,14 +293,8 @@ const QuizComponent = ({
             description: `You passed with ${correctCount}/${totalQuestions} correct (${scorePercent}%)`,
           });
 
-          await checkQuizProgress();
           setTimeLeft(0);
-
-          setTimeout(() => {
-            if (typeof onProgressUpdate === "function") {
-              onProgressUpdate();
-            }
-          }, 4000);
+          setMode("review");
         }
       } else {
         notification.warning({
@@ -482,7 +476,11 @@ const QuizComponent = ({
           </div>
           <Button
             type="primary"
-            onClick={() => setMode("info")}
+            onClick={async () => {
+              setMode("info");
+              await checkQuizProgress();
+              onProgressUpdate();
+            }}
             className="mt-2 sm:mt-0"
           >
             Back

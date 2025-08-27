@@ -7,6 +7,7 @@ import axiosInstance from "../../../config/axiosInstance";
 import { getAIFeedback } from "../../../common/aiHelper";
 import party from "party-js";
 import ROLE from "../../../common/role";
+import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
 
@@ -21,6 +22,7 @@ const CodeEditor = ({
   allLessons = [],
   onRefreshLessonData,
 }) => {
+  const navigate = useNavigate();
   const user = useSelector((state) => state?.user?.user);
   const defaultCodeMap = useMemo(
     () => ({
@@ -134,25 +136,31 @@ const CodeEditor = ({
       );
 
       if (firstError) {
-        const suggestion = await getAIFeedback({
-          language,
-          code: userCode,
-          input: formatInputForAI(firstError.input),
-          expected: firstError.expected,
-          actual: firstError.actual,
-          exerciseTitle: exercise?.title,
-          exerciseTasks: exercise?.tasks?.map((t) => `• ${t}`).join("\n"),
-          exerciseDescription: exercise?.instruction || "",
-        });
+        const isCodeChanged =
+          userCode.trim() !==
+          (defaultCode?.trim() || defaultCodeMap[language]?.trim());
 
-        setAISuggestion(suggestion);
+        if (isCodeChanged) {
+          const suggestion = await getAIFeedback({
+            language,
+            code: userCode,
+            input: formatInputForAI(firstError.input),
+            expected: firstError.expected,
+            actual: firstError.actual,
+            exerciseTitle: exercise?.title,
+            exerciseTasks: exercise?.tasks?.map((t) => `• ${t}`).join("\n"),
+            exerciseDescription: exercise?.instruction || "",
+          });
 
-        notification.info({
-          message: "💡 AI Feedback on Failed Test Case",
-          description: "See AI's explanation for why your code failed.",
-          placement: "topLeft",
-          duration: 5,
-        });
+          setAISuggestion(suggestion);
+
+          notification.info({
+            message: "💡 AI Feedback on Failed Test Case",
+            description: "See AI's explanation for why your code failed.",
+            placement: "topLeft",
+            duration: 5,
+          });
+        }
       }
 
       return;
@@ -178,9 +186,9 @@ const CodeEditor = ({
 
     if (isHardcoded) {
       setLastPassedCode(null);
-      setHardcodeFailCount((prev) => prev + 1); // tăng số lần hardcode
+      setHardcodeFailCount((prev) => prev + 1);
 
-      if (hardcodeFailCount + 1 < 2) {
+      if (hardcodeFailCount + 1 < 3) {
         notification.warning({
           message: "⚠️ AI detected hardcoded or invalid logic",
           description:
@@ -242,6 +250,9 @@ const CodeEditor = ({
 
       if (statusDone === "completed") {
         setShowCourseCompletionModal(true);
+        setTimeout(() => {
+          navigate("/user-panel/accomplishments");
+        }, 3000);
       } else {
         party.confetti(document.body, {
           count: 100,
@@ -313,15 +324,17 @@ const CodeEditor = ({
         </div>
 
         <div className="space-x-2">
-          {testCases.length && <Button
-            type="primary"
-            loading={isRunning}
-            onClick={runTests}
-            className="bg-blue-500"
-          >
-            Run Test
-          </Button>}
-          {(user?.role === ROLE.LEARNER && canShowSubmitButton) && (
+          {testCases.length && (
+            <Button
+              type="primary"
+              loading={isRunning}
+              onClick={runTests}
+              className="bg-blue-500"
+            >
+              Run Test
+            </Button>
+          )}
+          {user?.role === ROLE.LEARNER && canShowSubmitButton && (
             <Button
               onClick={handleSubmit}
               type="primary"
@@ -360,10 +373,12 @@ const CodeEditor = ({
 
         <div className="flex flex-col md:flex-row gap-6 h-[160px]">
           {/* Left: Test case buttons */}
-          <div className="flex flex-row md:flex-col gap-2 md:w-1/4 overflow-y-auto"
+          <div
+            className="flex flex-row md:flex-col gap-2 md:w-1/4 overflow-y-auto"
             style={{
               scrollbarWidth: "thin",
-            }}>
+            }}
+          >
             {testCases.map((_, index) => (
               <Button
                 key={index}
