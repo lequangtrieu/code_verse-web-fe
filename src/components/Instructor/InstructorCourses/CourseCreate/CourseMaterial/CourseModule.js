@@ -139,8 +139,9 @@ const CourseModule = ({ courseId, setCanPreview }) => {
                         : mod
                 );
                 setModules(updatedModules);
-                if (selectedLesson.id === editingLesson.id) setSelectedLesson({ ...res.data.result, moduleId: activeModuleId });
+                if (selectedLesson?.id === editingLesson.id) confirmSetSelectedLesson({ ...res.data.result, moduleId: activeModuleId });
                 message.success("Lesson updated successfully!");
+                setEditingLesson(null);
             } else {
                 const res = await axiosInstance.post(commonApi.createLesson.url, {
                     courseModuleId: activeModuleId,
@@ -159,8 +160,9 @@ const CourseModule = ({ courseId, setCanPreview }) => {
                         }
                         : mod
                 );
+                console.log(hasUnsavedTheory);
                 setModules(updatedModules);
-                setSelectedLesson({ ...res.data.result, moduleId: activeModuleId })
+                confirmSetSelectedLesson({ ...res.data.result, moduleId: activeModuleId })
                 message.success("Lesson created successfully!");
             }
 
@@ -182,13 +184,25 @@ const CourseModule = ({ courseId, setCanPreview }) => {
             if (deleteConfirm.type === 'module') {
                 await axiosInstance.delete(commonApi.updateCourseModule.url(deleteConfirm.target.id));
                 message.success("Module deleted successfully!");
+                if(modules.find(m => m.id === deleteConfirm.target.id)?.lessons?.some?.(lesson => lesson.id === selectedLesson?.id)){
+                    setSelectedLesson(null);
+                    setHasUnsavedExercise(false);
+                    setHasUnsavedQuiz(false);
+                    setHasUnsavedTheory(false);
+                }
             } else if (deleteConfirm.type === 'lesson') {
                 await axiosInstance.delete(commonApi.updateLesson.url(deleteConfirm.target.id));
                 message.success("Lesson deleted successfully!");
+                if(deleteConfirm.target.id === selectedLesson?.id){
+                    setSelectedLesson(null);
+                    setHasUnsavedExercise(false);
+                    setHasUnsavedQuiz(false);
+                    setHasUnsavedTheory(false);
+                }
             }
 
             fetchModules();
-            setSelectedLesson(null);
+            
         } catch (err) {
             message.error("Delete failed.");
         } finally {
@@ -306,6 +320,23 @@ const CourseModule = ({ courseId, setCanPreview }) => {
             setLoadingAIGenerate(false);
         }
     };
+    
+    const confirmSetSelectedLesson = (lesson) => {
+        if (hasUnsavedTheory || hasUnsavedExercise || hasUnsavedQuiz) {
+            Modal.confirm({
+                title: "Unsaved changes",
+                content: "You have unsaved changes. Do you want to leave without saving?",
+                okText: "Leave",
+                cancelText: "Stay",
+                onOk: () => {
+                    setHasUnsavedExercise(false);
+                    setHasUnsavedQuiz(false);
+                    setHasUnsavedTheory(false);
+                    setSelectedLesson(lesson);
+                },
+            });
+        } else setSelectedLesson(lesson);
+    };
 
     return (
         <div className="flex border border-gray-200 min-h-[500px]">
@@ -351,20 +382,7 @@ const CourseModule = ({ courseId, setCanPreview }) => {
                                         >
                                             <span
                                                 onClick={() => {
-                                                    if (hasUnsavedTheory || hasUnsavedExercise || hasUnsavedQuiz) {
-                                                        Modal.confirm({
-                                                            title: "Unsaved changes",
-                                                            content: "You have unsaved changes. Do you want to leave without saving?",
-                                                            okText: "Leave",
-                                                            cancelText: "Stay",
-                                                            onOk: () => {
-                                                                setHasUnsavedExercise(false);
-                                                                setHasUnsavedQuiz(false);
-                                                                setHasUnsavedTheory(false);
-                                                                setSelectedLesson({ ...lesson, moduleId: mod.id });
-                                                            },
-                                                        });
-                                                    } else setSelectedLesson({ ...lesson, moduleId: mod.id });
+                                                    confirmSetSelectedLesson({ ...lesson, moduleId: mod.id });
                                                 }}
                                                 className="flex-1 truncate"
                                             >

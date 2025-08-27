@@ -21,6 +21,9 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
         // eslint-disable-next-line
     }, [lessonId]);
 
+    const truncate = (str, n = 30) => 
+        str.length > n ? str.slice(0, n) + "..." : str;
+
     const handleDownloadTemplate = async (isAIDrafted = false) => {
         let dataToDownload;
         if (savedQuizData.length > 0) {
@@ -121,7 +124,7 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
             try {
                 const grouped = groupByQuestion(jsonData);
                 setQuizData(grouped);
-                setHasChange(true);
+                if(grouped?.length) setHasChange(true);
                 message.success('File parsed successfully!');
             } catch (err) {
                 message.error(err.message);
@@ -151,14 +154,14 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
             const invalidLetters = inputLetters.filter(l => !validLetters.includes(l));
             if (invalidLetters.length > 0) {
                 throw new Error(
-                    `Invalid CorrectAnswers "${invalidLetters.join(",")}" in row ${rowIndex + 2} (Question: "${questionText}"). ` +
+                    `Invalid CorrectAnswers "${invalidLetters.join(",")}" in row ${rowIndex + 2} (Question: "${truncate(questionText)}"). ` +
                     `Valid options are: ${validLetters.join(",")}`
                 );
             }
 
             if (inputLetters.length === 0) {
                 throw new Error(
-                    `No CorrectAnswers provided for row ${rowIndex + 2} (Question: "${questionText}")`
+                    `No CorrectAnswers provided for row ${rowIndex + 2} (Question: "${truncate(questionText)}")`
                 );
             }
 
