@@ -186,10 +186,10 @@ const RichTextEditor = forwardRef(({ isTraining, content, onChange, lessonId, th
                     isFullscreen={isFullscreen}
                     toggleFullscreen={toggleFullscreen}
                     isTraining={isTraining} />}
-                <div className={`relative flex-1 w-full overflow-x-auto ${isFullscreen ? " my-[40px]" : " max-w-none"
+                <div className={`relative flex-1 w-full overflow-y-auto ${isFullscreen ? " my-[5vh]" : " max-w-none"
                     }`}>
                     <EditorContent editor={editor}
-                        className={`w-full editor-typography ${isFullscreen ? " px-[400px]" : " px-4"
+                        className={`w-full editor-typography ${isFullscreen ? " px-[20vw]" : " px-4"
                             }`} />
                     {(isUploading || isGenerating) && (
                         <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-50">

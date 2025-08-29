@@ -160,8 +160,8 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
                 const updateTestCase = {
                     input: inputString,
                     expectedOutput: values.expectedOutput,
-                    priority: values.priority,
-                    public: values.isPublic
+                    priority: "REQUIRED",
+                    public: true
                 };
 
                 const res = await axiosInstance.put(
@@ -181,8 +181,8 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
                     exerciseId: exerciseId,
                     input: inputString,
                     expectedOutput: values.expectedOutput,
-                    priority: values.priority,
-                    public: values.isPublic
+                    priority: "REQUIRED",
+                    public: true
                 };
 
                 const res = await axiosInstance.post(
@@ -279,10 +279,10 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
                 <Card title="Exercise" className="flex-1">
                     <Form form={exerciseForm} layout="vertical" onFinish={handleSaveExercise}>
                         <Form.Item name="title" label="Exercise Title" rules={[{ required: true }]}>
-                            <Input placeholder="Enter title" onChange={() => setHasChange(true)} />
+                            <Input placeholder="Enter title" maxLength={250} showCount onChange={() => setHasChange(true)} />
                         </Form.Item>
                         <Form.Item name="instruction" label="Instruction" rules={[{ required: true }]}>
-                            <TextArea rows={4} placeholder="Enter instruction" onChange={() => setHasChange(true)} />
+                            <TextArea rows={4} placeholder="Enter instruction" maxLength={800} showCount onChange={() => setHasChange(true)} />
                         </Form.Item>
                         <Form.Item>
                             <Button type="primary" htmlType="submit" disabled={!hasChange}>
@@ -297,20 +297,21 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
                 <Card
                     title={
                         <span>
-                            Exercise Tasks<span className="text-red-500 ml-1">*</span>
+                            Instruction Steps<span className="text-red-500 ml-1">*</span>
                         </span>
                     }
                     className="flex-1">
                     {!isAddingTask ? (
                         <Button type="dashed" onClick={() => setIsAddingTask(true)}>
-                            + Add Task
+                            + Add Step
                         </Button>
                     ) : (
                         <div className="flex gap-2 mb-2">
                             <Input
-                                placeholder="Enter task description"
+                                placeholder="Enter step description"
                                 value={taskDescription}
                                 onChange={(e) => setTaskDescription(e.target.value)}
+                                maxLength={250}
                                 className="flex-1"
                             />
                             <Button type="primary" onClick={handleSaveTask}>
@@ -328,7 +329,7 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
                         <List
                             bordered
                             dataSource={exerciseTasks}
-                            renderItem={(item) => (
+                            renderItem={(item, iIndex) => (
                                 <List.Item
                                     actions={
                                         editingTaskId === item.id
@@ -365,9 +366,10 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
                                         <Input
                                             value={editingDescription}
                                             onChange={(e) => setEditingDescription(e.target.value)}
+                                            maxLength={250}
                                         />
                                     ) : (
-                                        <Text>{item.description}</Text>
+                                        <Text>{iIndex + 1}. {item.description}</Text>
                                     )}
                                 </List.Item>
                             )}
@@ -452,8 +454,8 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
                                 <Space direction="vertical">
                                     <div><strong>Input:</strong> {parseInputStringToList(item.input).join("\n")}</div>
                                     <div><strong>Expected Output:</strong> {item.expectedOutput}</div>
-                                    <div><strong>Priority:</strong> {item.priority}</div>
-                                    <div><strong>Public:</strong> {item.isPublic ? "Yes" : "No"}</div>
+                                    {/* <div><strong>Priority:</strong> {item.priority}</div>
+                                    <div><strong>Public:</strong> {item.isPublic ? "Yes" : "No"}</div> */}
                                 </Space>
                             </List.Item>
                         )}
@@ -462,7 +464,7 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
             </Card>
 
             {/* Test Case Modal */}
-            <Modal
+            <Modal centered
                 getContainer={false}
                 title={editingTestCase ? "Edit Test Case" : "Add Test Case"}
                 open={isTestCaseModalOpen}
@@ -505,6 +507,7 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
                                                         currentValues[name] = sanitizedValue;
                                                         testCaseForm.setFieldsValue({ inputList: currentValues });
                                                     }}
+                                                    maxLength={250}
                                                 />
                                             </Form.Item>
                                             <Button
@@ -521,7 +524,7 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
                                             position: "sticky",
                                             bottom: 0,
                                             background: "#fff",
-                                            paddingTop: 8,
+                                            marginTop: 8,
                                         }}
                                     >
                                         <Button
@@ -542,14 +545,14 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
                     </div>
 
                     <Form.Item name="expectedOutput" label="Expected Output" rules={[{ required: true }]}>
-                        <Input placeholder="e.g. 6" />
+                        <Input placeholder="e.g. 6" maxLength={250} />
                     </Form.Item>
-                    <Form.Item name="priority" label="Priority" rules={[{ required: true }]}>
+                    {/* <Form.Item name="priority" label="Priority" rules={[{ required: true }]}>
                         <Select options={PRIORITY_OPTIONS} />
                     </Form.Item>
                     <Form.Item name="isPublic" label="Public?" valuePropName="checked">
                         <Switch />
-                    </Form.Item>
+                    </Form.Item> */}
 
                 </Form>
             </Modal>

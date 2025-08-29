@@ -8,66 +8,107 @@ const monthLabels = [
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 ];
 
-const COLORS = [
-    "#4caf50",
-    "#2196f3",
-    "#ff9800",
-    "#f44336",
-    "#9c27b0",
-    "#009688",
-    "#3f51b5",
-    "#795548",
-    "#e91e63",
-    "#00bcd4",
-];
-
 const MonthlyEnrollmentChart = ({ stats, selectedCourses, selectedYear }) => {
 
-    const getAvailableCourses = () => {
-        const courseMap = {};
-        stats?.forEach(s => {
-            courseMap[s.courseId] = s.courseTitle;
-        });
-        return Object.entries(courseMap).map(([id, title]) => ({
-            value: Number(id),
-            label: title
-        }));
-    };
-
     const buildSeriesData = () => {
-        return selectedCourses?.map((courseId, index) => {
-            const courseTitle = getAvailableCourses().find(c => c.value === courseId)?.label;
-            const dataByMonth = Array(12).fill(0);
+        const dataByMonth = Array(12).fill(0);
 
-            stats
-                .filter(s => s.courseId === courseId && s.year === selectedYear)
-                .forEach(s => {
-                    dataByMonth[s.month - 1] = s.totalEnrolled;
-                });
+        stats
+            .filter(s => selectedCourses.includes(s.courseId) && s.year === selectedYear)
+            .forEach(s => {
+                dataByMonth[s.month - 1] += s.totalEnrolled;
+            });
 
-            return {
-                name: courseTitle,
+        // return [
+        //     {
+        //         type: "areaspline",
+        //         name: "Total Enrollment",
+        //         data: dataByMonth,
+        //         color: "#2196f3",
+        //         lineWidth: 3,
+        //         marker: {
+        //             enabled: true,
+        //             radius: 4,
+        //             lineWidth: 2,
+        //             lineColor: "#fff",
+        //             fillColor: "#2196f3"
+        //         },
+        //         fillColor: {
+        //             linearGradient: [0, 0, 0, 250],
+        //             stops: [
+        //                 [0, "rgba(169, 218, 253, 0.6)"],
+        //                 [1, "rgba(169, 218, 253, 0)"]
+        //             ]
+        //         }
+        //     }
+        // ];
+
+        return [
+            {
+                type: "column",
+                name: "Total Enrollment",
                 data: dataByMonth,
-                color: COLORS[index % COLORS.length]
-            };
-        });
+                color: "#2196f3",
+                borderRadius: 5 // rounded top corners
+            }
+        ];
     };
+
+    // const chartOptions = {
+    //     chart: {
+    //         type: "areaspline"
+    //     },
+    //     title: {
+    //         text: "Monthly Enrollment Statistics " + selectedYear
+    //     },
+    //     xAxis: {
+    //         categories: monthLabels
+    //     },
+    //     yAxis: {
+    //         title: {
+    //             text: "Total Enrolled Students"
+    //         },
+    //         allowDecimals: false
+    //     },
+    //     tooltip: {
+    //         shared: true,
+    //         valueSuffix: " learners"
+    //     },
+    //     credits: { enabled: false },
+    //     series: buildSeriesData()
+    // };
 
     const chartOptions = {
+        chart: {
+            type: "column"
+        },
         title: {
             text: "Monthly Enrollment Statistics " + selectedYear
         },
         xAxis: {
-            categories: monthLabels
+            categories: monthLabels,
+            crosshair: true
         },
         yAxis: {
+            min: 0,
             title: {
                 text: "Total Enrolled Students"
             },
             allowDecimals: false
         },
-        series: buildSeriesData(),
-        credits: { enabled: false }
+        tooltip: {
+            shared: true,
+            valueSuffix: " learners"
+        },
+        plotOptions: {
+            column: {
+                borderWidth: 0,
+                pointPadding: 0.2,
+                groupPadding: 0.1
+            }
+        },
+        credits: { enabled: false },
+        series: buildSeriesData()
     };
 
     return (
