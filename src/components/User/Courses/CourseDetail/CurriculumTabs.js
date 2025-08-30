@@ -1,4 +1,3 @@
-import React from "react";
 import { Collapse, Tabs } from "antd";
 import { BsFileEarmarkText } from "react-icons/bs";
 import { FaLock, FaRegEye } from "react-icons/fa";

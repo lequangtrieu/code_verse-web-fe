@@ -79,7 +79,7 @@ const TheoryForm = ({ lessonId, isActive, hasChange, setHasChange, isTraining = 
         label="Theory Title"
         rules={[{ required: true, message: "Please input the theory title" }]}
       >
-        <Input placeholder="Enter theory title" onChange={() => setHasChange(true)} />
+        <Input placeholder="Enter theory title" maxLength={250} showCount onChange={() => setHasChange(true)} />
       </Form.Item>
 
       <Form.Item label="Theory Content" required>
