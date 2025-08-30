@@ -1,10 +1,11 @@
-import { Form, Input, Rate, Button, message } from "antd";
-import { useEffect } from "react";
+import { Form, Input, Rate, Button, notification } from "antd";
+import { useEffect, useState } from "react";
 import axiosInstance from "../../../../config/axiosInstance";
 import commonApi from "../../../../common/api";
 
 const EditableReviewForm = ({ review, courseId, onCancel, onSuccess }) => {
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (review) {
@@ -13,18 +14,39 @@ const EditableReviewForm = ({ review, courseId, onCancel, onSuccess }) => {
         comment: review.comment,
       });
     }
-  }, [review]);
+  }, [review, form]);
 
   const handleFinish = async (values) => {
     try {
-      await axiosInstance.put(commonApi.courseRating.update(review.id), {
-        courseId,
-        rating: values.rating,
-        comment: values.comment,
+      setLoading(true);
+      const res = await axiosInstance.put(
+        commonApi.courseRating.update(review.id),
+        {
+          courseId,
+          rating: values.rating,
+          comment: values.comment,
+        }
+      );
+
+      notification.success({
+        message: "Review Updated",
+        description: res.data || "Your review has been updated successfully.",
+        placement: "topLeft",
       });
+
       onSuccess?.();
+      onCancel?.();
     } catch (err) {
-      message.error("Update failed");
+      const errorMessage =
+        err.response?.data ||
+        "Failed to update your review. Please revise and try again.";
+      notification.error({
+        message: "Update Failed",
+        description: errorMessage,
+        placement: "topLeft",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -49,7 +71,13 @@ const EditableReviewForm = ({ review, courseId, onCancel, onSuccess }) => {
           />
         </Form.Item>
         <Form.Item className="mb-0 text-right">
-          <Button htmlType="submit" type="primary" size="small" className="px-5">
+          <Button
+            htmlType="submit"
+            type="primary"
+            size="small"
+            className="px-5"
+            loading={loading}
+          >
             Save
           </Button>
           <Button onClick={onCancel} size="small" className="ml-2 px-5">

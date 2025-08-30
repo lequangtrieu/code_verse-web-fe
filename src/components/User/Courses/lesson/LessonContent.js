@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Card,
   Tabs,
@@ -8,8 +8,7 @@ import {
   Avatar,
   Tooltip,
   Modal,
-  List,
-  Tag
+  Tag,
 } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -116,9 +115,7 @@ const LessonContent = ({ status = "PUBLISHED", instructor, lesson }) => {
   if (!lesson) {
     return (
       <div className="w-full p-4 bg-white overflow-y-auto">
-        {" "}
-        // "max-h-[850px] min-w-[400px] w-1/2 Select a lesson to view the
-        content.
+        max-h-[850px] min-w-[400px] w-1/2 Select a lesson to view the content.
       </div>
     );
   }
@@ -145,11 +142,11 @@ const LessonContent = ({ status = "PUBLISHED", instructor, lesson }) => {
           c.id === commentToDelete
             ? { ...c, isDeleted: true }
             : {
-              ...c,
-              replies: c.replies?.map((r) =>
-                r.id === commentToDelete ? { ...r, isDeleted: true } : r
-              ),
-            }
+                ...c,
+                replies: c.replies?.map((r) =>
+                  r.id === commentToDelete ? { ...r, isDeleted: true } : r
+                ),
+              }
         )
       );
       openNotification(
@@ -197,7 +194,8 @@ const LessonContent = ({ status = "PUBLISHED", instructor, lesson }) => {
       openNotification(
         "error",
         "Failed to Submit",
-        "We were unable to post your comment. Please try again."
+        err?.response?.data ||
+          "We were unable to post your comment. Please try again."
       );
     }
   };
@@ -242,7 +240,8 @@ const LessonContent = ({ status = "PUBLISHED", instructor, lesson }) => {
       openNotification(
         "error",
         "Failed to Submit Reply",
-        "We were unable to post your reply. Please try again."
+        err?.response?.data ||
+          "We were unable to post your reply. Please try again."
       );
     }
   };
@@ -284,10 +283,10 @@ const LessonContent = ({ status = "PUBLISHED", instructor, lesson }) => {
             const updatedReplies = c.replies.map((rep) =>
               rep.id === editingComment
                 ? {
-                  ...rep,
-                  originalMessage: rep.messageText,
-                  messageText: editText,
-                }
+                    ...rep,
+                    originalMessage: rep.messageText,
+                    messageText: editText,
+                  }
                 : rep
             );
             return { ...c, replies: updatedReplies };
@@ -300,9 +299,18 @@ const LessonContent = ({ status = "PUBLISHED", instructor, lesson }) => {
       setEditingComment(null);
       setEditingParentId(null);
       setEditText("");
-      openNotification("success", "Comment updated");
-    } catch {
-      openNotification("error", "Failed to update comment");
+      openNotification(
+        "success",
+        "Comment Updated Successfully",
+        "Your comment has been updated and saved successfully."
+      );
+    } catch (err) {
+      openNotification(
+        "error",
+        "Failed to Update",
+        err?.response?.data ||
+          "We were unable to update your comment. Please try again."
+      );
     }
   };
 
@@ -419,254 +427,267 @@ const LessonContent = ({ status = "PUBLISHED", instructor, lesson }) => {
           </Card>
         </TabPane>
 
-        {status === "PUBLISHED" && <TabPane tab="Discussion" key="3">
-          <Card
-            bordered={false}
-            className="max-h-[calc(100vh-190px)] overflow-y-auto"
-            ref={containerRef}
-          >
-            <h2 className="text-xl font-semibold mb-4">Discussion</h2>
+        {status === "PUBLISHED" && (
+          <TabPane tab="Discussion" key="3">
+            <Card
+              bordered={false}
+              className="max-h-[calc(100vh-190px)] overflow-y-auto"
+              ref={containerRef}
+            >
+              <h2 className="text-xl font-semibold mb-4">Discussion</h2>
 
-            <TextArea
-              rows={3}
-              placeholder="Write a new comment..."
-              value={commentInput}
-              onChange={(e) => setCommentInput(e.target.value)}
-              onKeyDown={(e) => handleKeyDown(e, "comment")}
-              style={{ resize: "none" }}
-            />
-            <div className="mt-2 text-right">
-              <Button type="primary" onClick={handleSubmitComment}>
-                Submit Comment
-              </Button>
-            </div>
+              <TextArea
+                rows={3}
+                placeholder="Write a new comment..."
+                value={commentInput}
+                onChange={(e) => setCommentInput(e.target.value)}
+                onKeyDown={(e) => handleKeyDown(e, "comment")}
+                style={{ resize: "none" }}
+              />
+              <div className="mt-2 text-right">
+                <Button type="primary" onClick={handleSubmitComment}>
+                  Submit Comment
+                </Button>
+              </div>
 
-            <div className="mt-6 space-y-6">
-              {comments.length === 0 && (
-                <p className="text-gray-500">
-                  No comments yet for this lesson.
-                </p>
-              )}
+              <div className="mt-6 space-y-6">
+                {comments.length === 0 && (
+                  <p className="text-gray-500">
+                    No comments yet for this lesson.
+                  </p>
+                )}
 
-              {comments.map((comment) =>
-                comment.isDeleted ? null : (
-                  <div
-                    key={comment.id}
-                    className="bg-blue-50 p-4 rounded shadow-sm"
-                  >
+                {comments.map((comment) =>
+                  comment.isDeleted ? null : (
                     <div
-                      id={`comment-${comment.id}`}
-                      className="flex items-start gap-3"
+                      key={comment.id}
+                      className="bg-blue-50 p-4 rounded shadow-sm"
                     >
-                      <Avatar
-                        src={comment.avatar}
-                        icon={!comment.avatar && <UserOutlined />}
-                      />
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-semibold">
-                              {comment.authorEmail}{comment.authorEmail === instructor ?
-                                <Tag color="pink" className="ml-2">Instructor</Tag>
-                                : <></>}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {dayjs(comment.createdAt).fromNow()}
-                            </p>
-                          </div>
-                          <CommentActions
-                            isOwner={user?.id === comment.userId}
-                            onEdit={() => startEditComment(comment)}
-                            onDelete={() => confirmDeleteComment(comment.id)}
-                            onReport={() => handleReport(comment.id)}
-                          />
-                        </div>
-
-                        <ReportCommentModal
-                          open={reportModalOpen}
-                          onClose={() => setReportModalOpen(false)}
-                          messageId={reportComment?.messageId}
-                          reportedUserId={reportComment?.reportedUserId}
+                      <div
+                        id={`comment-${comment.id}`}
+                        className="flex items-start gap-3"
+                      >
+                        <Avatar
+                          src={comment.avatar}
+                          icon={!comment.avatar && <UserOutlined />}
                         />
-
-                        {editingComment === comment.id ? (
-                          <div className="mt-2">
-                            <TextArea
-                              style={{ resize: "none" }}
-                              rows={3}
-                              value={editText}
-                              onChange={(e) => setEditText(e.target.value)}
-                            />
-                            <div className="text-right mt-1">
-                              <Button
-                                size="small"
-                                onClick={() => setEditingComment(null)}
-                              >
-                                Cancel
-                              </Button>
-                              <Button
-                                size="small"
-                                type="primary"
-                                className="ml-2"
-                                onClick={submitEditComment}
-                              >
-                                Save
-                              </Button>
+                        <div className="flex-1">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="font-semibold">
+                                {comment.authorEmail}
+                                {comment.authorEmail === instructor ? (
+                                  <Tag color="pink" className="ml-2">
+                                    Instructor
+                                  </Tag>
+                                ) : (
+                                  <></>
+                                )}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {dayjs(comment.createdAt).fromNow()}
+                              </p>
                             </div>
+                            <CommentActions
+                              isOwner={user?.id === comment.userId}
+                              onEdit={() => startEditComment(comment)}
+                              onDelete={() => confirmDeleteComment(comment.id)}
+                              onReport={() => handleReport(comment.id)}
+                            />
                           </div>
-                        ) : (
-                          <div
-                            className="
+
+                          <ReportCommentModal
+                            open={reportModalOpen}
+                            onClose={() => setReportModalOpen(false)}
+                            messageId={reportComment?.messageId}
+                            reportedUserId={reportComment?.reportedUserId}
+                          />
+
+                          {editingComment === comment.id ? (
+                            <div className="mt-2">
+                              <TextArea
+                                style={{ resize: "none" }}
+                                rows={3}
+                                value={editText}
+                                onChange={(e) => setEditText(e.target.value)}
+                              />
+                              <div className="text-right mt-1">
+                                <Button
+                                  size="small"
+                                  onClick={() => setEditingComment(null)}
+                                >
+                                  Cancel
+                                </Button>
+                                <Button
+                                  size="small"
+                                  type="primary"
+                                  className="ml-2"
+                                  onClick={submitEditComment}
+                                >
+                                  Save
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div
+                              className="
     whitespace-pre-wrap break-words font-mono text-sm
     bg-gray-50 p-3 rounded border border-gray-200 overflow-x-auto
   "
-                          >
-                            {comment.messageText}
-                            {comment.originalMessage && (
-                              <Tooltip
-                                title={`Original: ${comment.originalMessage}`}
-                              >
-                                <span className="ml-2 text-blue-500 text-xs cursor-pointer">
-                                  Edited
-                                </span>
-                              </Tooltip>
-                            )}
-                          </div>
-                        )}
+                            >
+                              {comment.messageText}
+                              {comment.originalMessage && (
+                                <Tooltip
+                                  title={`Original: ${comment.originalMessage}`}
+                                >
+                                  <span className="ml-2 text-blue-500 text-xs cursor-pointer">
+                                    Edited
+                                  </span>
+                                </Tooltip>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Replies */}
-                    <div className="mt-3 space-y-2 pl-6 border-l border-gray-300">
-                      {(comment.replies || []).map((rep) =>
-                        rep?.isDeleted ? null : (
-                          <div
-                            key={rep.id}
-                            id={`comment-${rep.id}`}
-                            className="bg-gray-100 p-2 rounded"
-                          >
-                            <div className="flex items-start gap-2">
-                              <Avatar
-                                src={rep.avatar}
-                                icon={!rep.avatar && <UserOutlined />}
-                              />
-                              <div className="flex-1">
-                                <div className="flex justify-between items-start">
-                                  <div>
-                                    <p className="font-semibold text-sm">
-                                      {rep.authorEmail}
-                                      {rep.authorEmail === instructor ?
-                                        <Tag color="pink" className="ml-2">Instructor</Tag>
-                                        : <></>}
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                      {dayjs(rep.createdAt).fromNow()}
-                                    </p>
-                                  </div>
-                                  <CommentActions
-                                    isOwner={user?.id === rep.userId}
-                                    onEdit={() =>
-                                      startEditComment(rep, comment.id)
-                                    }
-                                    onDelete={() =>
-                                      confirmDeleteComment(rep.id)
-                                    }
-                                    onReport={() => handleReport(rep.id)}
-                                  />
-                                </div>
-
-                                {editingComment === rep.id ? (
-                                  <div className="mt-1">
-                                    <TextArea
-                                      style={{ resize: "none" }}
-                                      rows={3}
-                                      value={editText}
-                                      onChange={(e) =>
-                                        setEditText(e.target.value)
-                                      }
-                                    />
-                                    <div className="text-right mt-1">
-                                      <Button
-                                        size="small"
-                                        onClick={() => setEditingComment(null)}
-                                      >
-                                        Cancel
-                                      </Button>
-                                      <Button
-                                        size="small"
-                                        type="primary"
-                                        className="ml-2"
-                                        onClick={submitEditComment}
-                                      >
-                                        Save
-                                      </Button>
+                      {/* Replies */}
+                      <div className="mt-3 space-y-2 pl-6 border-l border-gray-300">
+                        {(comment.replies || []).map((rep) =>
+                          rep?.isDeleted ? null : (
+                            <div
+                              key={rep.id}
+                              id={`comment-${rep.id}`}
+                              className="bg-gray-100 p-2 rounded"
+                            >
+                              <div className="flex items-start gap-2">
+                                <Avatar
+                                  src={rep.avatar}
+                                  icon={!rep.avatar && <UserOutlined />}
+                                />
+                                <div className="flex-1">
+                                  <div className="flex justify-between items-start">
+                                    <div>
+                                      <p className="font-semibold text-sm">
+                                        {rep.authorEmail}
+                                        {rep.authorEmail === instructor ? (
+                                          <Tag color="pink" className="ml-2">
+                                            Instructor
+                                          </Tag>
+                                        ) : (
+                                          <></>
+                                        )}
+                                      </p>
+                                      <p className="text-xs text-gray-500">
+                                        {dayjs(rep.createdAt).fromNow()}
+                                      </p>
                                     </div>
+                                    <CommentActions
+                                      isOwner={user?.id === rep.userId}
+                                      onEdit={() =>
+                                        startEditComment(rep, comment.id)
+                                      }
+                                      onDelete={() =>
+                                        confirmDeleteComment(rep.id)
+                                      }
+                                      onReport={() => handleReport(rep.id)}
+                                    />
                                   </div>
-                                ) : (
-                                  <div
-                                    className="
+
+                                  {editingComment === rep.id ? (
+                                    <div className="mt-1">
+                                      <TextArea
+                                        style={{ resize: "none" }}
+                                        rows={3}
+                                        value={editText}
+                                        onChange={(e) =>
+                                          setEditText(e.target.value)
+                                        }
+                                      />
+                                      <div className="text-right mt-1">
+                                        <Button
+                                          size="small"
+                                          onClick={() =>
+                                            setEditingComment(null)
+                                          }
+                                        >
+                                          Cancel
+                                        </Button>
+                                        <Button
+                                          size="small"
+                                          type="primary"
+                                          className="ml-2"
+                                          onClick={submitEditComment}
+                                        >
+                                          Save
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div
+                                      className="
     whitespace-pre-wrap break-words font-mono text-sm mt-1
     bg-gray-50 p-2 rounded border border-gray-200 overflow-x-auto
   "
-                                  >
-                                    {rep.messageText}
-                                  </div>
-                                )}
+                                    >
+                                      {rep.messageText}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             </div>
+                          )
+                        )}
+                      </div>
+
+                      {/* Reply input */}
+                      <div className="mt-2">
+                        <Button
+                          size="small"
+                          onClick={() =>
+                            setActiveReplyId(
+                              activeReplyId === comment.id ? null : comment.id
+                            )
+                          }
+                        >
+                          {activeReplyId === comment.id ? "Cancel" : "Reply"}
+                        </Button>
+                      </div>
+
+                      {activeReplyId === comment.id && (
+                        <div className="mt-2">
+                          <TextArea
+                            style={{ resize: "none" }}
+                            rows={3}
+                            value={replyInputs[comment.id] || ""}
+                            onChange={(e) =>
+                              setReplyInputs((prev) => ({
+                                ...prev,
+                                [comment.id]: e.target.value,
+                              }))
+                            }
+                            onKeyDown={(e) =>
+                              handleKeyDown(e, "reply", comment.id)
+                            }
+                            placeholder="Write a reply..."
+                          />
+                          <div className="text-right mt-1">
+                            <Button
+                              size="small"
+                              type="primary"
+                              onClick={() => handleSubmitReply(comment.id)}
+                            >
+                              Submit Reply
+                            </Button>
                           </div>
-                        )
+                        </div>
                       )}
                     </div>
-
-                    {/* Reply input */}
-                    <div className="mt-2">
-                      <Button
-                        size="small"
-                        onClick={() =>
-                          setActiveReplyId(
-                            activeReplyId === comment.id ? null : comment.id
-                          )
-                        }
-                      >
-                        {activeReplyId === comment.id ? "Cancel" : "Reply"}
-                      </Button>
-                    </div>
-
-                    {activeReplyId === comment.id && (
-                      <div className="mt-2">
-                        <TextArea
-                          style={{ resize: "none" }}
-                          rows={3}
-                          value={replyInputs[comment.id] || ""}
-                          onChange={(e) =>
-                            setReplyInputs((prev) => ({
-                              ...prev,
-                              [comment.id]: e.target.value,
-                            }))
-                          }
-                          onKeyDown={(e) =>
-                            handleKeyDown(e, "reply", comment.id)
-                          }
-                          placeholder="Write a reply..."
-                        />
-                        <div className="text-right mt-1">
-                          <Button
-                            size="small"
-                            type="primary"
-                            onClick={() => handleSubmitReply(comment.id)}
-                          >
-                            Submit Reply
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )
-              )}
-            </div>
-          </Card>
-        </TabPane>}
+                  )
+                )}
+              </div>
+            </Card>
+          </TabPane>
+        )}
       </Tabs>
       <Modal
         open={deleteModalOpen}
