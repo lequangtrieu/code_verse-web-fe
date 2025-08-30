@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { Rate, Progress, Spin, message, Button } from "antd";
 import { format } from "date-fns";
@@ -6,7 +6,6 @@ import commonApi from "../../../../common/api";
 import ReviewForm from "./ReviewForm";
 import EditableReviewForm from "./EditableReviewForm";
 import { useSelector } from "react-redux";
-import axiosInstance from "../../../../config/axiosInstance";
 
 const Reviews = ({ courseId, completionPercentage }) => {
   const [userReview, setUserReview] = useState(null);

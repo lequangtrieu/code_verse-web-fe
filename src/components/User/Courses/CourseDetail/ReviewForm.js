@@ -1,4 +1,4 @@
-import { Form, Input, Rate, Button, message } from "antd";
+import { Form, Input, Rate, Button, notification } from "antd";
 import { useSelector } from "react-redux";
 import commonApi from "../../../../common/api";
 import axiosInstance from "../../../../config/axiosInstance";
@@ -9,7 +9,7 @@ const ReviewForm = ({ courseId, onSuccess }) => {
 
   const handleSubmit = async (values) => {
     try {
-      await axiosInstance.post(
+      const res = await axiosInstance.post(
         commonApi.courseRating.submit,
         {
           courseId,
@@ -20,12 +20,23 @@ const ReviewForm = ({ courseId, onSuccess }) => {
           params: { userId: user.id },
         }
       );
-      message.success("Thank you for your feedback!");
+
+      notification.success({
+        message: "Review Submitted",
+        description: res.data || "Thank you for your feedback!",
+        placement: "topLeft",
+      });
+
       form.resetFields();
       if (typeof onSuccess === "function") onSuccess();
     } catch (err) {
-      console.error(err);
-      message.error("Failed to submit your review.");
+      const errorMessage =
+        err.response?.data || "Failed to submit your review.";
+      notification.error({
+        message: "Review Rejected",
+        description: errorMessage,
+        placement: "topLeft",
+      });
     }
   };
 
@@ -39,10 +50,17 @@ const ReviewForm = ({ courseId, onSuccess }) => {
         <Rate />
       </Form.Item>
       <Form.Item name="comment" label="Your Comment">
-        <Input.TextArea rows={4} placeholder="Your thoughts about this course..." />
+        <Input.TextArea
+          rows={4}
+          placeholder="Your thoughts about this course..."
+        />
       </Form.Item>
       <Form.Item>
-        <Button type="primary" htmlType="submit" className="bg-pink-500 hover:bg-pink-600">
+        <Button
+          type="primary"
+          htmlType="submit"
+          className="bg-pink-500 hover:bg-pink-600"
+        >
           Submit Review
         </Button>
       </Form.Item>

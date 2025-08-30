@@ -286,7 +286,7 @@ const QuizComponent = ({
               onProgressUpdate();
             }
             navigate("/user-panel/accomplishments");
-          }, 2500);
+          }, 6000);
         } else {
           notification.success({
             message: "Quiz Submitted",
