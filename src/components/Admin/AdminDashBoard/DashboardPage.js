@@ -15,10 +15,6 @@ const DashboardPage = () => {
   const [overview, setOverview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState("MONTH");
-  const [revenueYear, setRevenueYear] = useState([]);
-  const [revenueMonth, setRevenueMonth] = useState([]);
-  const [revenueQuarter, setRevenueQuarter] = useState([]);
-  const [roleStats, setRoleStats] = useState([]);
   const { Option } = Select;
 
   const fetchOverview = async () => {
@@ -34,62 +30,9 @@ const DashboardPage = () => {
     }
   };
 
-
-  const fetchRevenueData = async () => {
-    try {
-      const [yearRes, monthRes, quarterRes] = await Promise.all([
-        axiosInstance.get(commonApi.dashboardRevenueByYear.url),
-        axiosInstance.get(commonApi.dashboardRevenueByMonth.url),
-        axiosInstance.get(commonApi.dashboardRevenueByQuarter.url),
-      ]);
-
-      setRevenueYear(yearRes.data.map(d => {
-        return {
-          ...d,
-          type: "year",
-          year: parseInt(d.label)
-        };
-      }));
-
-      setRevenueMonth(monthRes.data.map(d => {
-        const [month, year] = d.label.split("/").map(v => parseInt(v));
-        return {
-          ...d,
-          type: "month",
-          year,
-          month
-        };
-      }));
-
-      setRevenueQuarter(quarterRes.data.map(d => {
-        const [qPart, yearStr] = d.label.split("-");
-        return {
-          ...d,
-          type: "quarter",
-          year: parseInt(yearStr),
-          quarter: parseInt(qPart.replace("Q", ""))
-        };
-      }));
-
-    } catch (err) {
-      message.error("Failed to fetch revenue data.");
-    }
-  };
-
   useEffect(() => {
     fetchOverview();
-    fetchRevenueData();
-    fetchUserRoleStats();
   }, [period]);
-
-  const fetchUserRoleStats = async () => {
-    try {
-      const res = await axiosInstance.get(commonApi.dashboardUserRole.url);
-      setRoleStats(res.data || []);
-    } catch (err) {
-      message.error("Failed to fetch user role stats.");
-    }
-  };
 
   return (
     <div>
