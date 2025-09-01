@@ -108,6 +108,7 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
                 }));
                 if(normalized.length === 0){
                     message.error({ content: "AI generation failed.", key: "download" });
+                    return;
                 }
 
                 setQuizData(normalized);
