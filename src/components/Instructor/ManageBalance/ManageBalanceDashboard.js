@@ -30,6 +30,7 @@ export function ManageBalanceDashboard() {
 
     const [showModal, setShowModal] = useState(false);
     const [hasPending, setHasPending] = useState(false);
+    const [withdrawnAmount, setWithdrawnAmount] = useState(0);
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -81,7 +82,7 @@ export function ManageBalanceDashboard() {
 
             // ⚠️ Sử dụng rawWithdrawals thay vì withdrawals (state chưa được cập nhật ngay)
             const withdrawnTotal = rawWithdrawals
-                .filter(w => w.status === "APPROVED")
+                .filter(w => w.status === "APPROVED" || w.status === "CONFIRMED")
                 .reduce((sum, w) => sum + w.amount, 0);
 
             setIncomeDetails(income);
@@ -89,6 +90,7 @@ export function ManageBalanceDashboard() {
             setTotalEarning(total);
             setInstructorEarning(instructorTotal);
             setCurrentBalance(instructorTotal - withdrawnTotal);
+            setWithdrawnAmount(withdrawnTotal);
         } catch (err) {
             console.error("❌ Error fetching instructor dashboard data:", err);
             message.error("Failed to load instructor dashboard data.");
@@ -198,21 +200,34 @@ export function ManageBalanceDashboard() {
             </div>
 
             <Row gutter={[24, 24]}>
-                {[{
-                    title: "Total Course Revenue", value: totalEarning, color: "#000"
-                }, {
-                    title: "Instructor's Income (70%)", value: instructorEarning, color: "#3f8600"
-                }, {
-                    title: "Current Available Balance", value: currentBalance, color: "#1890ff"
-                }].map((stat, i) => (
+                {[
+                    {
+                        title: "Instructor's Income (70%)",
+                        value: instructorEarning,
+                        color: "#3f8600"
+                    },
+                    {
+                        title: "Current Available Balance",
+                        value: currentBalance,
+                        color: "#1890ff"
+                    },
+                    {
+                        title: "Withdrawn Amount",
+                        value: withdrawnAmount,
+                        color: "#d48806" // ví dụ: vàng
+                    }
+                ].map((stat, i) => (
                     <Col xs={24} md={8} key={i}>
-                        <Card loading={loading} className="shadow-md border border-gray-200 rounded-xl">
+                        <Card
+                            loading={loading}
+                            className="shadow-md border border-gray-200 rounded-xl"
+                        >
                             <Statistic
                                 title={stat.title}
                                 value={stat.value}
-                                prefix={<DollarOutlined/>}
-                                valueStyle={{color: stat.color}}
-                                formatter={v => `${Number(v).toLocaleString("vi-VN")} ₫`}
+                                prefix={<DollarOutlined />}
+                                valueStyle={{ color: stat.color }}
+                                formatter={(v) => `${parseInt(v, 10).toLocaleString("vi-VN")} ₫`}
                             />
                         </Card>
                     </Col>
