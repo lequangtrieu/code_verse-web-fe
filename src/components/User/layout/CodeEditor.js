@@ -252,7 +252,7 @@ const CodeEditor = ({
         setShowCourseCompletionModal(true);
         setTimeout(() => {
           navigate("/user-panel/accomplishments");
-        }, 3000);
+        }, 5500);
       } else {
         party.confetti(document.body, {
           count: 100,
