@@ -88,6 +88,8 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
     };
 
     const handleAIGenerated = async () => {
+        let attempts = 0;
+        const maxAttempts = 3;
         const fetchData = async () => {
             try {
                 message.loading({ content: "Generating quiz bank...", key: "download" });
@@ -105,7 +107,7 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
                     })),
                 }));
                 if(normalized.length === 0){
-                    throw new Error();
+                    message.error({ content: "AI generation failed.", key: "download" });
                 }
 
                 setQuizData(normalized);
@@ -113,7 +115,15 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
 
                 message.success({ content: "Quiz bank generated!", key: "download" });
             } catch (error) {
-                message.error({ content: "AI generation failed.", key: "download" });
+                attempts++;
+                if (attempts < maxAttempts) {
+                    console.warn(`Retrying... attempt ${attempts}`);
+                    
+                    await new Promise((resolve) => setTimeout(resolve, 500 * 2 ** (attempts - 1)));
+                    return fetchData();
+                } else {
+                    message.error({ content: "AI generation failed after 3 attempts.", key: "download" });
+                }
             }
         };
 
