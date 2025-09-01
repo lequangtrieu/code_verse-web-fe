@@ -7,7 +7,24 @@ import commonApi from "../../../common/api";
 import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
-
+const monthMap = {
+    Jan: 1,
+    Feb: 2,
+    Mar: 3,
+    Apr: 4,
+    May: 5,
+    Jun: 6,
+    Jul: 7,
+    Aug: 8,
+    Sep: 9,
+    Oct: 10,
+    Nov: 11,
+    Dec: 12,
+};
+const getQuarterFromLabel = (label) => {
+    const m = /Q\s*(\d)/i.exec(label ?? "");
+    return m ? Number(m[1]) : undefined;
+};
 const RevenueChart = () => {
     const [viewType, setViewType] = useState("MONTH"); // MONTH | QUARTER | YEAR
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -15,7 +32,6 @@ const RevenueChart = () => {
     const [data, setData] = useState([]);
     const navigate = useNavigate();
 
-    // Fetch API
     const fetchData = async () => {
         try {
             let url = "";
@@ -27,7 +43,7 @@ const RevenueChart = () => {
                     (res.data || []).map((d, idx) => ({
                         ...d,
                         year: selectedYear,
-                        month: idx + 1, // tháng tương ứng index
+                        month: monthMap[d.label],
                     }))
                 );
             } else if (viewType === "QUARTER") {
@@ -38,7 +54,7 @@ const RevenueChart = () => {
                     (res.data || []).map((d, idx) => ({
                         ...d,
                         year: selectedYear,
-                        quarter: idx + 1,
+                        quarter: getQuarterFromLabel(d.label),
                     }))
                 );
             } else {
@@ -48,7 +64,7 @@ const RevenueChart = () => {
                 setData(
                     (res.data || []).map((d) => ({
                         ...d,
-                        year: parseInt(d.label), // label là "2023", "2024"
+                        year: parseInt(d.label),
                     }))
                 );
             }
@@ -63,14 +79,12 @@ const RevenueChart = () => {
     }, [viewType, selectedYear, compareType]);
 
     // Chart options
-    const chartOptions = {
+    const revenueChartOptions = {
         chart: { zoomType: "xy" },
         title: { text: `Revenue Statistics (${viewType}${viewType !== "YEAR" ? " " + selectedYear : ""})` },
         xAxis: { categories: data.map(d => d.label), crosshair: true },
         yAxis: [
             { labels: { format: "{value} đ" }, title: { text: "Revenue (VND)" } },
-            { title: { text: "Orders" }, opposite: true },
-            { title: { text: "Growth %" }, opposite: true }
         ],
         tooltip: { shared: true },
         series: [
@@ -85,23 +99,6 @@ const RevenueChart = () => {
                 })),
                 tooltip: { valueSuffix: " đ" },
                 color: "#f472b6",
-            },
-            {
-                type: "line",
-                name: "Orders",
-                data: data.map((d) => d.totalOrders),
-                yAxis: 1,
-                tooltip: { valueSuffix: " orders" },
-                color: "#4ade80",
-            },
-            {
-                type: "line",
-                name: "Growth %",
-                data: data.map((d) => d.growthPercent ?? 0),
-                yAxis: 2,
-                tooltip: { valueSuffix: "%" },
-                color: "#3b82f6",
-                dashStyle: "ShortDash",
             },
         ],
         plotOptions: {
@@ -121,6 +118,32 @@ const RevenueChart = () => {
                 },
             },
         },
+        credits: { enabled: false },
+    };
+
+    const ordersChartOptions = {
+        chart: { zoomType: "xy" },
+        title: {
+            text: `Orders Statistics (${viewType}${viewType !== "YEAR" ? " " + selectedYear : ""
+                })`,
+        },
+        xAxis: { categories: data.map((d) => d.label), crosshair: true },
+        yAxis: [{ title: { text: "Orders" } }],
+        tooltip: { shared: true },
+        series: [
+            {
+                type: "column",
+                name: "Orders",
+                data: data.map((d) => ({
+                    y: Number(d.totalOrders || 0),
+                    year: d.year,
+                    month: d.month,
+                    quarter: d.quarter,
+                })),
+                tooltip: { valueSuffix: " orders" },
+                color: "#4ade80",
+            },
+        ],
         credits: { enabled: false },
     };
 
@@ -156,8 +179,13 @@ const RevenueChart = () => {
 
             </div>
 
-            {/* Chart */}
-            <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+            {/* Chart Revenue */}
+            <HighchartsReact highcharts={Highcharts} options={revenueChartOptions} />
+
+            {/* Chart Orders */}
+            <div className="mt-10">
+                <HighchartsReact highcharts={Highcharts} options={ordersChartOptions} />
+            </div>
         </div>
     );
 };
