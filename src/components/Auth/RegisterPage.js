@@ -181,6 +181,7 @@ const RegisterPage = () => {
                         <Form.Item
                             name="teachingCredentials"
                             label="Teaching Credentials"
+                            extra="(Certificate proving you are a teacher)"
                             valuePropName="fileList"
                             getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
                             rules={[{ required: true, message: 'Please upload your teaching credentials!' }]}
@@ -196,6 +197,7 @@ const RegisterPage = () => {
                         <Form.Item
                             name="qrCodeUrl"
                             label="QR Code"
+                            extra="(QR code used for withdrawal requests)"
                             valuePropName="fileList"
                             getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
                             rules={[{ required: true, message: 'Please upload your QR code!' }]}

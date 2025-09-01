@@ -20,6 +20,48 @@ const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus }) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state?.user?.user);
 
+  const handlePayNow = async (course) => {
+    if (!user) {
+      return notification.warning({
+        message: "Login Required",
+        description: "Please log in to purchase this course.",
+        placement: "topLeft",
+      });
+    }
+
+    try {
+      const response = await axiosInstance.post(commonApi.checkout.url, {
+        username: user.username,
+        courseId: course.id,
+        selectedCartItemId: [],
+      });
+
+      const checkoutUrl = response.data.result.checkoutUrl;
+      window.location.href = checkoutUrl; // redirect sang PayOS
+    } catch (error) {
+      const fallbackMessage =
+          "Unable to proceed to checkout. Please try again.";
+
+      const backendMessage =
+          error?.response?.data?.message ||
+          error?.response?.data?.error ||
+          error?.response?.data?.detail ||
+          fallbackMessage;
+
+      notification.error({
+        message: "Failed to initiate payment",
+        description: backendMessage,
+        placement: "bottomLeft",
+      });
+
+      if (error?.response?.data?.code === 1010) {
+        dispatch(logoutUser());
+        navigate("/");
+      }
+    }
+  };
+
+
   const handleAddToCartFree = async (course) => {
     if (!user) {
       return notification.warning({
@@ -82,25 +124,32 @@ const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus }) => {
 
     if (!enrolled && user?.role === ROLE.LEARNER) {
       return (
-        <>
-          {isFree ? (
-            <button
-              className="mt-3 w-full bg-green-600 text-white py-2 rounded"
-              onClick={() => enrollFreeCourse(course?.course)}
-            >
-              Learning Now
-            </button>
-          ) : (
-            <div className="flex justify-between">
-              <button
-                className="mt-3 w-full bg-purple-600 text-white py-2 rounded"
-                onClick={() => handleAddToCart(course?.course)}
-              >
-                Add To Cart
-              </button>
-            </div>
-          )}
-        </>
+          <>
+            {isFree ? (
+                <button
+                    className="mt-3 w-full bg-green-600 text-white py-2 rounded"
+                    onClick={() => enrollFreeCourse(course?.course)}
+                >
+                  Learning Now
+                </button>
+            ) : (
+                <div>
+                  <button
+                      className="mt-3 w-full bg-purple-600 text-white py-2 rounded"
+                      onClick={() => handleAddToCart(course?.course)}
+                  >
+                    Add To Cart
+                  </button>
+
+                  <button
+                      className="mt-3 w-full bg-green-600 text-white py-2 rounded"
+                      onClick={() => handlePayNow(course?.course)}
+                  >
+                    Pay Now
+                  </button>
+                </div>
+            )}
+          </>
       );
     }
 
@@ -125,15 +174,6 @@ const CoursePurchaseInfo = ({ course, handleAddToCart, enrollmentStatus }) => {
         </button>
       );
     }
-
-    // return (
-    //   <button
-    //     className="mt-3 w-full bg-gray-400 text-white py-2 rounded cursor-not-allowed"
-    //     disabled
-    //   >
-    //     Completed
-    //   </button>
-    // );
   };
 
   return (

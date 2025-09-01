@@ -139,14 +139,8 @@ export function WithdrawalRequestList() {
 
     const columns = [
         {
-            title: "ID",
-            dataIndex: "id",
-            width: 60,
-            align: "center"
-        },
-        {
             title: "Instructor",
-            render: (r) => `${r.instructorName} (#${r.instructorId})`
+            render: (r) => `${r.instructorName}`
         },
         {
             title: "Amount",
@@ -168,7 +162,8 @@ export function WithdrawalRequestList() {
                 const map = {
                     APPROVED: "green",
                     PENDING: "blue",
-                    REJECTED: "red"
+                    REJECTED: "red",
+                    CONFIRMED: "green"
                 };
                 return <Tag color={map[s]}>{s}</Tag>;
             }
