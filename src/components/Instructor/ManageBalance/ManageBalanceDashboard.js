@@ -124,7 +124,7 @@ export function ManageBalanceDashboard() {
     const handleCancelRequest = (requestId) => {
         Modal.confirm({
             title: "Cancel Withdrawal Request",
-            content: `Are you sure you want to cancel request #${requestId}?`,
+            content: `Are you sure you want to cancel request?`,
             okText: "Yes, Cancel",
             cancelText: "No",
             okType: "danger",
@@ -153,7 +153,7 @@ export function ManageBalanceDashboard() {
             dataIndex: "status",
             key: "status",
             render: (s) => {
-                const map = {APPROVED: "green", REJECTED: "red", PENDING: "blue", "NEED VERIFY": "orange"};
+                const map = {APPROVED: "green", REJECTED: "red", PENDING: "blue", "NEED VERIFY": "orange", CONFIRMED: "green"};
                 return <Tag color={map[s] || "default"}>{s}</Tag>;
             }
         },
