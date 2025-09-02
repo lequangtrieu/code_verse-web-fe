@@ -265,7 +265,11 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
     };
 
     const stringifyInputListToString = (list) => {
-        return list.map(val => `#@ip!${val}#@ip!`).join("");
+        return list.map(val => {
+            if (val === undefined) val = "";
+            return `#@ip!${val}#@ip!`;
+        }
+        ).join("");
     };
 
     const parseInputStringToList = (inputString) => {
@@ -499,7 +503,6 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
                                             <Form.Item
                                                 {...restField}
                                                 name={name}
-                                                rules={[{ required: true, message: "Please input a value" }]}
                                                 style={{ marginBottom: 0 }}
                                                 className="flex-1"
                                             >

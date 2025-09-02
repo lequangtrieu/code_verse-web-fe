@@ -2,8 +2,16 @@ import React from "react";
 import { FaArrowRight } from "react-icons/fa";
 import { Button } from 'antd';
 import ScrollFadeIn from "../Molecule/ScrollFadeIn";
+import { useNavigate } from "react-router-dom";
+
 
 const FeatureSection = ({ title, content, listContent, buttonText, image, reverse }) => {
+    const navigate = useNavigate();
+
+    const handleNavigateToCourse = () => {
+        navigate("/course");
+    }
+
     return (
         <section className="bg-[#0D2C53] text-white items-center">
             <div className={`max-w-7xl p-8 flex flex-col md:flex-row ${reverse ? 'md:flex-row-reverse' : ''} items-center gap-20`}>
@@ -24,7 +32,8 @@ const FeatureSection = ({ title, content, listContent, buttonText, image, revers
                             ))}
                         </ul>
                     )}
-                    <Button type="primary" icon={<FaArrowRight />} size="large" iconPosition="end" className="bg-[#506CF0] hover:bg-blue-600 font-semibold ">
+                    <Button type="primary" icon={<FaArrowRight />} size="large" iconPosition="end" className="bg-[#506CF0] hover:bg-blue-600 font-semibold "
+                        onClick={handleNavigateToCourse}>
                         Start learning
                     </Button>
                 </ScrollFadeIn>

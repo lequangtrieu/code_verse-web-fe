@@ -48,6 +48,10 @@ const Courses = () => {
     useDocumentTitle("Courses - CodeVerse");
 
     useEffect(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }, []);
+
+    useEffect(() => {
         const fetchData = async () => {
             try {
                 const responseCourse = await axios.get(commonApi.course.url);

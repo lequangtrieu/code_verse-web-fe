@@ -38,7 +38,7 @@ const AdminCoursesPage = () => {
       const result = await axiosInstance.get(commonApi.getAllCoursesByAdmin.url, {
         params: { username: user.username },
       });
-      setCourses(result.data || []);
+      setCourses(Array.isArray(result.data) ? result.data.reverse() : []);
     } catch (error) {
       message.error("Error when fetching course data.");
       setCourses([]);

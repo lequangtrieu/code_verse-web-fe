@@ -23,7 +23,7 @@ const AdminApproveInstructorPage = () => {
   const fetchInactiveInstructors = async () => {
     try {
       const response = await axiosInstance.get(commonApi.getInactiveInstructors.url);
-      setInstructors(Array.isArray(response.data) ? response.data : []);
+      setInstructors(Array.isArray(response.data) ? response.data.reverse() : []);
     } catch (error) {
       message.error("Failed to fetch inactive instructors");
     } finally {

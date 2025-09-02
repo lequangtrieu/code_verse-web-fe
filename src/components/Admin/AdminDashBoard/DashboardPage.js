@@ -51,7 +51,7 @@ const DashboardPage = () => {
       </Select>
 
       {overview && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mt-4">
           <AdminDashboardCard
             icon={<UserOutlined className="text-pink-500 text-3xl" />}
             title="Users"

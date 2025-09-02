@@ -160,7 +160,6 @@ const CourseModule = ({ courseId, setCanPreview }) => {
                         }
                         : mod
                 );
-                console.log(hasUnsavedTheory);
                 setModules(updatedModules);
                 confirmSetSelectedLesson({ ...res.data.result, moduleId: activeModuleId })
                 message.success("Lesson created successfully!");
@@ -270,7 +269,11 @@ const CourseModule = ({ courseId, setCanPreview }) => {
                     modules: moduleCount,
                     lessons: lessonCount
                 });
-                generatedData = res.data.result.modules;
+                if(res.data.result.modules?.every(module => module.subLessons)){
+                    generatedData = res.data.result.modules;
+                } else if(res.data.result.modules?.[0].modules && res.data.result.modules?.[0].modules?.every(module => module.subLessons)){
+                    generatedData = res.data.result.modules[0].modules;
+                }
             } else {
                 setLoadingGenerate(true);
                 generatedData = Array.from({ length: moduleCount }).map((_, m) => ({

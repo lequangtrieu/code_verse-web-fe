@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import Context from "../../../config/context/context";
 import { Layout, Menu, Badge, message } from "antd";
 import {
@@ -24,11 +24,28 @@ const { Sider, Content } = Layout;
 const InstructorPanel = () => {
   useDocumentTitle("Instructor Panel - CodeVerse");
   const user = useSelector((state) => state?.user?.user);
+  const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const [collapsed, setCollapsed] = useState(false);
   const { notificationCount } = useContext(Context);
+  
+  const pathToKey = {
+    "/instructor-panel/profile": "profile",
+    "/instructor-panel/dashboard": "dashboard",
+    "/instructor-panel/notifications": "notifications",
+    "/instructor-panel/courses": "courses",
+    "/instructor-panel/manageBalance": "manageBalance",
+    "/instructor-panel/settings": "settings",
+  };
+  const getSelectedKey = (pathname) => {
+    const match = Object.keys(pathToKey).find((path) =>
+      pathname.startsWith(path)
+    );
+    return match ? pathToKey[match] : "dashboard";
+  };
+  const [key, setKey] = useState(getSelectedKey(location.pathname));
 
   useEffect(() => {
     if (user?.role !== ROLE.INSTRUCTOR) {
@@ -48,6 +65,7 @@ const InstructorPanel = () => {
     if (key === "logout") {
       handleLogout();
     } else {
+      setKey(key);
       navigate(`/instructor-panel/${key}`);
     }
   };
@@ -67,7 +85,7 @@ const InstructorPanel = () => {
         </div>
         <Menu
           mode="inline"
-          defaultSelectedKeys={["dashboard"]}
+          selectedKeys={[key]}
           className="border-r-0"
           onClick={handleMenuClick}
         >
@@ -83,9 +101,9 @@ const InstructorPanel = () => {
           <Menu.Item key="courses" icon={<BookOutlined />}>
             Management Courses
           </Menu.Item>
-          <Menu.Item key="trainings" icon={<CodeOutlined />}>
+          {/* <Menu.Item key="trainings" icon={<CodeOutlined />}>
           Management Trainings
-          </Menu.Item>
+          </Menu.Item> */}
           <Menu.Item key="manageBalance" icon={<DollarOutlined  />}>
             Manage Balance
           </Menu.Item>
