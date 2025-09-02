@@ -14,6 +14,7 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
     const [savedQuizData, setSaveQuizData] = useState([]);
     const [initialLoading, setInitialLoading] = useState(false);
     const [loadingSave, setLoadingSave] = useState(false);
+    const [loadingAIGenerate, setLoadingAIGenerate] = useState(false);
 
     useEffect(() => {
         if (lessonId) {
@@ -89,11 +90,10 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
     const handleAIGenerated = async () => {
         let attempts = 0;
         const maxAttempts = 3;
-
         const fetchData = async () => {
             try {
                 message.loading({ content: "Generating quiz bank...", key: "download" });
-
+                setLoadingAIGenerate(true);
                 const res = await axiosInstance.post(
                     commonApi.aiGenerateQuizBank.url(lessonId)
                 );
@@ -106,6 +106,10 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
                         correct: a.isCorrect,
                     })),
                 }));
+                if(normalized.length === 0){
+                    message.error({ content: "AI generation failed.", key: "download" });
+                    return;
+                }
 
                 setQuizData(normalized);
                 setHasChange(true);
@@ -125,6 +129,7 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
         };
 
         fetchData();
+        setLoadingAIGenerate(false);
     };
 
     const handleFileUpload = (file) => {
@@ -412,7 +417,7 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
                         <span>Hints: AI will generate a set of quizzes based on the theory of previous lessons in the same module.</span>
                     </div>
                 }>
-                    <Button
+                    <Button loading={loadingAIGenerate}
                         type="primary"
                         icon={<ThunderboltTwoTone twoToneColor="#FFD666" />}
                         className="bg-gradient-to-r from-blue-500 to-purple-500"
@@ -468,15 +473,15 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
                                         style={{ wordBreak: "break-word", minWidth: 0 }}
                                         onFocus={(e) => {
                                             e.currentTarget.dataset.originalText = e.currentTarget.innerText;
-                                          }}
-                                          onBlur={(e) => {
+                                        }}
+                                        onBlur={(e) => {
                                             const newText = e.currentTarget.innerText;
                                             const originalText = e.currentTarget.dataset.originalText;
-                                        
+
                                             if (newText !== originalText) {
-                                              updateQuestion(qIndex, newText);
+                                                updateQuestion(qIndex, newText);
                                             }
-                                          }}
+                                        }}
                                         onInput={(e) => {
                                             let text = e.currentTarget.innerText;
 
@@ -517,21 +522,21 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
                                             style={{ overflowWrap: "anywhere" }}
                                             onFocus={(e) => {
                                                 e.currentTarget.dataset.originalText = e.currentTarget.innerText;
-                                              }}
-                                              onBlur={(e) => {
+                                            }}
+                                            onBlur={(e) => {
                                                 const newText = e.currentTarget.innerText;
                                                 const originalText = e.currentTarget.dataset.originalText;
-                                            
+
                                                 if (newText !== originalText) {
                                                     updateAnswer(qIndex, aIndex, newText);
                                                 }
-                                              }}
+                                            }}
                                             onInput={(e) => {
                                                 let text = e.currentTarget.innerText;
-    
+
                                                 if (text.length > MAX_LENGTH) {
                                                     e.currentTarget.innerText = text.slice(0, MAX_LENGTH);
-    
+
                                                     const range = document.createRange();
                                                     const sel = window.getSelection();
                                                     range.selectNodeContents(e.currentTarget);

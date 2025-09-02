@@ -162,11 +162,14 @@ const RichTextEditor = forwardRef(({ isTraining, content, onChange, lessonId, th
             );
             const data = await res.data.result.draft;
 
-            const generatedText = data || "AI response here...";
+            const generatedText = data || "";
+            if(generatedText === ""){
+                throw new Error();
+            }
 
             editor.commands.insertContent(generatedText);
         } catch (err) {
-            console.error("AI generation failed:", err);
+            message.error("AI generated failed.");
         } finally {
             setIsGenerating(false);
         }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, List, Modal, Select, Switch, Space, Card, message, Typography, Tooltip, InputNumber } from "antd";
+import { Form, Input, Button, List, Modal, Space, Card, message, Typography, Tooltip, InputNumber } from "antd";
 import { DeleteOutlined, EditOutlined, CheckOutlined, CloseOutlined, ThunderboltTwoTone } from "@ant-design/icons";
 import axiosInstance from "../../../../../config/axiosInstance";
 import commonApi from "../../../../../common/api";
@@ -233,6 +233,10 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
 
             let generated = res.data.result.testCases || [];
 
+            if(generated.length === 0){
+                throw new Error("Generated failed.");
+            }
+
             generated = generated.map(tc => ({
                 exerciseId: exerciseId,
                 input: stringifyInputListToString(tc.input || []),
@@ -399,7 +403,7 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
                         <div>
                         <strong>Fast Generate</strong>
                         <br />
-                        <span>Hints: The more clearly you define the exercise and the exercise tasks, the more accurate the test cases that AI ​​generates will be.</span>
+                        <span>Hints: The more clearly you define the exercise and instructions, the more accurate the test cases that AI ​​generates will be.</span>
                       </div>
                     }>
                         <Button
@@ -409,7 +413,7 @@ const ExerciseForm = ({ lessonId, hasChange, setHasChange }) => {
                             className="bg-gradient-to-r from-blue-500 to-purple-500 ml-2"
                             onClick={() => {
                                 if(exerciseTasks?.length === 0 || exercise?.instruction === null){
-                                    message.warning("Must save exercise info and exercise tasks before using this feature.");
+                                    message.warning("Must save exercise info and instructions before using this feature.");
                                     return;
                                 }
                                 setShowGenerateModal(true);
