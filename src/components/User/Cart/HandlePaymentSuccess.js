@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { notification } from "antd";
 import axiosInstance from "../../../config/axiosInstance";
@@ -9,10 +9,12 @@ import { useDispatch } from "react-redux";
 import axios from "axios";
 import { setUserDetails } from "../../../config/store/userSlice";
 import getAuthInfo from "../../../config/getAuthInfo";
+import Context from "../../../config/context/context";
 
 const HandlePaymentSuccess = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { fetchCartDetail } = useContext(Context);
   const params = new URLSearchParams(window.location.search);
   const orderId = params.get("orderId");
   const { username, token, refreshToken } = getAuthInfo();
@@ -36,7 +38,7 @@ const HandlePaymentSuccess = () => {
             status: "success",
             username,
           });
-
+          fetchCartDetail();
           notification.success({
             message: "Payment Successful",
             description:
