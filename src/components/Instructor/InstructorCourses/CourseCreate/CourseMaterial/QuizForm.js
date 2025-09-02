@@ -93,11 +93,9 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
         const fetchData = async () => {
             try {
                 message.loading({ content: "Generating quiz bank...", key: "download" });
-                setLoadingAIGenerate(true);
                 const res = await axiosInstance.post(
                     commonApi.aiGenerateQuizBank.url(lessonId)
                 );
-
                 const normalized = res.data.result.quizBank.map((quiz) => ({
                     question: quiz.question,
                     quizType: quiz.quizType,
@@ -108,6 +106,7 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
                 }));
                 if(normalized.length === 0){
                     message.error({ content: "AI generation failed.", key: "download" });
+                    setLoadingAIGenerate(false);
                     return;
                 }
 
@@ -128,7 +127,8 @@ const QuizForm = ({ lessonId, hasChange, setHasChange }) => {
             }
         };
 
-        fetchData();
+        setLoadingAIGenerate(true);
+        await fetchData();
         setLoadingAIGenerate(false);
     };
 

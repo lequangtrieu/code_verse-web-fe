@@ -150,7 +150,7 @@ const RevenueChart = () => {
     return (
         <div className="bg-white p-6 rounded-xl shadow mt-8">
             <div className="flex flex-wrap gap-4 items-center mb-4">
-                <h3 className="text-xl font-semibold">Revenue Analytics</h3>
+                {/* <h3 className="text-xl font-semibold">Revenue Analytics</h3> */}
 
                 {/* View type select */}
                 <Select value={viewType} onChange={setViewType} style={{ width: 160 }}>

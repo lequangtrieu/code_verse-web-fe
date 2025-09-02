@@ -34,7 +34,7 @@ const QuizBankPreview = ({ lessonId }) => {
 
       setQuizData(normalized);
     } catch (error) {
-      message.error("Failed to get quiz bank.");
+      console.error("Failed to get quiz bank.");
     } finally {
       setTimeout(() => setLoading(false), 400);
     }
