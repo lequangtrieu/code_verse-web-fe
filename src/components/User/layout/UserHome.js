@@ -504,7 +504,7 @@ const UserHome = () => {
 
             {/* Các chỉ số */}
             <div className=" w-full">
-              <div className="grid lg:gap-5 gap-3 grid-cols-2 max-w-full overflow-hidden">
+              <div className="grid lg:gap-5 gap-3 max-w-full overflow-hidden">
                 {/* Khóa học */}
                 <div>
                   <h4 className="my-0 font-semibold text-[13px] lg:text-base">
@@ -527,7 +527,7 @@ const UserHome = () => {
                 </div>
 
                 {/* Luyện tập */}
-                <div>
+                {/* <div>
                   <h4 className="my-0 font-semibold text-[13px] lg:text-base">
                     Training
                   </h4>
@@ -539,7 +539,7 @@ const UserHome = () => {
                     total={userInfo?.trainingStatus.split("/")[1]}
                     size={[, 8]}
                   />
-                </div>
+                </div> */}
 
                 {/* Thứ hạng */}
                 {/* <div>

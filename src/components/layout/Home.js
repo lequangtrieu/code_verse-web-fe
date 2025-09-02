@@ -6,6 +6,7 @@ import commonApi from "../../common/api";
 import axios from "axios";
 import Context from "../../config/context/context";
 import {useDispatch} from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {logoutUser} from "../../config/store/userSlice";
 import setAuthInfo from "../../config/setAuthInfo";
 import FeatureSection from './Molecule/FeaturesSection';
@@ -93,6 +94,11 @@ const Home = () => {
   const [activeTab, setActiveTab] = useState("login");
   const { fetchUserDetails } = useContext(Context);
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const navigate = useNavigate();
+
+  const handleNavigateToCourse = () => {
+    navigate("/course");
+  }
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -661,7 +667,8 @@ Students are coded and scored directly on the web, accurately assessing their cu
               ))}
             </div>
           </div>
-          <Button type="primary" icon={<FaArrowRight />} size="large" iconPosition="end" className="bg-[#506CF0] hover:bg-blue-600 font-semibold max-w-[200px]">
+          <Button type="primary" icon={<FaArrowRight />} size="large" iconPosition="end" className="bg-[#506CF0] hover:bg-blue-600 font-semibold max-w-[200px]"
+            onClick={handleNavigateToCourse}>
             Start learning
           </Button>
         </div>
